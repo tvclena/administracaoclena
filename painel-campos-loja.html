@@ -24,6 +24,7 @@
   --text:#111827;
   --muted:#6b7280;
 }
+
 *{box-sizing:border-box;font-family:Inter}
 body{
   margin:0;
@@ -31,9 +32,23 @@ body{
   color:var(--text);
   padding:24px;
 }
-.header{text-align:center;margin-bottom:24px}
-.header h1{font-size:20px;font-weight:900}
-.container{max-width:1200px;margin:auto;display:grid;gap:20px}
+
+.header{
+  text-align:center;
+  margin-bottom:28px;
+}
+.header h1{
+  font-size:22px;
+  font-weight:900;
+}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  display:grid;
+  gap:20px;
+}
+
 .card{
   background:var(--card);
   border-radius:22px;
@@ -41,24 +56,42 @@ body{
   border:1px solid var(--border);
   box-shadow:0 12px 34px rgba(0,0,0,.06);
 }
+
 .grid{display:grid;gap:14px}
 .cols-2{grid-template-columns:1fr 1fr}
+
 select,button{
   width:100%;
   padding:14px;
   border-radius:14px;
   border:1px solid var(--border);
   font-weight:600;
+  font-size:14px;
 }
+
 button{
   background:var(--primary);
   color:#fff;
   border:none;
   cursor:pointer;
 }
-table{width:100%;border-collapse:collapse}
-th,td{padding:10px;border-bottom:1px solid var(--border);font-size:13px}
-th{font-weight:800}
+
+button.sec{
+  background:#fff;
+  color:var(--text);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  padding:12px;
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+th{font-weight:800;text-align:left}
+
 .badge{
   padding:4px 10px;
   border-radius:999px;
@@ -67,8 +100,23 @@ th{font-weight:800}
 }
 .tipo{background:#e0f2fe;color:#0369a1}
 .loja{background:#dcfce7;color:#166534}
-.actions{display:flex;gap:6px}
-.actions button{padding:6px 10px;font-size:12px}
+
+.actions{
+  display:flex;
+  gap:8px;
+}
+.actions button{
+  padding:6px 12px;
+  font-size:12px;
+  border-radius:10px;
+}
+
+.empty{
+  text-align:center;
+  padding:20px;
+  color:var(--muted);
+  font-size:13px;
+}
 </style>
 </head>
 
@@ -82,7 +130,7 @@ th{font-weight:800}
 
 <!-- SELEÇÃO DE LOJA -->
 <div class="card">
-  <select id="selectLoja" onchange="carregarCampos()">
+  <select id="selectLoja">
     <option value="">Selecione uma loja…</option>
   </select>
 </div>
@@ -95,7 +143,7 @@ th{font-weight:800}
   <button onclick="adicionarCampo()">Adicionar campo à loja</button>
 </div>
 
-<!-- LISTA -->
+<!-- LISTA DE CAMPOS -->
 <div class="card">
 <table>
 <thead>
@@ -121,9 +169,11 @@ const sb = supabase.createClient(
 
 let lojaAtual = null;
 let camposLoja = [];
+let todosCampos = [];
 
 /* LOAD INICIAL */
-(async ()=>{
+(async()=>{
+  // lojas
   const { data: lojas } = await sb
     .from("user_profile")
     .select("user_id, negocio")
@@ -133,56 +183,52 @@ let camposLoja = [];
   selectLoja.innerHTML += lojas.map(l=>`
     <option value="${l.user_id}">${l.negocio}</option>
   `).join("");
+
+  // campos catálogo
+  const { data: campos } = await sb
+    .from("campos_cadastro")
+    .select("id, campo, label")
+    .order("label");
+
+  todosCampos = campos || [];
+  campoNovo.innerHTML += todosCampos.map(c=>`
+    <option value="${c.id}">${c.label}</option>
+  `).join("");
 })();
 
-/* CARREGAR CAMPOS DA LOJA */
+/* EVENTO LOJA */
+selectLoja.addEventListener("change", carregarCampos);
+
+/* CARREGAR CAMPOS DA LOJA (VIEW) */
 async function carregarCampos(){
   lojaAtual = selectLoja.value;
+  listaCampos.innerHTML = "";
   if(!lojaAtual) return;
 
   const { data } = await sb
-    .from("campos_cadastro_por_loja_base")
-    .select(`
-      campo_id,
-      obrigatorio,
-      origem,
-      campos_cadastro (
-        campo,
-        label
-      )
-    `)
+    .from("campos_cadastro_por_loja")
+    .select("*")
     .eq("user_id", lojaAtual)
-    .eq("ativo", true)
-    .order("created_at");
+    .order("ordem");
 
   camposLoja = data || [];
   render();
-  carregarCamposDisponiveis();
-}
-
-/* CAMPOS DISPONÍVEIS */
-async function carregarCamposDisponiveis(){
-  const usados = camposLoja.map(c=>c.campo_id);
-
-  const { data } = await sb
-    .from("campos_cadastro")
-    .select("id, label")
-    .not("id","in",`(${usados.join(",") || "''"})`)
-    .order("label");
-
-  campoNovo.innerHTML =
-    `<option value="">Adicionar campo…</option>` +
-    (data||[]).map(c=>`
-      <option value="${c.id}">${c.label}</option>
-    `).join("");
 }
 
 /* RENDER */
 function render(){
+  if(camposLoja.length === 0){
+    listaCampos.innerHTML = `
+      <tr><td colspan="5" class="empty">
+        Nenhum campo ativo para esta loja
+      </td></tr>`;
+    return;
+  }
+
   listaCampos.innerHTML = camposLoja.map(c=>`
     <tr>
-      <td>${c.campos_cadastro.campo}</td>
-      <td>${c.campos_cadastro.label}</td>
+      <td>${c.campo}</td>
+      <td>${c.label}</td>
       <td>
         <span class="badge ${c.origem==='loja'?'loja':'tipo'}">
           ${c.origem==='loja'?'Loja':'Tipo'}
@@ -190,10 +236,10 @@ function render(){
       </td>
       <td>${c.obrigatorio ? 'Sim' : 'Não'}</td>
       <td class="actions">
-        <button onclick="toggleObrigatorio('${c.campo_id}',${c.obrigatorio})">
+        <button class="sec" onclick="toggleObrigatorio('${c.campo_id}',${c.obrigatorio})">
           Obr.
         </button>
-        <button onclick="removerCampo('${c.campo_id}')">
+        <button class="sec" onclick="removerCampo('${c.campo_id}')">
           Remover
         </button>
       </td>
@@ -201,11 +247,11 @@ function render(){
   `).join("");
 }
 
-/* ADICIONAR */
+/* ADICIONAR CAMPO */
 async function adicionarCampo(){
   if(!lojaAtual || !campoNovo.value) return;
 
-  await sb.from("campos_cadastro_por_loja_base").insert({
+  await sb.from("campos_por_loja").upsert({
     user_id: lojaAtual,
     campo_id: campoNovo.value,
     obrigatorio: false,
@@ -213,13 +259,13 @@ async function adicionarCampo(){
     origem: "loja"
   });
 
+  campoNovo.value = "";
   carregarCampos();
 }
 
 /* TOGGLE OBRIGATÓRIO */
 async function toggleObrigatorio(campoId, atual){
-  await sb
-    .from("campos_cadastro_por_loja_base")
+  await sb.from("campos_por_loja")
     .update({ obrigatorio: !atual })
     .eq("user_id", lojaAtual)
     .eq("campo_id", campoId);
@@ -227,13 +273,12 @@ async function toggleObrigatorio(campoId, atual){
   carregarCampos();
 }
 
-/* REMOVER */
+/* REMOVER CAMPO */
 async function removerCampo(campoId){
-  await sb
-    .from("campos_cadastro_por_loja_base")
+  await sb.from("campos_por_loja")
     .update({ ativo:false })
-    .eq("user_id", lojaAtual)
-    .eq("campo_id", campoId);
+    .eq("user_id",lojaAtual)
+    .eq("campo_id",campoId);
 
   carregarCampos();
 }
