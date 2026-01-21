@@ -2,13 +2,21 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Painel Admin • Customizações</title>
+
+<title>Admin • Customizações</title>
 
 <meta name="viewport"
       content="width=device-width,
                initial-scale=1,
                maximum-scale=1,
-               user-scalable=no">
+               user-scalable=no,
+               viewport-fit=cover">
+
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<link rel="manifest" href="manifest.json">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -31,12 +39,26 @@ body{
   padding:24px;
 }
 
-h1{
-  margin:0 0 18px;
-  font-size:22px;
+/* HEADER */
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin-bottom:24px;
+}
+.header img{
+  width:46px;
+  height:46px;
+  border-radius:14px;
+}
+.header h1{
+  font-size:20px;
   font-weight:900;
+  margin:0;
 }
 
+/* LAYOUT */
 .container{
   max-width:1200px;
   margin:auto;
@@ -44,22 +66,18 @@ h1{
   gap:20px;
 }
 
-/* CARD */
 .card{
   background:var(--card);
-  border-radius:20px;
+  border-radius:22px;
   padding:20px;
   border:1px solid var(--border);
-  box-shadow:0 10px 30px rgba(0,0,0,.06);
+  box-shadow:0 12px 34px rgba(0,0,0,.06);
 }
 
 /* GRID */
-.grid{
-  display:grid;
-  gap:14px;
-}
-.grid.cols-2{grid-template-columns:1fr 1fr}
-.grid.cols-3{grid-template-columns:2fr 2fr 1fr}
+.grid{display:grid;gap:14px}
+.cols-2{grid-template-columns:1fr 1fr}
+.cols-3{grid-template-columns:2fr 2fr 1fr}
 
 /* INPUTS */
 input,button{
@@ -81,49 +99,41 @@ button{
 button.sec{
   background:#fff;
   color:var(--text);
-  border:1px solid var(--border);
 }
 
 /* AUTOCOMPLETE */
-.autocomplete{
-  position:relative;
-}
+.autocomplete{position:relative}
 .autocomplete-list{
   position:absolute;
   top:100%;
   left:0;
   right:0;
   background:#fff;
-  border:1px solid var(--border);
   border-radius:14px;
-  max-height:220px;
-  overflow-y:auto;
-  z-index:10;
+  border:1px solid var(--border);
+  max-height:240px;
+  overflow:auto;
+  z-index:20;
 }
 .autocomplete-item{
   padding:10px 14px;
   cursor:pointer;
-  font-size:14px;
 }
 .autocomplete-item:hover{
   background:#f1f5f9;
 }
 
-/* TABELA */
-.table{
+/* TABLE */
+table{
   width:100%;
   border-collapse:collapse;
 }
-.table th,
-.table td{
+th,td{
   padding:10px;
   border-bottom:1px solid var(--border);
   font-size:13px;
 }
-.table th{
-  font-weight:800;
-  color:#374151;
-}
+th{font-weight:800}
 
 .badge{
   padding:4px 10px;
@@ -131,8 +141,8 @@ button.sec{
   font-size:11px;
   font-weight:800;
 }
-.badge.on{background:#dcfce7;color:#166534}
-.badge.off{background:#fee2e2;color:#991b1b}
+.on{background:#dcfce7;color:#166534}
+.off{background:#fee2e2;color:#991b1b}
 
 .actions{
   display:flex;
@@ -144,31 +154,32 @@ button.sec{
 }
 
 /* RESPONSIVO */
-@media (max-width:900px){
-  .grid.cols-3{grid-template-columns:1fr}
+@media(max-width:900px){
+  .cols-3{grid-template-columns:1fr}
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="header">
+  <img src="icons/icon-192.png">
+  <h1>Admin • Customizações</h1>
+</div>
 
-<h1>🔧 Customizações por Loja</h1>
+<div class="container">
 
 <!-- FORM -->
 <div class="card">
-
   <div class="grid cols-3">
 
-    <!-- AUTOCOMPLETE LOJA -->
     <div class="autocomplete">
       <input id="buscaLoja" placeholder="Buscar loja ativa…">
       <div id="listaLojas" class="autocomplete-list" style="display:none"></div>
     </div>
 
-    <input id="palavras" placeholder="Palavras-chave (ex: #Polaroid#)">
-    <input id="caminho" placeholder="Caminho HTML (ex: customizacoes/polaroid.html)">
+    <input id="palavras" placeholder="Palavras-chave (#Polaroid#)">
+    <input id="caminho" placeholder="Caminho HTML">
   </div>
 
   <div class="grid cols-2" style="margin-top:14px">
@@ -179,14 +190,14 @@ button.sec{
 
 <!-- FILTROS -->
 <div class="card grid cols-3">
-  <input id="filtroLoja" placeholder="Filtrar por loja" oninput="render()">
+  <input id="filtroLoja" placeholder="Filtrar loja" oninput="render()">
   <input id="filtroPalavra" placeholder="Filtrar palavra" oninput="render()">
   <input id="filtroCaminho" placeholder="Filtrar caminho" oninput="render()">
 </div>
 
-<!-- TABELA -->
+<!-- LISTA -->
 <div class="card">
-<table class="table">
+<table>
 <thead>
 <tr>
   <th>Loja</th>
@@ -203,12 +214,16 @@ button.sec{
 </div>
 
 <script>
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js");
+}
+
 const sb = supabase.createClient(
   "https://egxjgmzukjyyxmkukwub.supabase.co",
   "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
 );
 
-let lojas=[], customizacoes=[], lojaSelecionada=null, editandoId=null;
+let lojas=[], customizacoes=[], lojaSelecionada=null, editando=null;
 
 /* LOAD */
 async function load(){
@@ -219,51 +234,45 @@ async function load(){
     .order("negocio");
 
   lojas = data || [];
-  await carregar();
+  carregar();
 }
 
 /* AUTOCOMPLETE */
 buscaLoja.oninput = ()=>{
   const q = buscaLoja.value.toLowerCase();
-  if(!q){listaLojas.style.display="none";return;}
-
   listaLojas.innerHTML = lojas
     .filter(l=>l.negocio.toLowerCase().includes(q))
     .map(l=>`
       <div class="autocomplete-item"
-           onclick="selecionarLoja('${l.user_id}','${l.negocio}')">
+           onclick="selectLoja('${l.user_id}','${l.negocio}')">
         ${l.negocio}
-      </div>
-    `).join("");
-
-  listaLojas.style.display="block";
+      </div>`).join("");
+  listaLojas.style.display = q ? "block":"none";
 };
 
-function selecionarLoja(id,nome){
-  lojaSelecionada = id;
-  buscaLoja.value = nome;
+function selectLoja(id,nome){
+  lojaSelecionada=id;
+  buscaLoja.value=nome;
   listaLojas.style.display="none";
 }
 
 /* CRUD */
 async function salvar(){
-  if(!lojaSelecionada || !palavras.value || !caminho.value){
-    alert("Preencha todos os campos");
+  if(!lojaSelecionada||!palavras.value||!caminho.value){
+    alert("Preencha tudo");
     return;
   }
 
-  const payload = {
-    loja_id: lojaSelecionada,
-    palavras_chave: palavras.value,
-    caminho_html: caminho.value,
+  const payload={
+    loja_id:lojaSelecionada,
+    palavras_chave:palavras.value,
+    caminho_html:caminho.value,
     ativo:true
   };
 
-  if(editandoId){
-    await sb.from("loja_customizacoes").update(payload).eq("id",editandoId);
-  }else{
-    await sb.from("loja_customizacoes").insert(payload);
-  }
+  editando
+    ? await sb.from("loja_customizacoes").update(payload).eq("id",editando)
+    : await sb.from("loja_customizacoes").insert(payload);
 
   limpar();
   carregar();
@@ -271,33 +280,33 @@ async function salvar(){
 
 async function carregar(){
   const { data } = await sb.from("loja_customizacoes").select("*");
-  customizacoes = data || [];
+  customizacoes=data||[];
   render();
 }
 
 function editar(id){
-  const c = customizacoes.find(x=>x.id===id);
-  editandoId=id;
+  const c=customizacoes.find(x=>x.id===id);
+  editando=id;
   lojaSelecionada=c.loja_id;
   buscaLoja.value=lojas.find(l=>l.user_id===c.loja_id)?.negocio||"";
   palavras.value=c.palavras_chave;
   caminho.value=c.caminho_html;
 }
 
-async function alternar(id,ativo){
-  await sb.from("loja_customizacoes").update({ativo:!ativo}).eq("id",id);
+async function alternar(id,a){
+  await sb.from("loja_customizacoes").update({ativo:!a}).eq("id",id);
   carregar();
 }
 
 async function excluir(id){
-  if(confirm("Excluir customização?")){
+  if(confirm("Excluir?")){
     await sb.from("loja_customizacoes").delete().eq("id",id);
     carregar();
   }
 }
 
 function limpar(){
-  editandoId=null;
+  editando=null;
   lojaSelecionada=null;
   buscaLoja.value="";
   palavras.value="";
@@ -306,37 +315,21 @@ function limpar(){
 
 /* RENDER */
 function render(){
-  const fl=filtroLoja.value.toLowerCase();
-  const fp=filtroPalavra.value.toLowerCase();
-  const fc=filtroCaminho.value.toLowerCase();
-
-  lista.innerHTML = customizacoes
-    .filter(c=>{
-      const loja = lojas.find(l=>l.user_id===c.loja_id)?.negocio||"";
-      return (!fl||loja.toLowerCase().includes(fl)) &&
-             (!fp||c.palavras_chave.toLowerCase().includes(fp)) &&
-             (!fc||c.caminho_html.toLowerCase().includes(fc));
-    })
-    .map(c=>{
-      const loja = lojas.find(l=>l.user_id===c.loja_id)?.negocio||"—";
-      return `
-        <tr>
-          <td>${loja}</td>
-          <td>${c.palavras_chave}</td>
-          <td>${c.caminho_html}</td>
-          <td>
-            <span class="badge ${c.ativo?'on':'off'}">
-              ${c.ativo?'Ativo':'Inativo'}
-            </span>
-          </td>
-          <td class="actions">
-            <button onclick="editar('${c.id}')">Editar</button>
-            <button onclick="alternar('${c.id}',${c.ativo})">On/Off</button>
-            <button onclick="excluir('${c.id}')">Excluir</button>
-          </td>
-        </tr>
-      `;
-    }).join("");
+  lista.innerHTML = customizacoes.map(c=>{
+    const loja=lojas.find(l=>l.user_id===c.loja_id)?.negocio||"—";
+    return `
+      <tr>
+        <td>${loja}</td>
+        <td>${c.palavras_chave}</td>
+        <td>${c.caminho_html}</td>
+        <td><span class="badge ${c.ativo?'on':'off'}">${c.ativo?'Ativo':'Inativo'}</span></td>
+        <td class="actions">
+          <button onclick="editar('${c.id}')">Editar</button>
+          <button onclick="alternar('${c.id}',${c.ativo})">On/Off</button>
+          <button onclick="excluir('${c.id}')">Excluir</button>
+        </td>
+      </tr>`;
+  }).join("");
 }
 
 load();
