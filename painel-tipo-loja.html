@@ -59,8 +59,8 @@ body{
 }
 
 .grid{display:grid;gap:14px}
-.cols-2{grid-template-columns:1fr 1fr}
 .cols-3{grid-template-columns:1fr 1fr 1fr}
+.cols-2{grid-template-columns:1fr 1fr}
 
 input,button{
   width:100%;
@@ -102,7 +102,7 @@ button.sec{
 .actions{
   display:flex;
   gap:8px;
-  margin-top:10px;
+  margin-top:12px;
 }
 .actions button{
   font-size:12px;
@@ -116,7 +116,7 @@ button.sec{
 <div class="container">
 
   <div class="header">
-    <h1>Administração • Tipos de Loja</h1>
+    <h1>Administração • Tipos de Loja & Apps</h1>
   </div>
 
   <!-- FORM -->
@@ -143,70 +143,114 @@ const sb = supabase.createClient(
   "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
 );
 
-let tipos=[], editando=null;
+let tipos = [];
+let editando = null;
 
 /* LOAD */
 async function load(){
-  const { data } = await sb
+  const { data, error } = await sb
     .from("tipos_loja")
     .select("*")
     .order("nome");
+
+  if(error){
+    alert("Erro ao carregar tipos");
+    return;
+  }
 
   tipos = data || [];
   render();
 }
 
-/* CRUD */
+/* SALVAR */
 async function salvar(){
   if(!nome.value || !slug.value || !app.value){
     alert("Preencha todos os campos");
     return;
   }
 
-  const payload={
-    nome:nome.value,
-    slug:slug.value.toLowerCase(),
-    app_path:app.value
+  const payload = {
+    nome: nome.value,
+    slug: slug.value.toLowerCase(),
+    app_path: app.value
   };
 
-  editando
-    ? await sb.from("tipos_loja").update(payload).eq("id",editando)
-    : await sb.from("tipos_loja").insert(payload);
+  let tipoId;
+
+  if(editando){
+    const { error } = await sb
+      .from("tipos_loja")
+      .update(payload)
+      .eq("id", editando);
+
+    if(error) return alert("Erro ao atualizar tipo");
+    tipoId = editando;
+  }else{
+    const { data, error } = await sb
+      .from("tipos_loja")
+      .insert(payload)
+      .select()
+      .single();
+
+    if(error) return alert("Erro ao criar tipo");
+    tipoId = data.id;
+  }
+
+  /* SINCRONIZA USER_PROFILE */
+  await sb
+    .from("user_profile")
+    .update({ app_path: payload.app_path })
+    .eq("tipo", payload.slug);
 
   limpar();
   load();
 }
 
+/* EDITAR */
 function editar(id){
-  const t=tipos.find(x=>x.id===id);
-  editando=id;
-  nome.value=t.nome;
-  slug.value=t.slug;
-  app.value=t.app_path;
+  const t = tipos.find(x => x.id === id);
+  if(!t) return;
+
+  editando = id;
+  nome.value = t.nome;
+  slug.value = t.slug;
+  app.value = t.app_path;
 }
 
+/* EXCLUIR */
 async function excluir(id){
-  if(confirm("Excluir este tipo?")){
-    await sb.from("tipos_loja").delete().eq("id",id);
-    load();
-  }
+  if(!confirm("Excluir este tipo de loja?")) return;
+
+  const t = tipos.find(x => x.id === id);
+  if(!t) return;
+
+  await sb.from("tipos_loja").delete().eq("id", id);
+
+  /* LIMPA APP DAS LOJAS DO TIPO */
+  await sb
+    .from("user_profile")
+    .update({ app_path: null })
+    .eq("tipo", t.slug);
+
+  load();
 }
 
+/* LIMPAR */
 function limpar(){
-  editando=null;
-  nome.value="";
-  slug.value="";
-  app.value="";
+  editando = null;
+  nome.value = "";
+  slug.value = "";
+  app.value = "";
 }
 
 /* RENDER */
 function render(){
-  lista.innerHTML = tipos.map(t=>`
+  lista.innerHTML = tipos.map(t => `
     <div class="card tipo-card">
       <h3>${t.nome}</h3>
       <div class="path">
-        slug: <b>${t.slug}</b><br>
-        app: <b>${t.app_path}</b>
+        <b>Slug:</b> ${t.slug}<br>
+        <b>App:</b> ${t.app_path}
       </div>
       <div class="actions">
         <button onclick="editar('${t.id}')">Editar</button>
