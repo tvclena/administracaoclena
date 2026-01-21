@@ -3,14 +3,18 @@
 <head>
 <meta charset="UTF-8">
 
-<title>Admin • Customizações</title>
-
 <meta name="viewport"
       content="width=device-width,
                initial-scale=1,
                maximum-scale=1,
                user-scalable=no,
                viewport-fit=cover">
+
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<link rel="manifest" href="manifest.json">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -25,56 +29,64 @@
   --muted:#6b7280;
 }
 
-*{
-  box-sizing:border-box;
-  font-family:Inter;
-}
-
+*{box-sizing:border-box;font-family:Inter}
 body{
   margin:0;
-  background:transparent; /* 🔥 fica perfeito no iframe */
+  background:var(--bg);
   color:var(--text);
-}
-
-/* ===== CONTAINER ===== */
-.container{
-  max-width:1100px;
-  margin:0 auto;
   padding:24px;
-  display:grid;
-  gap:18px;
 }
 
-/* ===== CARD ===== */
+/* HEADER */
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  margin-bottom:24px;
+}
+.header img{
+  width:46px;
+  height:46px;
+  border-radius:14px;
+}
+.header h1{
+  font-size:20px;
+  font-weight:900;
+  margin:0;
+}
+
+/* LAYOUT */
+.container{
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  gap:20px;
+}
+
 .card{
   background:var(--card);
-  border-radius:18px;
-  padding:18px;
+  border-radius:22px;
+  padding:20px;
   border:1px solid var(--border);
-  box-shadow:0 10px 28px rgba(0,0,0,.06);
+  box-shadow:0 12px 34px rgba(0,0,0,.06);
 }
 
-/* ===== GRID ===== */
-.grid{
-  display:grid;
-  gap:12px;
-}
+/* GRID */
+.grid{display:grid;gap:14px}
 .cols-2{grid-template-columns:1fr 1fr}
-.cols-3{grid-template-columns:2fr 2fr 1.5fr}
+.cols-3{grid-template-columns:2fr 2fr 1fr}
 
-/* ===== INPUTS ===== */
+/* INPUTS */
 input,button{
   width:100%;
-  padding:12px 14px;
-  border-radius:12px;
+  padding:14px;
+  border-radius:14px;
   border:1px solid var(--border);
   font-weight:600;
   font-size:14px;
 }
-
-input::placeholder{
-  color:#9ca3af;
-}
+input::placeholder{color:#9ca3af}
 
 button{
   background:var(--primary);
@@ -82,139 +94,124 @@ button{
   border:none;
   cursor:pointer;
 }
-
 button.sec{
   background:#fff;
   color:var(--text);
-  border:1px solid var(--border);
 }
 
-/* ===== AUTOCOMPLETE ===== */
+/* AUTOCOMPLETE */
 .autocomplete{position:relative}
-
 .autocomplete-list{
   position:absolute;
   top:100%;
   left:0;
   right:0;
   background:#fff;
-  border-radius:12px;
+  border-radius:14px;
   border:1px solid var(--border);
-  max-height:220px;
+  max-height:240px;
   overflow:auto;
-  z-index:50;
+  z-index:20;
 }
-
 .autocomplete-item{
   padding:10px 14px;
   cursor:pointer;
-  font-size:14px;
 }
-
 .autocomplete-item:hover{
   background:#f1f5f9;
 }
 
-/* ===== TABLE ===== */
+/* TABLE */
 table{
   width:100%;
   border-collapse:collapse;
 }
-
 th,td{
   padding:10px;
   border-bottom:1px solid var(--border);
   font-size:13px;
-  text-align:left;
 }
+th{font-weight:800}
 
-th{
-  font-weight:800;
-  color:#374151;
-}
-
-/* ===== STATUS ===== */
 .badge{
   padding:4px 10px;
   border-radius:999px;
   font-size:11px;
   font-weight:800;
 }
-
 .on{background:#dcfce7;color:#166534}
 .off{background:#fee2e2;color:#991b1b}
 
-/* ===== AÇÕES ===== */
 .actions{
   display:flex;
   gap:6px;
-  flex-wrap:wrap;
 }
-
 .actions button{
   padding:6px 10px;
   font-size:12px;
-  border-radius:10px;
 }
 
-/* ===== RESPONSIVO ===== */
+/* RESPONSIVO */
 @media(max-width:900px){
   .cols-3{grid-template-columns:1fr}
-  .cols-2{grid-template-columns:1fr}
-  .container{padding:16px}
 }
 </style>
 </head>
 
 <body>
 
+
 <div class="container">
 
-  <!-- FORMULÁRIO -->
-  <div class="card">
-    <div class="grid cols-3">
+<!-- FORM -->
+<div class="card">
+  <div class="grid cols-3">
 
-      <div class="autocomplete">
-        <input id="buscaLoja" placeholder="Buscar loja ativa…">
-        <div id="listaLojas" class="autocomplete-list" style="display:none"></div>
-      </div>
-
-      <input id="palavras" placeholder="Palavras-chave (#Polaroid#, #Foto#)">
-      <input id="caminho" placeholder="Caminho HTML">
+    <div class="autocomplete">
+      <input id="buscaLoja" placeholder="Buscar loja ativa…">
+      <div id="listaLojas" class="autocomplete-list" style="display:none"></div>
     </div>
 
-    <div class="grid cols-2" style="margin-top:14px">
-      <button onclick="salvar()">Salvar</button>
-      <button class="sec" onclick="limpar()">Limpar</button>
-    </div>
+    <input id="palavras" placeholder="Palavras-chave (#Polaroid#)">
+    <input id="caminho" placeholder="Caminho HTML">
   </div>
 
-  <!-- FILTROS -->
-  <div class="card grid cols-3">
-    <input id="filtroLoja" placeholder="Filtrar loja" oninput="render()">
-    <input id="filtroPalavra" placeholder="Filtrar palavra" oninput="render()">
-    <input id="filtroCaminho" placeholder="Filtrar caminho" oninput="render()">
+  <div class="grid cols-2" style="margin-top:14px">
+    <button onclick="salvar()">Salvar</button>
+    <button class="sec" onclick="limpar()">Limpar</button>
   </div>
+</div>
 
-  <!-- LISTAGEM -->
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th>Loja</th>
-          <th>Palavras</th>
-          <th>Caminho</th>
-          <th>Status</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="lista"></tbody>
-    </table>
-  </div>
+<!-- FILTROS -->
+<div class="card grid cols-3">
+  <input id="filtroLoja" placeholder="Filtrar loja" oninput="render()">
+  <input id="filtroPalavra" placeholder="Filtrar palavra" oninput="render()">
+  <input id="filtroCaminho" placeholder="Filtrar caminho" oninput="render()">
+</div>
+
+<!-- LISTA -->
+<div class="card">
+<table>
+<thead>
+<tr>
+  <th>Loja</th>
+  <th>Palavras</th>
+  <th>Caminho</th>
+  <th>Status</th>
+  <th>Ações</th>
+</tr>
+</thead>
+<tbody id="lista"></tbody>
+</table>
+</div>
 
 </div>
 
 <script>
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js");
+}
+
 const sb = supabase.createClient(
   "https://egxjgmzukjyyxmkukwub.supabase.co",
   "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
@@ -256,7 +253,7 @@ function selectLoja(id,nome){
 /* CRUD */
 async function salvar(){
   if(!lojaSelecionada||!palavras.value||!caminho.value){
-    alert("Preencha todos os campos");
+    alert("Preencha tudo");
     return;
   }
 
@@ -296,7 +293,7 @@ async function alternar(id,a){
 }
 
 async function excluir(id){
-  if(confirm("Excluir esta customização?")){
+  if(confirm("Excluir?")){
     await sb.from("loja_customizacoes").delete().eq("id",id);
     carregar();
   }
@@ -312,36 +309,21 @@ function limpar(){
 
 /* RENDER */
 function render(){
-  const fl=filtroLoja.value.toLowerCase();
-  const fp=filtroPalavra.value.toLowerCase();
-  const fc=filtroCaminho.value.toLowerCase();
-
-  lista.innerHTML = customizacoes
-    .filter(c=>{
-      const loja=lojas.find(l=>l.user_id===c.loja_id)?.negocio||"";
-      return loja.toLowerCase().includes(fl)
-          && c.palavras_chave.toLowerCase().includes(fp)
-          && c.caminho_html.toLowerCase().includes(fc);
-    })
-    .map(c=>{
-      const loja=lojas.find(l=>l.user_id===c.loja_id)?.negocio||"—";
-      return `
-        <tr>
-          <td>${loja}</td>
-          <td>${c.palavras_chave}</td>
-          <td>${c.caminho_html}</td>
-          <td>
-            <span class="badge ${c.ativo?'on':'off'}">
-              ${c.ativo?'Ativo':'Inativo'}
-            </span>
-          </td>
-          <td class="actions">
-            <button onclick="editar('${c.id}')">Editar</button>
-            <button onclick="alternar('${c.id}',${c.ativo})">On/Off</button>
-            <button onclick="excluir('${c.id}')">Excluir</button>
-          </td>
-        </tr>`;
-    }).join("");
+  lista.innerHTML = customizacoes.map(c=>{
+    const loja=lojas.find(l=>l.user_id===c.loja_id)?.negocio||"—";
+    return `
+      <tr>
+        <td>${loja}</td>
+        <td>${c.palavras_chave}</td>
+        <td>${c.caminho_html}</td>
+        <td><span class="badge ${c.ativo?'on':'off'}">${c.ativo?'Ativo':'Inativo'}</span></td>
+        <td class="actions">
+          <button onclick="editar('${c.id}')">Editar</button>
+          <button onclick="alternar('${c.id}',${c.ativo})">On/Off</button>
+          <button onclick="excluir('${c.id}')">Excluir</button>
+        </td>
+      </tr>`;
+  }).join("");
 }
 
 load();
