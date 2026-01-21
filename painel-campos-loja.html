@@ -1,260 +1,224 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<title>Controle de Campos por Loja</title>
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<meta name="theme-color" content="#2563eb">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root{
-  --primary:#2563eb;
-  --bg:#f4f6fb;
-  --card:#ffffff;
-  --border:#e5e7eb;
-  --text:#111827;
-  --muted:#6b7280;
+body {
+  font-family: Inter, Arial, sans-serif;
+  background: #f4f6f8;
+  margin: 0;
+  padding: 40px;
 }
 
-*{box-sizing:border-box;font-family:Inter}
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  padding:24px;
+h1 {
+  margin-bottom: 20px;
 }
 
-.header{text-align:center;margin-bottom:24px}
-.header h1{font-size:22px;font-weight:900}
-
-.container{max-width:1200px;margin:auto;display:grid;gap:20px}
-
-.card{
-  background:var(--card);
-  border-radius:22px;
-  padding:20px;
-  border:1px solid var(--border);
-  box-shadow:0 12px 34px rgba(0,0,0,.06);
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+  margin-bottom: 20px;
 }
 
-.grid{display:grid;gap:14px}
-.cols-2{grid-template-columns:1fr 1fr}
-
-select,button{
-  width:100%;
-  padding:14px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  font-weight:600;
-  font-size:14px;
+select, button {
+  padding: 12px;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
 
-button{
-  background:var(--primary);
-  color:#fff;
-  border:none;
-  cursor:pointer;
+button {
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  border: none;
 }
 
-table{width:100%;border-collapse:collapse}
-th,td{padding:12px;border-bottom:1px solid var(--border);font-size:13px}
-th{font-weight:800}
-
-.badge{
-  padding:4px 10px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:800;
+button:hover {
+  opacity: .9;
 }
-.tipo{background:#e0f2fe;color:#0369a1}
-.loja{background:#dcfce7;color:#166534}
 
-.actions{display:flex;gap:6px}
-.actions button{
-  padding:6px 10px;
-  font-size:12px;
-  border-radius:10px;
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  text-align: left;
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <h1>Controle de Campos por Loja</h1>
-</div>
+<h1>Controle de Campos por Loja</h1>
 
-<div class="container">
-
-<!-- LOJA -->
 <div class="card">
-  <select id="selectLoja">
-    <option value="">Selecione uma loja…</option>
-  </select>
+  <label>Loja</label><br><br>
+  <select id="lojaSelect"></select>
 </div>
 
-<!-- ADICIONAR -->
-<div class="card grid cols-2">
-  <select id="campoNovo">
-    <option value="">Adicionar campo…</option>
-  </select>
-  <button id="btnAdd">Adicionar campo à loja</button>
-</div>
-
-<!-- LISTA -->
 <div class="card">
-<table>
-<thead>
-<tr>
-  <th>Campo</th>
-  <th>Label</th>
-  <th>Origem</th>
-  <th>Obrigatório</th>
-  <th>Ações</th>
-</tr>
-</thead>
-<tbody id="listaCampos">
-<tr><td reminding colspan="5" style="text-align:center;color:#6b7280">
-  Selecione uma loja
-</td></tr>
-</tbody>
-</table>
+  <label>Adicionar campo</label><br><br>
+  <select id="campoSelect"></select>
+  <button onclick="adicionarCampo()">Adicionar</button>
 </div>
 
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>Campo</th>
+        <th>Label</th>
+        <th>Obrigatório</th>
+        <th>Ativo</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaCampos">
+      <tr><td colspan="4">Selecione uma loja</td></tr>
+    </tbody>
+  </table>
 </div>
 
 <script>
-/* ================= SUPABASE ================= */
-const sb = supabase.createClient(
-  "https://egxjgmzukjyyxmkukwub.supabase.co",
-  "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
+/* =========================
+   CONFIG SUPABASE
+========================= */
+const supabase = supabase.createClient(
+  "https://SEU_PROJETO.supabase.co",
+  "SUA_PUBLIC_ANON_KEY"
 );
 
-/* ================= STATE ================= */
-let lojaAtual = null;
-let camposDisponiveis = [];
+/* =========================
+   ELEMENTOS
+========================= */
+const lojaSelect = document.getElementById("lojaSelect");
+const campoSelect = document.getElementById("campoSelect");
+const tabela = document.getElementById("tabelaCampos");
 
-/* ================= INIT ================= */
-(async()=>{
-  await carregarLojas();
-  await carregarCamposCadastro();
-})();
+/* =========================
+   LOAD INICIAL
+========================= */
+carregarLojas();
+carregarCampos();
 
-/* ================= LOJAS ================= */
-async function carregarLojas(){
-  const { data } = await sb
+/* =========================
+   FUNÇÕES
+========================= */
+async function carregarLojas() {
+  const { data, error } = await supabase
     .from("user_profile")
-    .select("user_id, negocio")
-    .eq("status","active")
-    .order("negocio");
+    .select("id, nome")
+    .order("nome");
 
-  selectLoja.innerHTML += data.map(l =>
-    `<option value="${l.user_id}">${l.negocio}</option>`
-  ).join("");
-}
-
-selectLoja.addEventListener("change",()=>{
-  lojaAtual = selectLoja.value;
-  if(lojaAtual) carregarCamposLoja();
-});
-
-/* ================= CAMPOS BASE ================= */
-async function carregarCamposCadastro(){
-  const { data } = await sb
-    .from("campos_cadastro")
-    .select("id,label")
-    .order("label");
-
-  camposDisponiveis = data || [];
-  renderSelectCampos();
-}
-
-function renderSelectCampos(usados=[]){
-  campoNovo.innerHTML = `<option value="">Adicionar campo…</option>` +
-    camposDisponiveis
-      .filter(c=>!usados.includes(c.id))
-      .map(c=>`<option value="${c.id}">${c.label}</option>`)
-      .join("");
-}
-
-/* ================= CAMPOS DA LOJA ================= */
-async function carregarCamposLoja(){
-  const { data } = await sb
-    .from("campos_cadastro_por_loja")
-    .select("*")
-    .eq("user_id", lojaAtual)
-    .order("ordem");
-
-  renderTabela(data || []);
-  renderSelectCampos((data||[]).map(c=>c.campo_id));
-}
-
-function renderTabela(lista){
-  if(!lista.length){
-    listaCampos.innerHTML = `
-      <tr>
-        <td colspan="5" style="text-align:center;color:#6b7280">
-          Nenhum campo ativo para esta loja
-        </td>
-      </tr>`;
+  if (error) {
+    console.error("Erro lojas:", error);
     return;
   }
 
-  listaCampos.innerHTML = lista.map(c=>`
-    <tr>
-      <td>${c.campo}</td>
-      <td>${c.label}</td>
-      <td>
-        <span class="badge ${c.origem==='loja'?'loja':'tipo'}">
-          ${c.origem==='loja'?'Loja':'Tipo'}
-        </span>
-      </td>
-      <td>${c.obrigatorio ? 'Sim' : 'Não'}</td>
-      <td class="actions">
-        <button onclick="toggleObrigatorio('${c.campo_id}',${c.obrigatorio})">Obrig.</button>
-        <button onclick="removerCampo('${c.campo_id}')">Remover</button>
-      </td>
-    </tr>
-  `).join("");
-}
-
-/* ================= ACTIONS ================= */
-btnAdd.onclick = async ()=>{
-  if(!lojaAtual || !campoNovo.value) return;
-
-  await sb.from("campos_por_loja").insert({
-    user_id: lojaAtual,
-    campo_id: campoNovo.value,
-    obrigatorio: false,
-    ativo: true,
-    origem: 'loja',
-    ordem: 0
+  lojaSelect.innerHTML = `<option value="">Selecione</option>`;
+  data.forEach(l => {
+    lojaSelect.innerHTML += `<option value="${l.id}">${l.nome}</option>`;
   });
-
-  carregarCamposLoja();
-};
-
-async function toggleObrigatorio(campoId, atual){
-  await sb.from("campos_por_loja")
-    .update({ obrigatorio: !atual })
-    .eq("user_id", lojaAtual)
-    .eq("campo_id", campoId);
-
-  carregarCamposLoja();
 }
 
-async function removerCampo(campoId){
-  await sb.from("campos_por_loja")
-    .update({ ativo:false })
-    .eq("user_id", lojaAtual)
-    .eq("campo_id", campoId);
+async function carregarCampos() {
+  const { data, error } = await supabase
+    .from("campos_cadastro")
+    .select("id, label")
+    .order("label");
 
-  carregarCamposLoja();
+  if (error) {
+    console.error("Erro campos:", error);
+    return;
+  }
+
+  campoSelect.innerHTML = `<option value="">Selecione</option>`;
+  data.forEach(c => {
+    campoSelect.innerHTML += `<option value="${c.id}">${c.label}</option>`;
+  });
+}
+
+lojaSelect.addEventListener("change", carregarCamposDaLoja);
+
+async function carregarCamposDaLoja() {
+  const lojaId = lojaSelect.value;
+  if (!lojaId) return;
+
+  const { data, error } = await supabase
+    .from("campos_por_loja")
+    .select(`
+      id,
+      obrigatorio,
+      ativo,
+      campos_cadastro ( label )
+    `)
+    .eq("user_id", lojaId)
+    .order("ordem");
+
+  if (error) {
+    console.error("Erro campos loja:", error);
+    return;
+  }
+
+  tabela.innerHTML = "";
+
+  if (!data.length) {
+    tabela.innerHTML = `<tr><td colspan="4">Nenhum campo ativo</td></tr>`;
+    return;
+  }
+
+  data.forEach(r => {
+    tabela.innerHTML += `
+      <tr>
+        <td>${r.campos_cadastro.label}</td>
+        <td>${r.campos_cadastro.label}</td>
+        <td>${r.obrigatorio ? "Sim" : "Não"}</td>
+        <td>${r.ativo ? "Ativo" : "Inativo"}</td>
+      </tr>
+    `;
+  });
+}
+
+async function adicionarCampo() {
+  const lojaId = lojaSelect.value;
+  const campoId = campoSelect.value;
+
+  if (!lojaId || !campoId) {
+    alert("Selecione loja e campo");
+    return;
+  }
+
+  const { error } = await supabase
+    .from("campos_por_loja")
+    .insert({
+      user_id: lojaId,
+      campo_id: campoId,
+      obrigatorio: false,
+      ativo: true,
+      ordem: 999
+    });
+
+  if (error) {
+    console.error("Erro insert:", error);
+    alert("Erro ao adicionar");
+    return;
+  }
+
+  carregarCamposDaLoja();
 }
 </script>
 
