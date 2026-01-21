@@ -4,99 +4,147 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-      content="width=device-width,
-               initial-scale=1,
-               maximum-scale=1,
-               user-scalable=no,
-               viewport-fit=cover">
+      content="width=device-width, initial-scale=1, viewport-fit=cover">
 
-<meta name="theme-color" content="#2563eb">
+<meta name="theme-color" content="#1e3a8a">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<title>Administração • Tipos & Direcionamentos</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+/* ======================================================
+   DESIGN SYSTEM
+====================================================== */
 :root{
-  --primary:#2563eb;
-  --bg:#f4f6fb;
+  --primary:#1e40af;
+  --primary-soft:#e0e7ff;
+  --bg:#f5f7fb;
   --card:#ffffff;
   --border:#e5e7eb;
-  --text:#111827;
-  --muted:#6b7280;
+  --text:#0f172a;
+  --muted:#64748b;
+  --danger:#dc2626;
+  --radius:18px;
 }
 
-*{box-sizing:border-box;font-family:Inter}
+*{
+  box-sizing:border-box;
+  font-family:Inter, system-ui;
+}
+
 body{
   margin:0;
   background:var(--bg);
   color:var(--text);
-  padding:24px;
 }
 
-.container{
-  max-width:1200px;
-  margin:auto;
-  display:grid;
-  gap:20px;
+/* ======================================================
+   HEADER
+====================================================== */
+header{
+  position:sticky;
+  top:0;
+  z-index:10;
+  background:var(--card);
+  border-bottom:1px solid var(--border);
+  padding:18px 24px;
 }
 
-.header{
-  display:flex;
-  justify-content:center;
-}
-.header h1{
+header h1{
   margin:0;
-  font-size:22px;
+  font-size:20px;
   font-weight:900;
+}
+
+/* ======================================================
+   LAYOUT
+====================================================== */
+.container{
+  max-width:1280px;
+  margin:auto;
+  padding:24px;
+  display:grid;
+  gap:24px;
 }
 
 .card{
   background:var(--card);
-  border-radius:22px;
-  padding:20px;
   border:1px solid var(--border);
-  box-shadow:0 12px 34px rgba(0,0,0,.06);
+  border-radius:var(--radius);
+  padding:22px;
+  box-shadow:0 12px 30px rgba(0,0,0,.06);
 }
 
-.grid{display:grid;gap:14px}
-.cols-3{grid-template-columns:1fr 1fr 1fr}
-.cols-2{grid-template-columns:1fr 1fr}
-
-input,button{
-  width:100%;
-  padding:14px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  font-weight:600;
-  font-size:14px;
-}
-
-button{
-  background:var(--primary);
-  color:#fff;
-  border:none;
-  cursor:pointer;
-}
-button.sec{
-  background:#fff;
-  color:var(--text);
-}
-
-.tipo-card{
-  border:1px solid var(--border);
-  border-radius:18px;
-  padding:16px;
-}
-
-.tipo-card h3{
-  margin:0 0 6px;
+.card h2{
+  margin:0 0 14px;
   font-size:16px;
   font-weight:800;
 }
 
-.path{
+/* ======================================================
+   FORM
+====================================================== */
+.grid{
+  display:grid;
+  gap:14px;
+}
+.cols-2{grid-template-columns:1fr 1fr}
+.cols-3{grid-template-columns:1fr 1fr 1fr}
+
+input,select,textarea,button{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  font-size:14px;
+  font-weight:600;
+}
+
+textarea{resize:none}
+
+button{
+  cursor:pointer;
+  border:none;
+  background:var(--primary);
+  color:#fff;
+}
+
+button.sec{
+  background:#fff;
+  color:var(--text);
+  border:1px solid var(--border);
+}
+
+button.danger{
+  background:var(--danger);
+}
+
+/* ======================================================
+   LISTAS
+====================================================== */
+.list{
+  display:grid;
+  gap:14px;
+}
+
+.item{
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+}
+
+.item h3{
+  margin:0;
+  font-size:15px;
+  font-weight:800;
+}
+
+.meta{
   font-size:12px;
   color:var(--muted);
+  margin-top:6px;
 }
 
 .actions{
@@ -104,36 +152,72 @@ button.sec{
   gap:8px;
   margin-top:12px;
 }
+
 .actions button{
+  padding:8px 12px;
   font-size:12px;
-  padding:6px 10px;
+}
+
+/* ======================================================
+   SEÇÃO ROTA
+====================================================== */
+.rotas{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px dashed var(--border);
+}
+
+.rota{
+  font-size:13px;
+  padding:8px 0;
+  display:flex;
+  justify-content:space-between;
 }
 </style>
 </head>
 
 <body>
 
+<header>
+  <h1>Administração • Tipos & Direcionamentos</h1>
+</header>
+
 <div class="container">
 
-  <div class="header">
-    <h1>Administração • Tipos de Loja & Apps</h1>
+<!-- ================= TIPOS ================= -->
+<div class="card">
+  <h2>Criar / Editar Tipo</h2>
+  <div class="grid cols-3">
+    <input id="tipo_nome" placeholder="Nome do tipo">
+    <input id="tipo_slug" placeholder="Slug (ex: barbearia)">
+    <select id="tipo_ativo">
+      <option value="true">Ativo</option>
+      <option value="false">Inativo</option>
+    </select>
   </div>
-
-  <!-- FORM -->
-  <div class="card">
-    <div class="grid cols-3">
-      <input id="nome" placeholder="Nome do tipo (ex: Barbearia)">
-      <input id="slug" placeholder="Slug (ex: barbearia)">
-      <input id="app" placeholder="App (ex: appbarbearia.html)">
-    </div>
-    <div class="grid cols-2" style="margin-top:14px">
-      <button onclick="salvar()">Salvar</button>
-      <button class="sec" onclick="limpar()">Limpar</button>
-    </div>
+  <div class="grid cols-2" style="margin-top:14px">
+    <button onclick="salvarTipo()">Salvar Tipo</button>
+    <button class="sec" onclick="limparTipo()">Limpar</button>
   </div>
+</div>
 
-  <!-- LISTA -->
-  <div id="lista" class="grid"></div>
+<!-- ================= ROTAS ================= -->
+<div class="card">
+  <h2>Adicionar Direcionamento</h2>
+  <div class="grid cols-3">
+    <select id="rota_tipo"></select>
+    <input id="rota_nome" placeholder="Nome (ex: App Admin)">
+    <input id="rota_path" placeholder="Caminho (ex: admin.html)">
+  </div>
+  <textarea id="rota_desc" placeholder="Descrição do direcionamento" style="margin-top:12px"></textarea>
+  <button style="margin-top:12px" onclick="salvarRota()">Salvar Direcionamento</button>
+</div>
+
+<!-- ================= LISTAGEM ================= -->
+<div class="card">
+  <h2>Tipos Cadastrados</h2>
+  <div id="listaTipos" class="list"></div>
+</div>
 
 </div>
 
@@ -143,121 +227,103 @@ const sb = supabase.createClient(
   "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
 );
 
-let tipos = [];
-let editando = null;
+let tipos=[], rotas=[], editTipo=null;
 
-/* LOAD */
+/* ======================================================
+   LOAD
+====================================================== */
 async function load(){
-  const { data, error } = await sb
-    .from("tipos_loja")
-    .select("*")
-    .order("nome");
+  const t = await sb.from("tipos_loja").select("*").order("nome");
+  const r = await sb.from("tipos_rotas").select("*");
 
-  if(error){
-    alert("Erro ao carregar tipos");
-    return;
-  }
+  tipos = t.data || [];
+  rotas = r.data || [];
 
-  tipos = data || [];
+  rota_tipo.innerHTML = tipos.map(x=>`<option value="${x.id}">${x.nome}</option>`).join("");
   render();
 }
 
-/* SALVAR */
-async function salvar(){
-  if(!nome.value || !slug.value || !app.value){
-    alert("Preencha todos os campos");
-    return;
-  }
-
-  const payload = {
-    nome: nome.value,
-    slug: slug.value.toLowerCase(),
-    app_path: app.value
+/* ======================================================
+   TIPOS
+====================================================== */
+async function salvarTipo(){
+  const payload={
+    nome: tipo_nome.value,
+    slug: tipo_slug.value.toLowerCase(),
+    ativo: tipo_ativo.value==="true"
   };
 
-  let tipoId;
-
-  if(editando){
-    const { error } = await sb
-      .from("tipos_loja")
-      .update(payload)
-      .eq("id", editando);
-
-    if(error) return alert("Erro ao atualizar tipo");
-    tipoId = editando;
+  if(editTipo){
+    await sb.from("tipos_loja").update(payload).eq("id",editTipo);
   }else{
-    const { data, error } = await sb
-      .from("tipos_loja")
-      .insert(payload)
-      .select()
-      .single();
-
-    if(error) return alert("Erro ao criar tipo");
-    tipoId = data.id;
+    await sb.from("tipos_loja").insert(payload);
   }
-
-  /* SINCRONIZA USER_PROFILE */
-  await sb
-    .from("user_profile")
-    .update({ app_path: payload.app_path })
-    .eq("tipo", payload.slug);
-
-  limpar();
+  limparTipo();
   load();
 }
 
-/* EDITAR */
-function editar(id){
-  const t = tipos.find(x => x.id === id);
-  if(!t) return;
-
-  editando = id;
-  nome.value = t.nome;
-  slug.value = t.slug;
-  app.value = t.app_path;
+function editarTipo(t){
+  editTipo=t.id;
+  tipo_nome.value=t.nome;
+  tipo_slug.value=t.slug;
+  tipo_ativo.value=t.ativo;
 }
 
-/* EXCLUIR */
-async function excluir(id){
-  if(!confirm("Excluir este tipo de loja?")) return;
-
-  const t = tipos.find(x => x.id === id);
-  if(!t) return;
-
-  await sb.from("tipos_loja").delete().eq("id", id);
-
-  /* LIMPA APP DAS LOJAS DO TIPO */
-  await sb
-    .from("user_profile")
-    .update({ app_path: null })
-    .eq("tipo", t.slug);
-
+async function excluirTipo(id){
+  if(!confirm("Excluir tipo e todos os direcionamentos?"))return;
+  await sb.from("tipos_rotas").delete().eq("tipo_id",id);
+  await sb.from("tipos_loja").delete().eq("id",id);
   load();
 }
 
-/* LIMPAR */
-function limpar(){
-  editando = null;
-  nome.value = "";
-  slug.value = "";
-  app.value = "";
+function limparTipo(){
+  editTipo=null;
+  tipo_nome.value="";
+  tipo_slug.value="";
+  tipo_ativo.value="true";
 }
 
-/* RENDER */
+/* ======================================================
+   ROTAS
+====================================================== */
+async function salvarRota(){
+  await sb.from("tipos_rotas").insert({
+    tipo_id: rota_tipo.value,
+    nome: rota_nome.value,
+    path: rota_path.value,
+    descricao: rota_desc.value
+  });
+  rota_nome.value="";
+  rota_path.value="";
+  rota_desc.value="";
+  load();
+}
+
+/* ======================================================
+   RENDER
+====================================================== */
 function render(){
-  lista.innerHTML = tipos.map(t => `
-    <div class="card tipo-card">
+  listaTipos.innerHTML = tipos.map(t=>{
+    const rts = rotas.filter(r=>r.tipo_id===t.id);
+    return `
+    <div class="item">
       <h3>${t.nome}</h3>
-      <div class="path">
-        <b>Slug:</b> ${t.slug}<br>
-        <b>App:</b> ${t.app_path}
+      <div class="meta">Slug: ${t.slug} • ${t.ativo?"Ativo":"Inativo"}</div>
+
+      <div class="rotas">
+        ${rts.map(r=>`
+          <div class="rota">
+            <span>${r.nome} — ${r.path}</span>
+          </div>`).join("") || "<i>Nenhum direcionamento</i>"}
       </div>
+
       <div class="actions">
-        <button onclick="editar('${t.id}')">Editar</button>
-        <button class="sec" onclick="excluir('${t.id}')">Excluir</button>
+        <button onclick='editarTipo(${JSON.stringify(t)})'>Editar</button>
+        <button class="danger" onclick="excluirTipo('${t.id}')">Excluir</button>
       </div>
     </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
 load();
