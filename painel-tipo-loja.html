@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no,
+               viewport-fit=cover">
+
+<meta name="theme-color" content="#2563eb">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --primary:#2563eb;
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
+}
+
+*{box-sizing:border-box;font-family:Inter}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  padding:24px;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  gap:20px;
+}
+
+.header{
+  display:flex;
+  justify-content:center;
+}
+.header h1{
+  margin:0;
+  font-size:22px;
+  font-weight:900;
+}
+
+.card{
+  background:var(--card);
+  border-radius:22px;
+  padding:20px;
+  border:1px solid var(--border);
+  box-shadow:0 12px 34px rgba(0,0,0,.06);
+}
+
+.grid{display:grid;gap:14px}
+.cols-2{grid-template-columns:1fr 1fr}
+.cols-3{grid-template-columns:1fr 1fr 1fr}
+
+input,button{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  font-weight:600;
+  font-size:14px;
+}
+
+button{
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  cursor:pointer;
+}
+button.sec{
+  background:#fff;
+  color:var(--text);
+}
+
+.tipo-card{
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+}
+
+.tipo-card h3{
+  margin:0 0 6px;
+  font-size:16px;
+  font-weight:800;
+}
+
+.path{
+  font-size:12px;
+  color:var(--muted);
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+.actions button{
+  font-size:12px;
+  padding:6px 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>Administração • Tipos de Loja</h1>
+  </div>
+
+  <!-- FORM -->
+  <div class="card">
+    <div class="grid cols-3">
+      <input id="nome" placeholder="Nome do tipo (ex: Barbearia)">
+      <input id="slug" placeholder="Slug (ex: barbearia)">
+      <input id="app" placeholder="App (ex: appbarbearia.html)">
+    </div>
+    <div class="grid cols-2" style="margin-top:14px">
+      <button onclick="salvar()">Salvar</button>
+      <button class="sec" onclick="limpar()">Limpar</button>
+    </div>
+  </div>
+
+  <!-- LISTA -->
+  <div id="lista" class="grid"></div>
+
+</div>
+
+<script>
+const sb = supabase.createClient(
+  "https://egxjgmzukjyyxmkukwub.supabase.co",
+  "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
+);
+
+let tipos=[], editando=null;
+
+/* LOAD */
+async function load(){
+  const { data } = await sb
+    .from("tipos_loja")
+    .select("*")
+    .order("nome");
+
+  tipos = data || [];
+  render();
+}
+
+/* CRUD */
+async function salvar(){
+  if(!nome.value || !slug.value || !app.value){
+    alert("Preencha todos os campos");
+    return;
+  }
+
+  const payload={
+    nome:nome.value,
+    slug:slug.value.toLowerCase(),
+    app_path:app.value
+  };
+
+  editando
+    ? await sb.from("tipos_loja").update(payload).eq("id",editando)
+    : await sb.from("tipos_loja").insert(payload);
+
+  limpar();
+  load();
+}
+
+function editar(id){
+  const t=tipos.find(x=>x.id===id);
+  editando=id;
+  nome.value=t.nome;
+  slug.value=t.slug;
+  app.value=t.app_path;
+}
+
+async function excluir(id){
+  if(confirm("Excluir este tipo?")){
+    await sb.from("tipos_loja").delete().eq("id",id);
+    load();
+  }
+}
+
+function limpar(){
+  editando=null;
+  nome.value="";
+  slug.value="";
+  app.value="";
+}
+
+/* RENDER */
+function render(){
+  lista.innerHTML = tipos.map(t=>`
+    <div class="card tipo-card">
+      <h3>${t.nome}</h3>
+      <div class="path">
+        slug: <b>${t.slug}</b><br>
+        app: <b>${t.app_path}</b>
+      </div>
+      <div class="actions">
+        <button onclick="editar('${t.id}')">Editar</button>
+        <button class="sec" onclick="excluir('${t.id}')">Excluir</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+load();
+</script>
+
+</body>
+</html>
