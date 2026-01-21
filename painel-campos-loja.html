@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no,
+               viewport-fit=cover">
+
+<meta name="theme-color" content="#2563eb">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --primary:#2563eb;
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
+}
+
+*{box-sizing:border-box;font-family:Inter}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  padding:24px;
+}
+
+.header{
+  text-align:center;
+  margin-bottom:24px;
+}
+.header h1{
+  font-size:20px;
+  font-weight:900;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  gap:20px;
+}
+
+.card{
+  background:var(--card);
+  border-radius:22px;
+  padding:20px;
+  border:1px solid var(--border);
+  box-shadow:0 12px 34px rgba(0,0,0,.06);
+}
+
+.grid{display:grid;gap:14px}
+.cols-2{grid-template-columns:1fr 1fr}
+
+input,select,button{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid var(--border);
+  font-weight:600;
+  font-size:14px;
+}
+
+button{
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  cursor:pointer;
+}
+
+button.sec{
+  background:#fff;
+  color:var(--text);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  padding:10px;
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+th{font-weight:800}
+
+.badge{
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+}
+.tipo{background:#e0f2fe;color:#0369a1}
+.loja{background:#dcfce7;color:#166534}
+
+.actions{
+  display:flex;
+  gap:6px;
+}
+.actions button{
+  padding:6px 10px;
+  font-size:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h1>Controle de Campos por Loja</h1>
+</div>
+
+<div class="container">
+
+<!-- SELEÇÃO DE LOJA -->
+<div class="card">
+  <select id="selectLoja" onchange="carregarCampos()">
+    <option value="">Selecione uma loja…</option>
+  </select>
+</div>
+
+<!-- ADICIONAR CAMPO -->
+<div class="card grid cols-2">
+  <select id="campoNovo"></select>
+  <button onclick="adicionarCampo()">Adicionar campo à loja</button>
+</div>
+
+<!-- LISTA DE CAMPOS -->
+<div class="card">
+<table>
+<thead>
+<tr>
+  <th>Campo</th>
+  <th>Label</th>
+  <th>Origem</th>
+  <th>Obrigatório</th>
+  <th>Ações</th>
+</tr>
+</thead>
+<tbody id="listaCampos"></tbody>
+</table>
+</div>
+
+</div>
+
+<script>
+const sb = supabase.createClient(
+  "https://egxjgmzukjyyxmkukwub.supabase.co",
+  "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
+);
+
+let lojaAtual = null;
+let camposLoja = [];
+let todosCampos = [];
+
+/* LOAD INICIAL */
+(async()=>{
+  const { data: lojas } = await sb
+    .from("user_profile")
+    .select("user_id, negocio")
+    .eq("status","active")
+    .order("negocio");
+
+  selectLoja.innerHTML += lojas.map(l=>`
+    <option value="${l.user_id}">${l.negocio}</option>
+  `).join("");
+
+  const { data: campos } = await sb
+    .from("campos_cadastro")
+    .select("*")
+    .order("campo");
+
+  todosCampos = campos || [];
+  campoNovo.innerHTML = `<option value="">Adicionar campo…</option>` +
+    todosCampos.map(c=>`
+      <option value="${c.id}">${c.label}</option>
+    `).join("");
+})();
+
+/* CARREGA CAMPOS DA LOJA */
+async function carregarCampos(){
+  lojaAtual = selectLoja.value;
+  if(!lojaAtual) return;
+
+  const { data } = await sb
+    .from("campos_cadastro_por_loja")
+    .select("*")
+    .eq("user_id", lojaAtual)
+    .order("ordem");
+
+  camposLoja = data || [];
+  render();
+}
+
+/* RENDER */
+function render(){
+  listaCampos.innerHTML = camposLoja.map(c=>`
+    <tr>
+      <td>${c.campo}</td>
+      <td>${c.label}</td>
+      <td>
+        <span class="badge ${c.origem==='loja'?'loja':'tipo'}">
+          ${c.origem==='loja'?'Loja':'Tipo'}
+        </span>
+      </td>
+      <td>${c.obrigatorio?'Sim':'Não'}</td>
+      <td class="actions">
+        <button onclick="toggleObrigatorio('${c.campo_id}',${c.obrigatorio})">
+          Obr.
+        </button>
+        <button onclick="removerCampo('${c.campo_id}')">
+          Remover
+        </button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+/* ADICIONAR CAMPO */
+async function adicionarCampo(){
+  if(!lojaAtual || !campoNovo.value) return;
+
+  await sb.from("campos_por_loja").upsert({
+    user_id: lojaAtual,
+    campo_id: campoNovo.value,
+    ativo: true
+  });
+
+  carregarCampos();
+}
+
+/* TOGGLE OBRIGATÓRIO */
+async function toggleObrigatorio(campoId, atual){
+  await sb.from("campos_por_loja")
+    .upsert({
+      user_id: lojaAtual,
+      campo_id: campoId,
+      obrigatorio: !atual,
+      ativo: true
+    });
+
+  carregarCampos();
+}
+
+/* REMOVER CAMPO (DESATIVA) */
+async function removerCampo(campoId){
+  await sb.from("campos_por_loja")
+    .update({ ativo:false })
+    .eq("user_id",lojaAtual)
+    .eq("campo_id",campoId);
+
+  carregarCampos();
+}
+</script>
+
+</body>
+</html>
