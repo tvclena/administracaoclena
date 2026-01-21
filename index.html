@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+
+<title>Painel Administrativo</title>
+
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no,
+               viewport-fit=cover">
+
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<link rel="manifest" href="manifest.json">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+<style>
+:root{
+  --primary:#2563eb;
+  --bg:#f4f6fb;
+  --sidebar:#0f172a;
+  --sidebar-2:#020617;
+  --text:#111827;
+  --muted:#94a3b8;
+  --white:#ffffff;
+}
+
+*{
+  box-sizing:border-box;
+  font-family:Inter;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  overflow:hidden;
+}
+
+/* ===== LAYOUT ===== */
+.app{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  height:100vh;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  background:linear-gradient(180deg,var(--sidebar),var(--sidebar-2));
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+}
+
+/* LOGO */
+.logo{
+  padding:20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-weight:900;
+  font-size:16px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.logo img{
+  width:38px;
+  height:38px;
+  border-radius:10px;
+}
+
+/* MENU */
+.menu{
+  flex:1;
+  overflow-y:auto;
+  padding:14px 10px;
+}
+
+.menu-group{
+  margin-bottom:14px;
+}
+
+.menu-title{
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  color:var(--muted);
+  padding:6px 12px;
+}
+
+.menu-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 14px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+  font-size:14px;
+  color:#e5e7eb;
+}
+.menu-item:hover{
+  background:rgba(255,255,255,.08);
+}
+
+.menu-item i{
+  font-size:18px;
+}
+
+/* SUBMENU */
+.submenu{
+  margin-left:12px;
+  margin-top:6px;
+  display:none;
+  flex-direction:column;
+  gap:4px;
+}
+
+.menu-item.open + .submenu{
+  display:flex;
+}
+
+.submenu .menu-item{
+  font-size:13px;
+  padding:8px 14px;
+  opacity:.9;
+}
+
+/* ===== CONTENT ===== */
+.content{
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+}
+
+/* HEADER */
+.header{
+  height:56px;
+  background:#fff;
+  border-bottom:1px solid #e5e7eb;
+  display:flex;
+  align-items:center;
+  padding:0 18px;
+  font-weight:800;
+}
+
+/* IFRAME */
+.frame-wrap{
+  flex:1;
+  background:#fff;
+}
+
+iframe{
+  width:100%;
+  height:100%;
+  border:none;
+}
+
+/* ===== MOBILE ===== */
+@media(max-width:900px){
+  .app{
+    grid-template-columns:1fr;
+  }
+  .sidebar{
+    position:fixed;
+    inset:0 auto 0 0;
+    width:260px;
+    transform:translateX(-100%);
+    transition:.3s;
+    z-index:999;
+  }
+  .sidebar.open{
+    transform:translateX(0);
+  }
+  .header{
+    gap:12px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="logo">
+      <img src="icons/icon-192.png">
+      Painel Admin
+    </div>
+
+    <div class="menu">
+
+      <!-- GRUPO -->
+      <div class="menu-group">
+        <div class="menu-title">Configurações</div>
+
+        <div class="menu-item" onclick="toggleMenu(this)">
+          <i class="ri-settings-3-line"></i>
+          Customizações
+        </div>
+
+        <div class="submenu">
+          <div class="menu-item" onclick="openPage('admin-customizacoes.html')">
+            Palavras-chave
+          </div>
+
+          <div class="menu-item" onclick="openPage('admin-polaroid.html')">
+            Polaroid
+          </div>
+        </div>
+      </div>
+
+      <!-- GRUPO -->
+      <div class="menu-group">
+        <div class="menu-title">Lojas</div>
+
+        <div class="menu-item" onclick="openPage('admin-lojas.html')">
+          <i class="ri-store-2-line"></i>
+          Gerenciar lojas
+        </div>
+      </div>
+
+      <!-- GRUPO -->
+      <div class="menu-group">
+        <div class="menu-title">Relatórios</div>
+
+        <div class="menu-item" onclick="toggleMenu(this)">
+          <i class="ri-bar-chart-line"></i>
+          Relatórios
+        </div>
+
+        <div class="submenu">
+          <div class="menu-item" onclick="openPage('admin-relatorios-vendas.html')">
+            Vendas
+          </div>
+          <div class="menu-item" onclick="openPage('admin-relatorios-uso.html')">
+            Uso de customizações
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="header">
+      <button onclick="toggleSidebar()" style="border:none;background:none;font-size:20px;cursor:pointer">
+        ☰
+      </button>
+      Painel Administrativo
+    </div>
+
+    <div class="frame-wrap">
+      <iframe id="frame" src="admin-customizacoes.html"></iframe>
+    </div>
+
+  </main>
+
+</div>
+
+<script>
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js");
+}
+
+function openPage(p){
+  document.getElementById("frame").src = p;
+  closeSidebar();
+}
+
+function toggleMenu(el){
+  el.classList.toggle("open");
+}
+
+function toggleSidebar(){
+  document.getElementById("sidebar").classList.toggle("open");
+}
+
+function closeSidebar(){
+  document.getElementById("sidebar").classList.remove("open");
+}
+</script>
+
+</body>
+</html>
