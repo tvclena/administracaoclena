@@ -2,26 +2,24 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1e3a8a">
 
 <title>Admin • Tipos de Loja</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
   --primary:#1e40af;
-  --primary-soft:#e0e7ff;
-  --bg:#f5f7fb;
+  --bg:#f4f6fb;
   --card:#ffffff;
   --border:#e5e7eb;
   --text:#0f172a;
   --muted:#64748b;
   --danger:#dc2626;
-  --radius:18px;
+  --radius:14px;
 }
 
 *{
@@ -37,23 +35,20 @@ body{
 
 /* HEADER */
 header{
-  position:sticky;
-  top:0;
-  z-index:10;
   background:var(--card);
   border-bottom:1px solid var(--border);
-  padding:18px 24px;
+  padding:16px 24px;
 }
 
 header h1{
   margin:0;
-  font-size:20px;
-  font-weight:900;
+  font-size:18px;
+  font-weight:800;
 }
 
 /* LAYOUT */
 .container{
-  max-width:1200px;
+  max-width:1100px;
   margin:auto;
   padding:24px;
   display:grid;
@@ -64,38 +59,37 @@ header h1{
   background:var(--card);
   border:1px solid var(--border);
   border-radius:var(--radius);
-  padding:22px;
-  box-shadow:0 12px 30px rgba(0,0,0,.06);
+  padding:20px;
 }
 
 .card h2{
-  margin:0 0 16px;
-  font-size:16px;
-  font-weight:800;
+  margin:0 0 14px;
+  font-size:15px;
+  font-weight:700;
 }
 
 /* FORM */
 .grid{
   display:grid;
-  gap:14px;
+  gap:12px;
 }
-.cols-2{grid-template-columns:1fr 1fr}
 .cols-3{grid-template-columns:1fr 1fr 1fr}
+.cols-2{grid-template-columns:1fr 1fr}
 
 input,select,button{
   width:100%;
-  padding:14px;
-  border-radius:14px;
+  padding:12px;
+  border-radius:10px;
   border:1px solid var(--border);
-  font-size:14px;
+  font-size:13px;
   font-weight:600;
 }
 
 button{
-  cursor:pointer;
-  border:none;
   background:var(--primary);
   color:#fff;
+  border:none;
+  cursor:pointer;
 }
 
 button.sec{
@@ -111,35 +105,36 @@ button.danger{
 /* LISTA */
 .list{
   display:grid;
-  gap:14px;
+  gap:12px;
 }
 
 .item{
   border:1px solid var(--border);
-  border-radius:16px;
-  padding:16px;
+  border-radius:12px;
+  padding:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-.item h3{
+.item-info h3{
   margin:0;
-  font-size:15px;
-  font-weight:800;
+  font-size:14px;
+  font-weight:700;
 }
 
-.meta{
+.item-info span{
   font-size:12px;
   color:var(--muted);
-  margin-top:6px;
 }
 
 .actions{
   display:flex;
   gap:8px;
-  margin-top:12px;
 }
 
 .actions button{
-  padding:8px 12px;
+  padding:6px 10px;
   font-size:12px;
 }
 </style>
@@ -158,12 +153,12 @@ button.danger{
   <h2>Criar / Editar Tipo</h2>
 
   <div class="grid cols-3">
-    <input id="nome" placeholder="Nome do tipo (ex: Salão de Beleza)">
-    <input id="slug" placeholder="Slug (ex: salao)">
-    <input id="app_path" placeholder="App path (ex: app.html)">
+    <input id="nome" placeholder="Nome">
+    <input id="slug" placeholder="Slug">
+    <input id="app_path" placeholder="app.html">
   </div>
 
-  <div class="grid cols-2" style="margin-top:14px">
+  <div class="grid cols-2" style="margin-top:12px">
     <button onclick="salvar()">Salvar</button>
     <button class="sec" onclick="limpar()">Limpar</button>
   </div>
@@ -183,8 +178,8 @@ const sb = supabase.createClient(
   "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
 );
 
-let dados=[];
-let editId=null;
+let tipos = [];
+let editId = null;
 
 /* LOAD */
 async function load(){
@@ -193,17 +188,17 @@ async function load(){
     .select("*")
     .order("created_at",{ascending:false});
 
-  dados = data || [];
+  tipos = data || [];
   render();
 }
 
 /* SALVAR */
 async function salvar(){
-  const payload={
-    nome:nome.value.trim(),
-    slug:slug.value.trim().toLowerCase(),
-    app_path:app_path.value.trim(),
-    ativo:true
+  const payload = {
+    nome: nome.value.trim(),
+    slug: slug.value.trim().toLowerCase(),
+    app_path: app_path.value.trim(),
+    ativo: true
   };
 
   if(!payload.nome || !payload.slug || !payload.app_path){
@@ -223,35 +218,34 @@ async function salvar(){
 
 /* EDITAR */
 function editar(t){
-  editId=t.id;
-  nome.value=t.nome;
-  slug.value=t.slug;
-  app_path.value=t.app_path;
+  editId = t.id;
+  nome.value = t.nome;
+  slug.value = t.slug;
+  app_path.value = t.app_path;
 }
 
 /* EXCLUIR */
 async function excluir(id){
-  if(!confirm("Excluir este tipo?"))return;
+  if(!confirm("Excluir este tipo?")) return;
   await sb.from("tipos_loja").delete().eq("id",id);
   load();
 }
 
 /* LIMPAR */
 function limpar(){
-  editId=null;
-  nome.value="";
-  slug.value="";
-  app_path.value="";
+  editId = null;
+  nome.value = "";
+  slug.value = "";
+  app_path.value = "";
 }
 
 /* RENDER */
 function render(){
-  lista.innerHTML = dados.map(t=>`
+  lista.innerHTML = tipos.map(t => `
     <div class="item">
-      <h3>${t.nome}</h3>
-      <div class="meta">
-        Slug: ${t.slug}<br>
-        App: ${t.app_path}
+      <div class="item-info">
+        <h3>${t.nome}</h3>
+        <span>${t.slug} • ${t.app_path}</span>
       </div>
       <div class="actions">
         <button onclick='editar(${JSON.stringify(t)})'>Editar</button>
