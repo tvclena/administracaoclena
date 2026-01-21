@@ -3,20 +3,15 @@
 <head>
 <meta charset="UTF-8">
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover">
-
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1e3a8a">
 
-<title>Administração • Tipos & Direcionamentos</title>
+<title>Admin • Tipos de Loja</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-/* ======================================================
-   DESIGN SYSTEM
-====================================================== */
 :root{
   --primary:#1e40af;
   --primary-soft:#e0e7ff;
@@ -31,7 +26,7 @@
 
 *{
   box-sizing:border-box;
-  font-family:Inter, system-ui;
+  font-family:Inter,system-ui;
 }
 
 body{
@@ -40,9 +35,7 @@ body{
   color:var(--text);
 }
 
-/* ======================================================
-   HEADER
-====================================================== */
+/* HEADER */
 header{
   position:sticky;
   top:0;
@@ -58,11 +51,9 @@ header h1{
   font-weight:900;
 }
 
-/* ======================================================
-   LAYOUT
-====================================================== */
+/* LAYOUT */
 .container{
-  max-width:1280px;
+  max-width:1200px;
   margin:auto;
   padding:24px;
   display:grid;
@@ -78,14 +69,12 @@ header h1{
 }
 
 .card h2{
-  margin:0 0 14px;
+  margin:0 0 16px;
   font-size:16px;
   font-weight:800;
 }
 
-/* ======================================================
-   FORM
-====================================================== */
+/* FORM */
 .grid{
   display:grid;
   gap:14px;
@@ -93,7 +82,7 @@ header h1{
 .cols-2{grid-template-columns:1fr 1fr}
 .cols-3{grid-template-columns:1fr 1fr 1fr}
 
-input,select,textarea,button{
+input,select,button{
   width:100%;
   padding:14px;
   border-radius:14px;
@@ -101,8 +90,6 @@ input,select,textarea,button{
   font-size:14px;
   font-weight:600;
 }
-
-textarea{resize:none}
 
 button{
   cursor:pointer;
@@ -121,9 +108,7 @@ button.danger{
   background:var(--danger);
 }
 
-/* ======================================================
-   LISTAS
-====================================================== */
+/* LISTA */
 .list{
   display:grid;
   gap:14px;
@@ -157,66 +142,37 @@ button.danger{
   padding:8px 12px;
   font-size:12px;
 }
-
-/* ======================================================
-   SEÇÃO ROTA
-====================================================== */
-.rotas{
-  margin-top:12px;
-  padding-top:12px;
-  border-top:1px dashed var(--border);
-}
-
-.rota{
-  font-size:13px;
-  padding:8px 0;
-  display:flex;
-  justify-content:space-between;
-}
 </style>
 </head>
 
 <body>
 
 <header>
-  <h1>Administração • Tipos & Direcionamentos</h1>
+  <h1>Administração • Tipos de Loja</h1>
 </header>
 
 <div class="container">
 
-<!-- ================= TIPOS ================= -->
+<!-- FORM -->
 <div class="card">
   <h2>Criar / Editar Tipo</h2>
+
   <div class="grid cols-3">
-    <input id="tipo_nome" placeholder="Nome do tipo">
-    <input id="tipo_slug" placeholder="Slug (ex: barbearia)">
-    <select id="tipo_ativo">
-      <option value="true">Ativo</option>
-      <option value="false">Inativo</option>
-    </select>
+    <input id="nome" placeholder="Nome do tipo (ex: Salão de Beleza)">
+    <input id="slug" placeholder="Slug (ex: salao)">
+    <input id="app_path" placeholder="App path (ex: app.html)">
   </div>
+
   <div class="grid cols-2" style="margin-top:14px">
-    <button onclick="salvarTipo()">Salvar Tipo</button>
-    <button class="sec" onclick="limparTipo()">Limpar</button>
+    <button onclick="salvar()">Salvar</button>
+    <button class="sec" onclick="limpar()">Limpar</button>
   </div>
 </div>
 
-<!-- ================= ROTAS ================= -->
-<div class="card">
-  <h2>Adicionar Direcionamento</h2>
-  <div class="grid cols-3">
-    <select id="rota_tipo"></select>
-    <input id="rota_nome" placeholder="Nome (ex: App Admin)">
-    <input id="rota_path" placeholder="Caminho (ex: admin.html)">
-  </div>
-  <textarea id="rota_desc" placeholder="Descrição do direcionamento" style="margin-top:12px"></textarea>
-  <button style="margin-top:12px" onclick="salvarRota()">Salvar Direcionamento</button>
-</div>
-
-<!-- ================= LISTAGEM ================= -->
+<!-- LISTA -->
 <div class="card">
   <h2>Tipos Cadastrados</h2>
-  <div id="listaTipos" class="list"></div>
+  <div id="lista" class="list"></div>
 </div>
 
 </div>
@@ -227,103 +183,82 @@ const sb = supabase.createClient(
   "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
 );
 
-let tipos=[], rotas=[], editTipo=null;
+let dados=[];
+let editId=null;
 
-/* ======================================================
-   LOAD
-====================================================== */
+/* LOAD */
 async function load(){
-  const t = await sb.from("tipos_loja").select("*").order("nome");
-  const r = await sb.from("tipos_rotas").select("*");
+  const { data } = await sb
+    .from("tipos_loja")
+    .select("*")
+    .order("created_at",{ascending:false});
 
-  tipos = t.data || [];
-  rotas = r.data || [];
-
-  rota_tipo.innerHTML = tipos.map(x=>`<option value="${x.id}">${x.nome}</option>`).join("");
+  dados = data || [];
   render();
 }
 
-/* ======================================================
-   TIPOS
-====================================================== */
-async function salvarTipo(){
+/* SALVAR */
+async function salvar(){
   const payload={
-    nome: tipo_nome.value,
-    slug: tipo_slug.value.toLowerCase(),
-    ativo: tipo_ativo.value==="true"
+    nome:nome.value.trim(),
+    slug:slug.value.trim().toLowerCase(),
+    app_path:app_path.value.trim(),
+    ativo:true
   };
 
-  if(editTipo){
-    await sb.from("tipos_loja").update(payload).eq("id",editTipo);
+  if(!payload.nome || !payload.slug || !payload.app_path){
+    alert("Preencha todos os campos");
+    return;
+  }
+
+  if(editId){
+    await sb.from("tipos_loja").update(payload).eq("id",editId);
   }else{
     await sb.from("tipos_loja").insert(payload);
   }
-  limparTipo();
+
+  limpar();
   load();
 }
 
-function editarTipo(t){
-  editTipo=t.id;
-  tipo_nome.value=t.nome;
-  tipo_slug.value=t.slug;
-  tipo_ativo.value=t.ativo;
+/* EDITAR */
+function editar(t){
+  editId=t.id;
+  nome.value=t.nome;
+  slug.value=t.slug;
+  app_path.value=t.app_path;
 }
 
-async function excluirTipo(id){
-  if(!confirm("Excluir tipo e todos os direcionamentos?"))return;
-  await sb.from("tipos_rotas").delete().eq("tipo_id",id);
+/* EXCLUIR */
+async function excluir(id){
+  if(!confirm("Excluir este tipo?"))return;
   await sb.from("tipos_loja").delete().eq("id",id);
   load();
 }
 
-function limparTipo(){
-  editTipo=null;
-  tipo_nome.value="";
-  tipo_slug.value="";
-  tipo_ativo.value="true";
+/* LIMPAR */
+function limpar(){
+  editId=null;
+  nome.value="";
+  slug.value="";
+  app_path.value="";
 }
 
-/* ======================================================
-   ROTAS
-====================================================== */
-async function salvarRota(){
-  await sb.from("tipos_rotas").insert({
-    tipo_id: rota_tipo.value,
-    nome: rota_nome.value,
-    path: rota_path.value,
-    descricao: rota_desc.value
-  });
-  rota_nome.value="";
-  rota_path.value="";
-  rota_desc.value="";
-  load();
-}
-
-/* ======================================================
-   RENDER
-====================================================== */
+/* RENDER */
 function render(){
-  listaTipos.innerHTML = tipos.map(t=>{
-    const rts = rotas.filter(r=>r.tipo_id===t.id);
-    return `
+  lista.innerHTML = dados.map(t=>`
     <div class="item">
       <h3>${t.nome}</h3>
-      <div class="meta">Slug: ${t.slug} • ${t.ativo?"Ativo":"Inativo"}</div>
-
-      <div class="rotas">
-        ${rts.map(r=>`
-          <div class="rota">
-            <span>${r.nome} — ${r.path}</span>
-          </div>`).join("") || "<i>Nenhum direcionamento</i>"}
+      <div class="meta">
+        Slug: ${t.slug}<br>
+        App: ${t.app_path}
       </div>
-
       <div class="actions">
-        <button onclick='editarTipo(${JSON.stringify(t)})'>Editar</button>
-        <button class="danger" onclick="excluirTipo('${t.id}')">Excluir</button>
+        <button onclick='editar(${JSON.stringify(t)})'>Editar</button>
+        <button class="danger" onclick="excluir('${t.id}')">Excluir</button>
       </div>
     </div>
-    `;
-  }).join("");
+  `).join("");
 }
 
 load();
