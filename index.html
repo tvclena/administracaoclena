@@ -115,7 +115,6 @@ body{
   text-transform:uppercase;
   color:var(--muted);
   padding:6px 12px;
-  transition:.2s;
 }
 
 .menu-item{
@@ -128,7 +127,6 @@ body{
   font-weight:600;
   font-size:14px;
   color:#e5e7eb;
-  transition:.2s;
   white-space:nowrap;
 }
 .menu-item:hover{
@@ -149,10 +147,19 @@ body{
   gap:4px;
 }
 
+/* ABRE NO CLIQUE */
 .menu-item.open + .submenu{
   display:flex;
 }
 
+/* ===== DESKTOP: ABRE SUBMENU NO HOVER ===== */
+@media (hover:hover){
+  .menu-item.has-sub:hover + .submenu{
+    display:flex;
+  }
+}
+
+/* SUBMENU ITEM */
 .submenu .menu-item{
   font-size:13px;
   padding:8px 14px;
@@ -208,10 +215,6 @@ iframe{
   .sidebar.open{
     transform:translateX(0);
   }
-
-  .header{
-    gap:12px;
-  }
 }
 </style>
 </head>
@@ -230,11 +233,11 @@ iframe{
 
     <div class="menu">
 
-      <!-- GRUPO -->
+      <!-- CONFIG -->
       <div class="menu-group">
         <div class="menu-title">Configurações</div>
 
-        <div class="menu-item" onclick="toggleMenu(this)">
+        <div class="menu-item has-sub" onclick="toggleMenu(this)">
           <i class="ri-settings-3-line"></i>
           <span>Customizações</span>
         </div>
@@ -250,7 +253,7 @@ iframe{
         </div>
       </div>
 
-      <!-- GRUPO -->
+      <!-- LOJAS -->
       <div class="menu-group">
         <div class="menu-title">Lojas</div>
 
@@ -260,11 +263,11 @@ iframe{
         </div>
       </div>
 
-      <!-- GRUPO -->
+      <!-- RELATÓRIOS -->
       <div class="menu-group">
         <div class="menu-title">Relatórios</div>
 
-        <div class="menu-item" onclick="toggleMenu(this)">
+        <div class="menu-item has-sub" onclick="toggleMenu(this)">
           <i class="ri-bar-chart-line"></i>
           <span>Relatórios</span>
         </div>
@@ -314,7 +317,7 @@ function openPage(p){
   closeSidebar();
 }
 
-/* SUBMENU */
+/* SUBMENU (mobile / clique) */
 function toggleMenu(el){
   el.classList.toggle("open");
 }
