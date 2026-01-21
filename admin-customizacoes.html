@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Painel • Customizações por Loja</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --primary:#2563eb;
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
+}
+
+*{box-sizing:border-box;font-family:Inter}
+body{margin:0;background:var(--bg);padding:24px;color:var(--text)}
+
+h1{margin:0 0 16px;font-size:22px;font-weight:900}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  display:grid;
+  gap:20px;
+}
+
+.card{
+  background:var(--card);
+  border-radius:18px;
+  padding:18px;
+  border:1px solid var(--border);
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+}
+
+.grid{
+  display:grid;
+  gap:12px;
+}
+
+.grid.cols-2{grid-template-columns:1fr 1fr}
+.grid.cols-3{grid-template-columns:2fr 2fr 1fr}
+
+input,select,button{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  font-weight:600;
+}
+
+button{
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  cursor:pointer;
+}
+
+button.sec{
+  background:#fff;
+  color:var(--text);
+  border:1px solid var(--border);
+}
+
+.table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+.table th,
+.table td{
+  padding:10px;
+  border-bottom:1px solid var(--border);
+  font-size:13px;
+  text-align:left;
+}
+
+.badge{
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+}
+
+.badge.on{background:#dcfce7;color:#166534}
+.badge.off{background:#fee2e2;color:#991b1b}
+
+.actions{
+  display:flex;
+  gap:6px;
+}
+
+.actions button{
+  padding:6px 10px;
+  font-size:12px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>🔧 Customizações por Loja</h1>
+
+  <!-- FORM -->
+  <div class="card">
+    <div class="grid cols-3">
+      <select id="lojaSelect"></select>
+      <input id="palavras" placeholder="Palavras-chave (ex: #Polaroid#, #Kit#)">
+      <input id="caminho" placeholder="Caminho HTML (ex: customizacoes/polaroid.html)">
+    </div>
+
+    <div class="grid cols-2" style="margin-top:12px">
+      <button onclick="salvar()">Salvar customização</button>
+      <button class="sec" onclick="limpar()">Limpar</button>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="card grid cols-3">
+    <select id="filtroLoja" onchange="render()"></select>
+    <input id="filtroPalavra" placeholder="Filtrar por palavra" oninput="render()">
+    <input id="filtroCaminho" placeholder="Filtrar por caminho" oninput="render()">
+  </div>
+
+  <!-- TABELA -->
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Loja</th>
+          <th>Palavras</th>
+          <th>Caminho</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="lista"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const sb = supabase.createClient(
+  "https://egxjgmzukjyyxmkukwub.supabase.co",
+  "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
+);
+
+let lojas = [];
+let customizacoes = [];
+let editandoId = null;
+
+/* LOAD */
+async function load(){
+  const { data:lojasData } = await sb
+    .from("user_profile")
+    .select("user_id, negocio")
+    .order("negocio");
+
+  lojas = lojasData || [];
+
+  lojaSelect.innerHTML =
+    `<option value="">Selecione a loja</option>` +
+    lojas.map(l=>`<option value="${l.user_id}">${l.negocio}</option>`).join("");
+
+  filtroLoja.innerHTML =
+    `<option value="">Todas as lojas</option>` +
+    lojas.map(l=>`<option value="${l.user_id}">${l.negocio}</option>`).join("");
+
+  await carregar();
+}
+
+async function carregar(){
+  const { data } = await sb
+    .from("loja_customizacoes")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  customizacoes = data || [];
+  render();
+}
+
+/* CRUD */
+async function salvar(){
+  const payload = {
+    loja_id: lojaSelect.value,
+    palavras_chave: palavras.value,
+    caminho_html: caminho.value,
+    ativo: true
+  };
+
+  if(!payload.loja_id || !payload.palavras_chave || !payload.caminho_html){
+    alert("Preencha todos os campos");
+    return;
+  }
+
+  if(editandoId){
+    await sb.from("loja_customizacoes")
+      .update(payload)
+      .eq("id", editandoId);
+  }else{
+    await sb.from("loja_customizacoes").insert(payload);
+  }
+
+  limpar();
+  carregar();
+}
+
+function editar(id){
+  const c = customizacoes.find(x=>x.id===id);
+  editandoId = id;
+  lojaSelect.value = c.loja_id;
+  palavras.value = c.palavras_chave;
+  caminho.value = c.caminho_html;
+}
+
+async function alternar(id, ativo){
+  await sb.from("loja_customizacoes")
+    .update({ativo: !ativo})
+    .eq("id", id);
+  carregar();
+}
+
+async function excluir(id){
+  if(!confirm("Excluir customização?")) return;
+  await sb.from("loja_customizacoes").delete().eq("id", id);
+  carregar();
+}
+
+function limpar(){
+  editandoId = null;
+  lojaSelect.value = "";
+  palavras.value = "";
+  caminho.value = "";
+}
+
+/* RENDER */
+function render(){
+  const fl = filtroLoja.value;
+  const fp = filtroPalavra.value.toLowerCase();
+  const fc = filtroCaminho.value.toLowerCase();
+
+  lista.innerHTML = customizacoes
+    .filter(c =>
+      (!fl || c.loja_id === fl) &&
+      (!fp || c.palavras_chave.toLowerCase().includes(fp)) &&
+      (!fc || c.caminho_html.toLowerCase().includes(fc))
+    )
+    .map(c=>{
+      const loja = lojas.find(l=>l.user_id===c.loja_id)?.negocio || "—";
+      return `
+        <tr>
+          <td>${loja}</td>
+          <td>${c.palavras_chave}</td>
+          <td>${c.caminho_html}</td>
+          <td>
+            <span class="badge ${c.ativo?'on':'off'}">
+              ${c.ativo?'Ativo':'Inativo'}
+            </span>
+          </td>
+          <td class="actions">
+            <button onclick="editar('${c.id}')">Editar</button>
+            <button onclick="alternar('${c.id}', ${c.ativo})">On/Off</button>
+            <button onclick="excluir('${c.id}')">Excluir</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+}
+
+load();
+</script>
+
+</body>
+</html>
