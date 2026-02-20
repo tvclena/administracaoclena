@@ -32,33 +32,52 @@ body{
   padding:16px 20px;display:flex;align-items:center;justify-content:space-between
 }
 .header h1{margin:0;font-size:18px}
-.container{max-width:1400px;margin:auto;padding:18px}
+.container{max-width:1600px;margin:auto;padding:18px}
 .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
 .filters input,.filters select{
   padding:12px;border-radius:999px;border:1px solid var(--border)
 }
+
+/* 👇 6 colunas no desktop */
 .grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px
+  display:grid;
+  grid-template-columns:repeat(6, 1fr);
+  gap:12px;
 }
+
+/* Responsivo */
+@media(max-width:1400px){
+  .grid{grid-template-columns:repeat(4, 1fr);}
+}
+@media(max-width:1100px){
+  .grid{grid-template-columns:repeat(3, 1fr);}
+}
+@media(max-width:800px){
+  .grid{grid-template-columns:repeat(2, 1fr);}
+}
+@media(max-width:520px){
+  .grid{grid-template-columns:1fr;}
+}
+
 .card{
-  background:#fff;border-radius:22px;padding:16px;border:1px solid var(--border);
-  box-shadow:0 10px 40px rgba(0,0,0,.12)
+  background:#fff;border-radius:22px;padding:14px;border:1px solid var(--border);
+  box-shadow:0 10px 30px rgba(0,0,0,.12)
 }
-.top{display:flex;gap:12px;align-items:center;margin-bottom:10px}
-.avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
-.name{font-weight:900}
-.city{font-size:12px;color:var(--muted)}
-.badge{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:900}
+.top{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.avatar{width:46px;height:46px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
+.name{font-weight:900;font-size:14px}
+.city{font-size:11px;color:var(--muted)}
+.badge{padding:3px 8px;border-radius:999px;font-size:10px;font-weight:900}
 .active{background:#e8fff3;color:var(--success)}
 .trial{background:#fff7ed;color:var(--primary)}
 .expired{background:#ffe5e5;color:var(--danger)}
-.info{font-size:13px;margin-top:4px;color:#111}
+.info{font-size:12px;margin-top:2px;color:#111}
 .muted{color:var(--muted)}
-.row{display:flex;justify-content:space-between;gap:6px;margin-top:6px;font-size:13px}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.row{display:flex;justify-content:space-between;gap:6px;margin-top:4px;font-size:12px}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .btn{
-  padding:8px 14px;border-radius:999px;border:1px solid var(--border);
-  background:#fff;cursor:pointer;font-weight:800;font-size:13px;
+  padding:6px 10px;border-radius:999px;border:1px solid var(--border);
+  background:#fff;cursor:pointer;font-weight:800;font-size:11px;
   display:flex;align-items:center;gap:6px;text-decoration:none;color:#111
 }
 .btn.primary{
@@ -66,12 +85,12 @@ body{
   color:#fff;border:none
 }
 .btn.warn{border:1px dashed var(--primary);color:var(--primary)}
-.icons{display:flex;gap:10px;margin-top:6px}
+.icons{display:flex;gap:6px;margin-top:6px}
 .icon{
-  width:34px;height:34px;border-radius:50%;
+  width:28px;height:28px;border-radius:50%;
   display:grid;place-items:center;
   background:#f3f4f6;color:#111;border:1px solid var(--border);
-  text-decoration:none;font-size:18px
+  text-decoration:none;font-size:15px
 }
 .icon.whats{color:#16a34a}
 .icon.mail{color:#2563eb}
@@ -149,21 +168,20 @@ const sb = supabase.createClient(
 let data = [];
 let current = null;
 
-async function load(){
-  const { data:rows } = await sb.from("user_profile").select("*").order("created_at",{ascending:false});
-  data = rows || [];
-  render();
-}
-load();
-
 const SELECT_FIELDS = {
   status: ["active","trial","expired"],
   assinatura_plano: ["BASIC","MASTER"],
   assinatura_ativa: ["true","false"],
   pagamento_online_ativo: ["true","false"]
 };
-
 const LOCKED_FIELDS = ["id","user_id","pagamento_online_ativo"];
+
+async function load(){
+  const { data:rows } = await sb.from("user_profile").select("*").order("created_at",{ascending:false});
+  data = rows || [];
+  render();
+}
+load();
 
 function render(){
   const busca = f_busca.value.toLowerCase();
@@ -205,13 +223,13 @@ function render(){
       <div class="row"><span class="muted">Validade</span><b>${i.assinatura_valida_ate ? new Date(i.assinatura_valida_ate).toLocaleDateString() : '-'}</b></div>
 
       <div class="row"><span class="muted">Trial</span><b>${trialEnds ? trialEnds.toLocaleDateString() : '-'}</b></div>
-      <div class="row"><span class="muted">Dias trial</span>
+      <div class="row"><span class="muted">Dias</span>
         <b style="color:${diasTrial!==null && diasTrial<=3 ? '#dc2626':'#16a34a'}">${diasTrial!==null ? diasTrial : '-'}</b>
       </div>
 
       <div class="actions">
         <button class="btn" onclick='edit(${JSON.stringify(i)})'>Editar</button>
-        ${!i.assinatura_ativa ? `<button class="btn warn" onclick="renovarTrial('${i.id}')">Renovar trial</button>` : ``}
+        ${!i.assinatura_ativa ? `<button class="btn warn" onclick="renovarTrial('${i.id}')">Trial</button>` : ``}
         <a class="btn primary" target="_blank" href="https://www.clena.com.br/loja.html?l=${i.user_id}">Abrir Loja</a>
       </div>
     </div>
@@ -263,7 +281,7 @@ async function salvar(){
 }
 
 async function renovarTrial(id){
-  if(!confirm("Deseja conceder mais 7 dias de trial?")) return;
+  if(!confirm("Conceder +7 dias de trial?")) return;
   const novaData = new Date(Date.now() + 7*24*60*60*1000);
   await sb.from("user_profile").update({
     status:"trial",
