@@ -44,15 +44,11 @@ body{
   background:#fff;border-radius:22px;padding:16px;border:1px solid var(--border);
   box-shadow:0 10px 40px rgba(0,0,0,.12)
 }
-.top{
-  display:flex;gap:12px;align-items:center;margin-bottom:10px
-}
+.top{display:flex;gap:12px;align-items:center;margin-bottom:10px}
 .avatar{width:54px;height:54px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
 .name{font-weight:900}
 .city{font-size:12px;color:var(--muted)}
-.badge{
-  padding:4px 10px;border-radius:999px;font-size:11px;font-weight:900
-}
+.badge{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:900}
 .active{background:#e8fff3;color:var(--success)}
 .trial{background:#fff7ed;color:var(--primary)}
 .expired{background:#ffe5e5;color:var(--danger)}
@@ -70,7 +66,6 @@ body{
   color:#fff;border:none
 }
 .btn.warn{border:1px dashed var(--primary);color:var(--primary)}
-.btn.danger{background:#ffe5e5;color:var(--danger);border:none}
 .icons{display:flex;gap:10px;margin-top:6px}
 .icon{
   width:34px;height:34px;border-radius:50%;
@@ -80,7 +75,25 @@ body{
 }
 .icon.whats{color:#16a34a}
 .icon.mail{color:#2563eb}
-small{font-size:11px;color:var(--muted)}
+
+/* MODAL */
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);
+  display:none;align-items:center;justify-content:center;z-index:99
+}
+.modal .box{
+  background:#fff;padding:22px;border-radius:22px;
+  width:95%;max-width:900px;max-height:90vh;overflow:auto
+}
+.grid-form{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px
+}
+.grid-form label{font-size:11px;color:var(--muted)}
+.grid-form input,.grid-form select,.grid-form textarea{
+  width:100%;padding:10px;border-radius:12px;border:1px solid var(--border)
+}
+.footer-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+@media(max-width:900px){ .grid-form{grid-template-columns:1fr} }
 </style>
 </head>
 <body>
@@ -112,6 +125,18 @@ small{font-size:11px;color:var(--muted)}
 
 </div>
 
+<!-- MODAL EDITAR -->
+<div class="modal" id="modal">
+  <div class="box">
+    <h3>Editar Loja (completo)</h3>
+    <div class="grid-form" id="form"></div>
+    <div class="footer-actions">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary" onclick="salvar()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const sb = supabase.createClient(
   "https://egxjgmzukjyyxmkukwub.supabase.co",
@@ -119,6 +144,7 @@ const sb = supabase.createClient(
 );
 
 let data = [];
+let current = null;
 
 async function load(){
   const { data:rows } = await sb.from("user_profile").select("*").order("created_at",{ascending:false});
@@ -162,43 +188,44 @@ function render(){
         ${i.email_contato ? `<a class="icon mail" href="mailto:${i.email_contato}"><i class="ri-mail-line"></i></a>` : ``}
       </div>
 
-      <div class="row">
-        <span class="muted">Plano</span>
-        <b>${i.assinatura_plano||'-'}</b>
-      </div>
-      <div class="row">
-        <span class="muted">Valor</span>
-        <b>R$ ${i.assinatura_valor||0}</b>
-      </div>
-      <div class="row">
-        <span class="muted">Validade</span>
-        <b>${i.assinatura_valida_ate ? new Date(i.assinatura_valida_ate).toLocaleDateString() : '-'}</b>
-      </div>
+      <div class="row"><span class="muted">Plano</span><b>${i.assinatura_plano||'-'}</b></div>
+      <div class="row"><span class="muted">Valor</span><b>R$ ${i.assinatura_valor||0}</b></div>
+      <div class="row"><span class="muted">Validade</span><b>${i.assinatura_valida_ate ? new Date(i.assinatura_valida_ate).toLocaleDateString() : '-'}</b></div>
 
-      <div class="row">
-        <span class="muted">Trial</span>
-        <b>${trialEnds ? trialEnds.toLocaleDateString() : '-'}</b>
-      </div>
-      <div class="row">
-        <span class="muted">Dias trial</span>
-        <b style="color:${diasTrial!==null && diasTrial<=3 ? '#dc2626':'#16a34a'}">
-          ${diasTrial!==null ? diasTrial : '-'}
-        </b>
+      <div class="row"><span class="muted">Trial</span><b>${trialEnds ? trialEnds.toLocaleDateString() : '-'}</b></div>
+      <div class="row"><span class="muted">Dias trial</span>
+        <b style="color:${diasTrial!==null && diasTrial<=3 ? '#dc2626':'#16a34a'}">${diasTrial!==null ? diasTrial : '-'}</b>
       </div>
 
       <div class="actions">
+        <button class="btn" onclick='edit(${JSON.stringify(i)})'>Editar</button>
         ${!i.assinatura_ativa ? `<button class="btn warn" onclick="renovarTrial('${i.id}')">Renovar trial</button>` : ``}
-        <a class="btn primary" target="_blank"
-           href="https://www.clena.com.br/loja.html?l=${i.user_id}">
-          Abrir Loja
-        </a>
+        <a class="btn primary" target="_blank" href="https://www.clena.com.br/loja.html?l=${i.user_id}">Abrir Loja</a>
       </div>
     </div>
     `;
   }).join("");
 }
 
-/* Renovar trial */
+function edit(row){
+  current = row;
+  form.innerHTML = Object.keys(row).map(k=>`
+    <div>
+      <label>${k}</label>
+      <input value="${(row[k]??"").toString().replaceAll('"','&quot;')}"
+        onchange="current['${k}']=this.value">
+    </div>
+  `).join("");
+  modal.style.display="flex";
+}
+function closeModal(){ modal.style.display="none"; }
+
+async function salvar(){
+  await sb.from("user_profile").update(current).eq("id", current.id);
+  closeModal();
+  load();
+}
+
 async function renovarTrial(id){
   if(!confirm("Deseja conceder mais 7 dias de trial?")) return;
   const novaData = new Date(Date.now() + 7*24*60*60*1000);
