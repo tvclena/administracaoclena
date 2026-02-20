@@ -92,6 +92,9 @@ body{
 .grid-form input,.grid-form select,.grid-form textarea{
   width:100%;padding:10px;border-radius:12px;border:1px solid var(--border)
 }
+.grid-form input[readonly]{
+  background:#f3f4f6;color:#9ca3af;border-style:dashed
+}
 .footer-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
 @media(max-width:900px){ .grid-form{grid-template-columns:1fr} }
 </style>
@@ -209,19 +212,24 @@ function render(){
 
 function edit(row){
   current = row;
-  form.innerHTML = Object.keys(row).map(k=>`
-    <div>
-      <label>${k}</label>
-      <input value="${(row[k]??"").toString().replaceAll('"','&quot;')}"
-        onchange="current['${k}']=this.value">
-    </div>
-  `).join("");
+  form.innerHTML = Object.keys(row).map(k=>{
+    const ro = (k==="id" || k==="user_id") ? "readonly" : "";
+    return `
+      <div>
+        <label>${k}</label>
+        <input ${ro} value="${(row[k]??"").toString().replaceAll('"','&quot;')}"
+          onchange="current['${k}']=this.value">
+      </div>
+    `;
+  }).join("");
   modal.style.display="flex";
 }
 function closeModal(){ modal.style.display="none"; }
 
 async function salvar(){
-  await sb.from("user_profile").update(current).eq("id", current.id);
+  const payload = {...current};
+  delete payload.id; // id não pode ser alterado
+  await sb.from("user_profile").update(payload).eq("id", current.id);
   closeModal();
   load();
 }
