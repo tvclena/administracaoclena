@@ -3,172 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1e3a8a">
+<meta name="theme-color" content="#ff6a00">
 
-<title>Admin • Tipos de Loja</title>
+<title>Central Admin • Tipos de Loja</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
-  --primary:#1e40af;
-  --bg:#f4f6fb;
-  --card:#ffffff;
+  --primary:#ff6a00;
+  --bg:#000;
+  --card:#fff;
   --border:#e5e7eb;
   --text:#0f172a;
-  --muted:#64748b;
+  --muted:#6b7280;
   --danger:#dc2626;
-  --radius:14px;
+  --radius:22px;
 }
-
-*{
-  box-sizing:border-box;
-  font-family:Inter,system-ui;
-}
-
+*{box-sizing:border-box;font-family:Inter;-webkit-tap-highlight-color:transparent}
 body{
   margin:0;
-  background:var(--bg);
-  color:var(--text);
+  background:
+    radial-gradient(900px 300px at 20% -10%,rgba(255,106,0,.15),transparent 40%),
+    #000;
 }
 
 /* HEADER */
 header{
-  background:var(--card);
-  border-bottom:1px solid var(--border);
-  padding:16px 24px;
+  position:sticky;top:0;z-index:10;
+  background:#fff;border-bottom:1px solid var(--border);
+  padding:16px 20px;display:flex;align-items:center;justify-content:space-between
 }
-
-header h1{
-  margin:0;
-  font-size:18px;
-  font-weight:800;
-}
+header h1{margin:0;font-size:18px;font-weight:900}
 
 /* LAYOUT */
 .container{
-  max-width:1100px;
-  margin:auto;
-  padding:24px;
-  display:grid;
-  gap:24px;
+  max-width:1400px;margin:auto;padding:18px;
+  display:grid;gap:16px;
+  grid-template-columns:1.1fr .9fr;
+}
+@media(max-width:900px){
+  .container{grid-template-columns:1fr}
 }
 
+/* CARDS */
 .card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:20px;
+  background:#fff;border-radius:22px;padding:18px;border:1px solid var(--border);
+  box-shadow:0 10px 30px rgba(0,0,0,.12)
 }
-
 .card h2{
-  margin:0 0 14px;
-  font-size:15px;
-  font-weight:700;
+  margin:0 0 12px;font-size:15px;font-weight:900
 }
 
 /* FORM */
 .grid{
-  display:grid;
-  gap:12px;
+  display:grid;gap:10px
 }
-.cols-3{grid-template-columns:1fr 1fr 1fr}
-.cols-2{grid-template-columns:1fr 1fr}
-
-input,select,button{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid var(--border);
-  font-size:13px;
-  font-weight:600;
+.cols-3{grid-template-columns:repeat(3,1fr)}
+.cols-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:900px){
+  .cols-3,.cols-2{grid-template-columns:1fr}
 }
 
+input,button{
+  width:100%;padding:12px;border-radius:999px;
+  border:1px solid var(--border);font-size:13px;font-weight:700
+}
 button{
-  background:var(--primary);
-  color:#fff;
-  border:none;
-  cursor:pointer;
+  background:linear-gradient(135deg,#ff6a00,#ff9a57);
+  color:#fff;border:none;cursor:pointer
 }
-
 button.sec{
-  background:#fff;
-  color:var(--text);
-  border:1px solid var(--border);
+  background:#fff;color:#111;border:1px solid var(--border)
 }
-
 button.danger{
-  background:var(--danger);
+  background:#ffe5e5;color:#dc2626;border:none
 }
 
 /* LISTA */
-.list{
-  display:grid;
-  gap:12px;
-}
-
+.list{display:grid;gap:10px}
 .item{
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:14px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  border:1px solid var(--border);border-radius:16px;padding:12px;
+  display:flex;justify-content:space-between;align-items:center
 }
-
-.item-info h3{
-  margin:0;
-  font-size:14px;
-  font-weight:700;
-}
-
-.item-info span{
-  font-size:12px;
-  color:var(--muted);
-}
-
-.actions{
-  display:flex;
-  gap:8px;
-}
-
-.actions button{
-  padding:6px 10px;
-  font-size:12px;
-}
+.item-info h3{margin:0;font-size:14px;font-weight:900}
+.item-info span{font-size:12px;color:var(--muted)}
+.actions{display:flex;gap:6px}
+.actions button{padding:6px 12px;font-size:11px}
 </style>
 </head>
 
 <body>
 
 <header>
-  <h1>Administração • Tipos de Loja</h1>
+  <h1>Central Admin • Tipos de Loja</h1>
+  <button onclick="load()">Atualizar</button>
 </header>
 
 <div class="container">
 
-<!-- FORM -->
-<div class="card">
-  <h2>Criar / Editar Tipo</h2>
+  <!-- FORM -->
+  <div class="card">
+    <h2>Criar / Editar Tipo</h2>
 
-  <div class="grid cols-3">
-    <input id="nome" placeholder="Nome">
-    <input id="slug" placeholder="Slug">
-    <input id="app_path" placeholder="app.html">
+    <div class="grid cols-3">
+      <input id="nome" placeholder="Nome do tipo (ex: BARBEARIA)">
+      <input id="slug" placeholder="slug (ex: barbearia)">
+      <input id="app_path" placeholder="app.html">
+    </div>
+
+    <div class="grid cols-2" style="margin-top:10px">
+      <button onclick="salvar()">Salvar</button>
+      <button class="sec" onclick="limpar()">Limpar</button>
+    </div>
   </div>
 
-  <div class="grid cols-2" style="margin-top:12px">
-    <button onclick="salvar()">Salvar</button>
-    <button class="sec" onclick="limpar()">Limpar</button>
+  <!-- LISTA -->
+  <div class="card">
+    <h2>Tipos cadastrados</h2>
+    <div id="lista" class="list"></div>
   </div>
-</div>
-
-<!-- LISTA -->
-<div class="card">
-  <h2>Tipos Cadastrados</h2>
-  <div id="lista" class="list"></div>
-</div>
 
 </div>
 
@@ -181,21 +137,15 @@ const sb = supabase.createClient(
 let tipos = [];
 let editId = null;
 
-/* LOAD */
 async function load(){
-  const { data } = await sb
-    .from("tipos_loja")
-    .select("*")
-    .order("created_at",{ascending:false});
-
+  const { data } = await sb.from("tipos_loja").select("*").order("created_at",{ascending:false});
   tipos = data || [];
   render();
 }
 
-/* SALVAR */
 async function salvar(){
   const payload = {
-    nome: nome.value.trim(),
+    nome: nome.value.trim().toUpperCase(),
     slug: slug.value.trim().toLowerCase(),
     app_path: app_path.value.trim(),
     ativo: true
@@ -216,7 +166,6 @@ async function salvar(){
   load();
 }
 
-/* EDITAR */
 function editar(t){
   editId = t.id;
   nome.value = t.nome;
@@ -224,14 +173,12 @@ function editar(t){
   app_path.value = t.app_path;
 }
 
-/* EXCLUIR */
 async function excluir(id){
   if(!confirm("Excluir este tipo?")) return;
   await sb.from("tipos_loja").delete().eq("id",id);
   load();
 }
 
-/* LIMPAR */
 function limpar(){
   editId = null;
   nome.value = "";
@@ -239,7 +186,6 @@ function limpar(){
   app_path.value = "";
 }
 
-/* RENDER */
 function render(){
   lista.innerHTML = tipos.map(t => `
     <div class="item">
