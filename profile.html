@@ -92,7 +92,7 @@ body{
 .grid-form input,.grid-form select,.grid-form textarea{
   width:100%;padding:10px;border-radius:12px;border:1px solid var(--border)
 }
-.grid-form input[readonly]{
+.grid-form input[readonly], .grid-form select[disabled]{
   background:#f3f4f6;color:#9ca3af;border-style:dashed
 }
 .footer-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
@@ -156,6 +156,15 @@ async function load(){
 }
 load();
 
+const SELECT_FIELDS = {
+  status: ["active","trial","expired"],
+  assinatura_plano: ["BASIC","MASTER"],
+  assinatura_ativa: ["true","false"],
+  pagamento_online_ativo: ["true","false"]
+};
+
+const LOCKED_FIELDS = ["id","user_id","pagamento_online_ativo"];
+
 function render(){
   const busca = f_busca.value.toLowerCase();
   const status = f_status.value;
@@ -211,24 +220,43 @@ function render(){
 }
 
 function edit(row){
-  current = row;
+  current = {...row};
   form.innerHTML = Object.keys(row).map(k=>{
-    const ro = (k==="id" || k==="user_id") ? "readonly" : "";
+    const isLocked = LOCKED_FIELDS.includes(k);
+    const isSelect = SELECT_FIELDS[k];
+    const value = (row[k] ?? "").toString();
+
+    if(isSelect){
+      const options = SELECT_FIELDS[k].map(v =>
+        `<option value="${v}" ${value==v ? "selected":""}>${v}</option>`
+      ).join("");
+      return `
+        <div>
+          <label>${k}</label>
+          <select ${isLocked ? "disabled":""} onchange="current['${k}']=this.value">
+            ${options}
+          </select>
+        </div>
+      `;
+    }
+
     return `
       <div>
         <label>${k}</label>
-        <input ${ro} value="${(row[k]??"").toString().replaceAll('"','&quot;')}"
+        <input ${isLocked ? "readonly":""}
+          value="${value.replaceAll('"','&quot;')}"
           onchange="current['${k}']=this.value">
       </div>
     `;
   }).join("");
   modal.style.display="flex";
 }
+
 function closeModal(){ modal.style.display="none"; }
 
 async function salvar(){
   const payload = {...current};
-  delete payload.id; // id não pode ser alterado
+  LOCKED_FIELDS.forEach(f => delete payload[f]);
   await sb.from("user_profile").update(payload).eq("id", current.id);
   closeModal();
   load();
