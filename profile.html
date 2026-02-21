@@ -10,6 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+/* ====== ESTILO PREMIUM (mantido) ====== */
 :root{
   --primary:#ff6a00;
   --bg:#000;
@@ -34,35 +35,16 @@ body{
 .header h1{margin:0;font-size:18px}
 .container{max-width:1600px;margin:auto;padding:18px}
 .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.filters input,.filters select{
-  padding:12px;border-radius:999px;border:1px solid var(--border)
-}
+.filters input,.filters select{padding:12px;border-radius:999px;border:1px solid var(--border)}
 
 /* 👇 6 colunas no desktop */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(6, 1fr);
-  gap:12px;
-}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+@media(max-width:1400px){.grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}}
 
-/* Responsivo */
-@media(max-width:1400px){
-  .grid{grid-template-columns:repeat(4, 1fr);}
-}
-@media(max-width:1100px){
-  .grid{grid-template-columns:repeat(3, 1fr);}
-}
-@media(max-width:800px){
-  .grid{grid-template-columns:repeat(2, 1fr);}
-}
-@media(max-width:520px){
-  .grid{grid-template-columns:1fr;}
-}
-
-.card{
-  background:#fff;border-radius:22px;padding:14px;border:1px solid var(--border);
-  box-shadow:0 10px 30px rgba(0,0,0,.12)
-}
+.card{background:#fff;border-radius:22px;padding:14px;border:1px solid var(--border);box-shadow:0 10px 30px rgba(0,0,0,.12)}
 .top{display:flex;gap:10px;align-items:center;margin-bottom:8px}
 .avatar{width:46px;height:46px;border-radius:50%;object-fit:cover;border:1px solid var(--border)}
 .name{font-weight:900;font-size:14px}
@@ -75,47 +57,23 @@ body{
 .muted{color:var(--muted)}
 .row{display:flex;justify-content:space-between;gap:6px;margin-top:4px;font-size:12px}
 .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.btn{
-  padding:6px 10px;border-radius:999px;border:1px solid var(--border);
-  background:#fff;cursor:pointer;font-weight:800;font-size:11px;
-  display:flex;align-items:center;gap:6px;text-decoration:none;color:#111
-}
-.btn.primary{
-  background:linear-gradient(135deg,#ff6a00,#ff9a57);
-  color:#fff;border:none
-}
+.btn{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:#fff;cursor:pointer;font-weight:800;font-size:11px;display:flex;align-items:center;gap:6px;text-decoration:none;color:#111}
+.btn.primary{background:linear-gradient(135deg,#ff6a00,#ff9a57);color:#fff;border:none}
 .btn.warn{border:1px dashed var(--primary);color:var(--primary)}
 .icons{display:flex;gap:6px;margin-top:6px}
-.icon{
-  width:28px;height:28px;border-radius:50%;
-  display:grid;place-items:center;
-  background:#f3f4f6;color:#111;border:1px solid var(--border);
-  text-decoration:none;font-size:15px
-}
+.icon{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#f3f4f6;color:#111;border:1px solid var(--border);text-decoration:none;font-size:15px}
 .icon.whats{color:#16a34a}
 .icon.mail{color:#2563eb}
 
 /* MODAL */
-.modal{
-  position:fixed;inset:0;background:rgba(0,0,0,.6);
-  display:none;align-items:center;justify-content:center;z-index:99
-}
-.modal .box{
-  background:#fff;padding:22px;border-radius:22px;
-  width:95%;max-width:900px;max-height:90vh;overflow:auto
-}
-.grid-form{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:10px
-}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:99}
+.modal .box{background:#fff;padding:22px;border-radius:22px;width:95%;max-width:900px;max-height:90vh;overflow:auto}
+.grid-form{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .grid-form label{font-size:11px;color:var(--muted)}
-.grid-form input,.grid-form select,.grid-form textarea{
-  width:100%;padding:10px;border-radius:12px;border:1px solid var(--border)
-}
-.grid-form input[readonly], .grid-form select[disabled]{
-  background:#f3f4f6;color:#9ca3af;border-style:dashed
-}
+.grid-form input,.grid-form select,.grid-form textarea{width:100%;padding:10px;border-radius:12px;border:1px solid var(--border)}
+.grid-form input[readonly],.grid-form select[disabled]{background:#f3f4f6;color:#9ca3af;border-style:dashed}
 .footer-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
-@media(max-width:900px){ .grid-form{grid-template-columns:1fr} }
+@media(max-width:900px){.grid-form{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -126,7 +84,6 @@ body{
 </header>
 
 <div class="container">
-
   <div class="filters">
     <input id="f_busca" placeholder="Buscar nome, whatsapp, negócio, email..." oninput="render()">
     <select id="f_status" onchange="render()">
@@ -137,14 +94,14 @@ body{
     </select>
     <select id="f_tipo" onchange="render()">
       <option value="">Tipo</option>
-      <option value="LOJA">LOJA</option>
       <option value="BARBEARIA">BARBEARIA</option>
+      <option value="LOJA">LOJA</option>
+      <option value="SALÃO DE BELEZA">SALÃO DE BELEZA</option>
       <option value="STUDIO">STUDIO</option>
     </select>
   </div>
 
   <div class="grid" id="grid"></div>
-
 </div>
 
 <!-- MODAL EDITAR -->
@@ -168,12 +125,16 @@ const sb = supabase.createClient(
 let data = [];
 let current = null;
 
+// selects controlados
 const SELECT_FIELDS = {
   status: ["active","trial","expired"],
+  tipo: ["BARBEARIA","LOJA","SALÃO DE BELEZA","STUDIO"],
   assinatura_plano: ["BASIC","MASTER"],
   assinatura_ativa: ["true","false"],
   pagamento_online_ativo: ["true","false"]
 };
+
+// campos bloqueados
 const LOCKED_FIELDS = ["id","user_id","pagamento_online_ativo"];
 
 async function load(){
