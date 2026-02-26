@@ -40,36 +40,17 @@ html,body{
   overflow-y:auto;
 }
 
-/* ====== HEADER ====== */
-.header{
-  position:sticky;
-  top:0;
-  z-index:10;
-  background:#fff;
-  border-bottom:1px solid var(--border);
-  padding:14px 14px env(safe-area-inset-top);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
-.header h1{
-  margin:0;
-  font-size:16px;
-  font-weight:900;
-}
-
 /* ====== CONTAINER ====== */
 .container{
   max-width:1200px;
   margin:0 auto;
-  padding:12px 10px 28px;
+  padding:10px 10px 28px; /* começa direto nos filtros */
 }
 
-/* ====== FILTROS ====== */
+/* ====== FILTROS EM LINHA (MOBILE-FIRST) ====== */
 .filters{
   display:grid;
-  grid-template-columns:1fr;
+  grid-template-columns:1fr 1fr 1fr;  /* 👈 3 em linha quando couber */
   gap:8px;
   margin-bottom:12px;
 }
@@ -77,11 +58,19 @@ html,body{
 .filters input,
 .filters select{
   width:100%;
-  padding:12px 14px;
+  padding:12px 12px;
   border-radius:999px;
   border:1px solid var(--border);
-  font-size:14px;
+  font-size:13px;
   outline:none;
+  min-width:0;
+}
+
+/* QUEBRA BONITA QUANDO A TELA FOR MENOR */
+@media(max-width:480px){
+  .filters{
+    grid-template-columns:1fr 1fr; /* 👈 2 em linha em telas bem pequenas */
+  }
 }
 
 /* ====== GRID RESPONSIVO ====== */
@@ -304,7 +293,7 @@ small{font-size:11px;color:var(--muted)}
 }
 
 /* ====== MELHORIAS DE TOQUE ====== */
-.btn, .icon, .nav-item{
+.btn, .icon{
   min-height:36px;
 }
 </style>
