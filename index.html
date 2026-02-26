@@ -30,7 +30,7 @@
 html,body{height:100%;margin:0;background:var(--bg);overflow:hidden}
 
 /* APP */
-.app{height:100vh;display:flex;flex-direction:column}
+.app{height:100vh;display:flex;flex-direction:column;max-width:100vw}
 
 /* HEADER */
 .header{
@@ -45,8 +45,26 @@ html,body{height:100%;margin:0;background:var(--bg);overflow:hidden}
 }
 
 /* CONTENT */
-.content{flex:1;position:relative;background:#fff}
+.content{flex:1;position:relative;background:#fff;overflow:hidden}
 iframe{width:100%;height:100%;border:none}
+
+/* LOADING OVERLAY */
+.loading{
+  position:absolute;
+  inset:0;
+  background:rgba(2,6,23,.85);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-weight:900;
+  letter-spacing:1px;
+  z-index:20;
+  opacity:0;
+  pointer-events:none;
+  transition:.2s;
+}
+.loading.show{opacity:1;pointer-events:auto}
 
 /* BOTTOM NAV */
 .bottom-nav{
@@ -74,19 +92,14 @@ iframe{width:100%;height:100%;border:none}
 }
 
 .nav-item i{font-size:22px}
-
-.nav-item.active{
-  color:#fff;
-  transform:translateY(-2px);
-}
-
+.nav-item.active{color:#fff;transform:translateY(-2px)}
 .nav-item:active{transform:scale(.94)}
 
 /* BADGE */
 .badge{
   position:absolute;
-  top:10px;
-  right:26px;
+  top:8px;
+  right:22px;
   background:#ef4444;
   color:#fff;
   font-size:10px;
@@ -114,7 +127,6 @@ iframe{width:100%;height:100%;border:none}
   z-index:10;
   transition:.2s;
 }
-
 .fab:active{transform:scale(.92)}
 
 /* QUICK MENU */
@@ -129,8 +141,9 @@ iframe{width:100%;height:100%;border:none}
   display:none;
   flex-direction:column;
   gap:6px;
+  z-index:11;
 }
-
+.quick-menu.open{display:flex}
 .quick-menu button{
   background:#0f172a;
   border:none;
@@ -144,8 +157,6 @@ iframe{width:100%;height:100%;border:none}
   cursor:pointer;
 }
 .quick-menu button:active{transform:scale(.96)}
-
-.quick-menu.open{display:flex}
 </style>
 </head>
 
@@ -156,14 +167,14 @@ iframe{width:100%;height:100%;border:none}
   <div class="header">Painel Administrativo</div>
 
   <div class="content">
-    <iframe id="frame" src="admin-customizacoes.html"></iframe>
+    <iframe id="frame" src="admin-customizacoes.html" onload="hideLoading()"></iframe>
 
-    <!-- BOTÃO FLUTUANTE -->
+    <div class="loading" id="loading">CARREGANDO…</div>
+
     <div class="fab" onclick="toggleQuick()">
       <i class="ri-add-line"></i>
     </div>
 
-    <!-- MENU RÁPIDO -->
     <div class="quick-menu" id="quickMenu">
       <button onclick="openPage(null,'admin-customizacoes.html')"><i class="ri-settings-3-line"></i> Customizações</button>
       <button onclick="openPage(null,'profile.html')"><i class="ri-store-2-line"></i> Lojas</button>
@@ -171,41 +182,37 @@ iframe{width:100%;height:100%;border:none}
     </div>
   </div>
 
-  <!-- NAV INFERIOR -->
   <nav class="bottom-nav">
-
     <div class="nav-item active" onclick="openPage(this,'admin-customizacoes.html')">
-      <i class="ri-settings-3-line"></i>
-      <span>Customizar</span>
+      <i class="ri-settings-3-line"></i><span>Customizar</span>
     </div>
-
     <div class="nav-item" onclick="openPage(this,'painel-tipo-loja.html')">
-      <i class="ri-apps-2-line"></i>
-      <span>Tipos</span>
+      <i class="ri-apps-2-line"></i><span>Tipos</span>
     </div>
-
     <div class="nav-item" onclick="openPage(this,'profile.html')">
-      <i class="ri-store-2-line"></i>
-      <span>Lojas</span>
-      <div class="badge">3</div>
+      <i class="ri-store-2-line"></i><span>Lojas</span><div class="badge">3</div>
     </div>
-
     <div class="nav-item" onclick="openPage(this,'admin-relatorios-vendas.html')">
-      <i class="ri-bar-chart-line"></i>
-      <span>Relatórios</span>
+      <i class="ri-bar-chart-line"></i><span>Relatórios</span>
     </div>
-
   </nav>
 
 </div>
 
 <script>
-/* PWA */
 if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js");
 }
 
+function showLoading(){
+  document.getElementById("loading").classList.add("show");
+}
+function hideLoading(){
+  document.getElementById("loading").classList.remove("show");
+}
+
 function openPage(el, page){
+  showLoading();
   if(el){
     document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
     el.classList.add("active");
