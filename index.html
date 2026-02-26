@@ -18,32 +18,16 @@
   --primary:#2563eb;
   --bg:#f3f4f6;
   --dark:#111827;
-  --text:#111827;
   --muted:#9ca3af;
   --radius:18px;
+  --shadow:0 14px 30px rgba(0,0,0,.25);
 }
 
-*{
-  box-sizing:border-box;
-  font-family:Inter,system-ui;
-  -webkit-tap-highlight-color:transparent;
-}
+*{box-sizing:border-box;font-family:Inter,system-ui;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;background:var(--bg);overflow:hidden}
 
-html,body{
-  height:100%;
-  margin:0;
-  background:var(--bg);
-  overflow:hidden;
-}
-
-/* APP CONTAINER */
-.app{
-  height:100dvh;
-  display:flex;
-  flex-direction:column;
-  max-width:100vw;
-  overflow:hidden;
-}
+/* APP */
+.app{height:100dvh;display:flex;flex-direction:column;max-width:100vw}
 
 /* HEADER */
 .header{
@@ -53,43 +37,29 @@ html,body{
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight:800;
-  font-size:16px;
+  font-weight:900;
   letter-spacing:.5px;
-  flex-shrink:0;
 }
 
 /* CONTENT */
-.content{
-  flex:1;
-  position:relative;
-  background:#fff;
-  overflow:hidden;
-}
-
-iframe{
-  width:100%;
-  height:100%;
-  border:none;
-}
+.content{flex:1;position:relative;background:#fff;overflow:hidden}
+iframe{width:100%;height:100%;border:none}
 
 /* NAVBAR */
 .bottom-nav{
-  position:relative;
   flex-shrink:0;
-  height:78px;
+  height:80px;
   padding-bottom:env(safe-area-inset-bottom);
-  background:rgba(17,24,39,0.98);
+  background:rgba(17,24,39,.98);
   backdrop-filter:blur(20px);
   display:flex;
   align-items:center;
   justify-content:space-around;
-  box-shadow:0 -4px 25px rgba(0,0,0,.2);
+  box-shadow:0 -6px 30px rgba(0,0,0,.25);
 }
 
 .nav-item{
   flex:1;
-  height:100%;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -97,47 +67,63 @@ iframe{
   gap:4px;
   color:#9ca3af;
   font-size:11px;
-  font-weight:700;
+  font-weight:800;
   cursor:pointer;
-  transition:.2s ease;
+  transition:.15s;
 }
 
-.nav-item i{
-  font-size:22px;
-}
+.nav-item i{font-size:22px}
+.nav-item.active{color:#fff;transform:translateY(-2px)}
+.nav-item:active{transform:scale(.95)}
 
-.nav-item.active{
-  color:#fff;
-}
-
-.nav-item.active i{
-  transform:translateY(-2px);
-}
-
-.nav-item:active{
-  transform:scale(.95);
-}
-
-/* LOADING */
-.loading{
+/* BOTÃO + (mais baixo e bonito) */
+.fab{
   position:absolute;
-  inset:0;
-  background:rgba(17,24,39,.9);
-  color:#fff;
+  right:16px;
+  bottom:calc(80px + env(safe-area-inset-bottom) - 22px); /* ⬅ MAIS BAIXO */
+  width:56px;
+  height:56px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#3b82f6,#60a5fa);
+  box-shadow:0 16px 30px rgba(59,130,246,.55);
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight:800;
-  letter-spacing:1px;
-  opacity:0;
-  pointer-events:none;
-  transition:.2s;
+  color:#fff;
+  font-size:26px;
+  cursor:pointer;
+  z-index:5;
+  transition:.18s ease;
 }
+.fab:active{transform:scale(.92)}
 
-.loading.show{
-  opacity:1;
-  pointer-events:auto;
+/* MENU RÁPIDO */
+.quick-menu{
+  position:absolute;
+  right:16px;
+  bottom:calc(80px + env(safe-area-inset-bottom) + 44px);
+  background:#111827;
+  border-radius:16px;
+  box-shadow:0 14px 30px rgba(0,0,0,.35);
+  padding:8px;
+  display:none;
+  flex-direction:column;
+  gap:6px;
+  z-index:6;
 }
+.quick-menu.open{display:flex}
+.quick-menu button{
+  background:#0b1220;
+  border:none;
+  color:#fff;
+  padding:12px 14px;
+  border-radius:12px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.quick-menu button:active{transform:scale(.96)}
 </style>
 </head>
 
@@ -145,37 +131,37 @@ iframe{
 
 <div class="app">
 
-  <div class="header">
-    Painel Administrativo
-  </div>
+  <div class="header">Painel Administrativo</div>
 
   <div class="content">
-    <iframe id="frame" src="admin-customizacoes.html" onload="hideLoading()"></iframe>
-    <div class="loading" id="loading">CARREGANDO...</div>
+    <iframe id="frame" src="admin-customizacoes.html"></iframe>
+
+    <!-- BOTÃO + -->
+    <div class="fab" onclick="toggleQuick()">
+      <i class="ri-add-line"></i>
+    </div>
+
+    <!-- MENU RÁPIDO -->
+    <div class="quick-menu" id="quickMenu">
+      <button onclick="openPage(null,'admin-customizacoes.html')"><i class="ri-settings-3-line"></i> Customizações</button>
+      <button onclick="openPage(null,'profile.html')"><i class="ri-store-2-line"></i> Lojas</button>
+      <button onclick="openPage(null,'admin-relatorios-vendas.html')"><i class="ri-bar-chart-line"></i> Relatórios</button>
+    </div>
   </div>
 
   <nav class="bottom-nav">
-
     <div class="nav-item active" onclick="openPage(this,'admin-customizacoes.html')">
-      <i class="ri-settings-3-line"></i>
-      <span>Customizar</span>
+      <i class="ri-settings-3-line"></i><span>Customizar</span>
     </div>
-
     <div class="nav-item" onclick="openPage(this,'painel-tipo-loja.html')">
-      <i class="ri-apps-2-line"></i>
-      <span>Tipos</span>
+      <i class="ri-apps-2-line"></i><span>Tipos</span>
     </div>
-
     <div class="nav-item" onclick="openPage(this,'profile.html')">
-      <i class="ri-store-2-line"></i>
-      <span>Lojas</span>
+      <i class="ri-store-2-line"></i><span>Lojas</span>
     </div>
-
     <div class="nav-item" onclick="openPage(this,'admin-relatorios-vendas.html')">
-      <i class="ri-bar-chart-line"></i>
-      <span>Relatórios</span>
+      <i class="ri-bar-chart-line"></i><span>Relatórios</span>
     </div>
-
   </nav>
 
 </div>
@@ -185,19 +171,17 @@ if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js");
 }
 
-function showLoading(){
-  document.getElementById("loading").classList.add("show");
-}
-
-function hideLoading(){
-  document.getElementById("loading").classList.remove("show");
-}
-
 function openPage(el,page){
-  showLoading();
-  document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
-  el.classList.add("active");
+  if(el){
+    document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
+    el.classList.add("active");
+  }
   document.getElementById("frame").src = page;
+  document.getElementById("quickMenu").classList.remove("open");
+}
+
+function toggleQuick(){
+  document.getElementById("quickMenu").classList.toggle("open");
 }
 </script>
 
