@@ -1,13 +1,18 @@
-self.addEventListener("install",e=>{
+const CACHE = "painel-admin-v1";
+const FILES = [
+  "./",
+  "./index.html",
+  "./manifest.json"
+];
+
+self.addEventListener("install", e=>{
   e.waitUntil(
-    caches.open("admin-v1").then(c=>
-      c.addAll(["./","index.html","manifest.json"])
-    )
+    caches.open(CACHE).then(cache=>cache.addAll(FILES))
   );
 });
 
-self.addEventListener("fetch",e=>{
+self.addEventListener("fetch", e=>{
   e.respondWith(
-    caches.match(e.request).then(r=>r||fetch(e.request))
+    caches.match(e.request).then(res=> res || fetch(e.request))
   );
 });
