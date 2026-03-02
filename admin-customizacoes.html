@@ -2,15 +2,8 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width,
-               initial-scale=1,
-               maximum-scale=1,
-               user-scalable=no,
-               viewport-fit=cover">
-
-<meta name="theme-color" content="#2563eb">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel de Customizações</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -32,9 +25,6 @@
 
 body{
   margin:0;
-  height:100vh;
-  display:flex;
-  flex-direction:column;
   background:var(--bg);
   color:var(--text);
 }
@@ -42,101 +32,52 @@ body{
 /* HEADER */
 .header{
   height:70px;
-  background:linear-gradient(90deg,var(--primary),var(--primary-dark));
-  color:#fff;
   display:flex;
   align-items:center;
   justify-content:space-between;
   padding:0 28px;
-  font-weight:800;
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  font-weight:900;
   font-size:18px;
 }
 
-/* KPI */
+/* KPIs */
 .kpis{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:18px;
-  padding:20px 28px;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:16px;
+  padding:20px 28px 0;
 }
 
 .kpi{
   background:var(--card);
-  border-radius:20px;
   padding:18px;
-  box-shadow:0 10px 30px rgba(0,0,0,.06);
+  border-radius:18px;
   border:1px solid var(--border);
+  box-shadow:0 6px 18px rgba(0,0,0,.05);
 }
 
-.kpi h3{
-  margin:0;
-  font-size:13px;
+.kpi small{
   color:var(--muted);
-  font-weight:700;
+  font-weight:600;
+  font-size:12px;
 }
 
-.kpi span{
-  font-size:26px;
+.kpi h2{
+  margin:6px 0 0;
+  font-size:24px;
   font-weight:900;
 }
 
-/* MAIN */
-.main{
-  flex:1;
-  display:grid;
-  grid-template-columns:360px 1fr;
-  gap:20px;
-  padding:0 28px 28px;
+/* TABLE CARD */
+.table-card{
+  margin:20px 28px;
+  background:#fff;
+  border-radius:18px;
+  border:1px solid var(--border);
+  box-shadow:0 6px 20px rgba(0,0,0,.05);
   overflow:hidden;
-}
-
-/* FORM */
-.form-card{
-  background:var(--card);
-  border-radius:22px;
-  padding:22px;
-  border:1px solid var(--border);
-  box-shadow:0 10px 30px rgba(0,0,0,.06);
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
-
-input,button{
-  width:100%;
-  padding:14px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  font-weight:600;
-  font-size:14px;
-}
-
-button{
-  background:var(--primary);
-  color:#fff;
-  border:none;
-  cursor:pointer;
-}
-
-button.sec{
-  background:#f1f5f9;
-  color:#111;
-}
-
-/* LIST */
-.list-card{
-  background:var(--card);
-  border-radius:22px;
-  border:1px solid var(--border);
-  box-shadow:0 10px 30px rgba(0,0,0,.06);
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-}
-
-.table-wrap{
-  flex:1;
-  overflow:auto;
 }
 
 table{
@@ -144,18 +85,18 @@ table{
   border-collapse:collapse;
 }
 
-th,td{
+th{
+  text-align:left;
   padding:14px;
+  background:#f8fafc;
+  font-weight:800;
   font-size:13px;
-  border-bottom:1px solid var(--border);
 }
 
-th{
-  background:#f8fafc;
-  text-align:left;
-  font-weight:800;
-  position:sticky;
-  top:0;
+td{
+  padding:14px;
+  font-size:13px;
+  border-top:1px solid var(--border);
 }
 
 tr:hover{
@@ -163,7 +104,7 @@ tr:hover{
 }
 
 .badge{
-  padding:4px 12px;
+  padding:4px 10px;
   border-radius:999px;
   font-size:11px;
   font-weight:800;
@@ -172,14 +113,102 @@ tr:hover{
 .on{background:#dcfce7;color:#166534}
 .off{background:#fee2e2;color:#991b1b}
 
-/* MOBILE */
-@media(max-width:1000px){
-  .kpis{grid-template-columns:1fr 1fr}
-  .main{grid-template-columns:1fr}
+/* MENU */
+.menu{position:relative}
+.menu-btn{
+  background:none;
+  border:none;
+  font-size:18px;
+  cursor:pointer;
+}
+.dropdown{
+  position:absolute;
+  right:0;
+  top:26px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:10px;
+  box-shadow:0 10px 25px rgba(0,0,0,.08);
+  display:none;
+  min-width:140px;
+  z-index:100;
+}
+.dropdown div{
+  padding:10px;
+  cursor:pointer;
+}
+.dropdown div:hover{background:#f1f5f9}
+
+/* FAB */
+.fab{
+  position:fixed;
+  right:24px;
+  bottom:24px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:linear-gradient(180deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  font-size:28px;
+  border:none;
+  cursor:pointer;
+  box-shadow:0 10px 25px rgba(37,99,235,.4);
+}
+
+/* MODAL */
+#modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:200;
+}
+
+.modal-box{
+  background:#fff;
+  width:100%;
+  max-width:420px;
+  padding:24px;
+  border-radius:18px;
+  box-shadow:0 15px 40px rgba(0,0,0,.2);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.modal-box h3{
+  margin:0 0 10px;
+  font-weight:900;
+}
+
+input{
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  font-size:14px;
+}
+
+button.primary{
+  background:var(--primary);
+  color:#fff;
+  border:none;
+  padding:12px;
+  border-radius:12px;
+  font-weight:800;
+}
+
+button.sec{
+  background:#f1f5f9;
+  border:none;
+  padding:12px;
+  border-radius:12px;
 }
 
 @media(max-width:600px){
-  .kpis{grid-template-columns:1fr}
+  .table-card{margin:16px}
+  .kpis{padding:16px}
 }
 </style>
 </head>
@@ -187,59 +216,44 @@ tr:hover{
 <body>
 
 <div class="header">
-  Painel de Customizações
-  <div id="totalIndicador">0 registros</div>
+  Customizações
+  <div id="totalReg">0 registros</div>
 </div>
 
 <div class="kpis">
-  <div class="kpi">
-    <h3>Total Customizações</h3>
-    <span id="kpiTotal">0</span>
-  </div>
-  <div class="kpi">
-    <h3>Ativas</h3>
-    <span id="kpiAtivas">0</span>
-  </div>
-  <div class="kpi">
-    <h3>Inativas</h3>
-    <span id="kpiInativas">0</span>
-  </div>
-  <div class="kpi">
-    <h3>Lojas Ativas</h3>
-    <span id="kpiLojas">0</span>
-  </div>
+  <div class="kpi"><small>Total</small><h2 id="kpiTotal">0</h2></div>
+  <div class="kpi"><small>Ativas</small><h2 id="kpiAtivas">0</h2></div>
+  <div class="kpi"><small>Inativas</small><h2 id="kpiInativas">0</h2></div>
+  <div class="kpi"><small>Lojas Ativas</small><h2 id="kpiLojas">0</h2></div>
 </div>
 
-<div class="main">
+<div class="table-card">
+  <table>
+    <thead>
+      <tr>
+        <th>Loja</th>
+        <th>Palavras</th>
+        <th>Caminho</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="lista"></tbody>
+  </table>
+</div>
 
-  <!-- FORM -->
-  <div class="form-card">
+<button class="fab" onclick="abrirModal()">+</button>
+
+<!-- MODAL -->
+<div id="modal">
+  <div class="modal-box">
     <h3>Nova Customização</h3>
-    <input id="buscaLoja" placeholder="Buscar loja ativa...">
-    <input id="palavras" placeholder="Palavras-chave (#Polaroid#)">
+    <input id="buscaLoja" placeholder="Nome da loja">
+    <input id="palavras" placeholder="Palavras-chave">
     <input id="caminho" placeholder="Caminho HTML">
-    <button onclick="salvar()">Salvar</button>
-    <button class="sec" onclick="limpar()">Limpar</button>
+    <button class="primary" onclick="salvar()">Salvar</button>
+    <button class="sec" onclick="fecharModal()">Cancelar</button>
   </div>
-
-  <!-- LIST -->
-  <div class="list-card">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Loja</th>
-            <th>Palavras</th>
-            <th>Caminho</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="lista"></tbody>
-      </table>
-    </div>
-  </div>
-
 </div>
 
 <script>
@@ -248,16 +262,15 @@ const sb = supabase.createClient(
   "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
 );
 
-let lojas=[], customizacoes=[], lojaSelecionada=null, editando=null;
+let lojas=[], customizacoes=[], editando=null;
 
 async function load(){
-  const { data } = await sb
-    .from("user_profile")
+  const { data } = await sb.from("user_profile")
     .select("user_id, negocio")
     .eq("status","active");
 
   lojas=data||[];
-  document.getElementById("kpiLojas").innerText = lojas.length;
+  kpiLojas.innerText=lojas.length;
   carregar();
 }
 
@@ -276,18 +289,22 @@ function atualizarKPIs(){
   kpiTotal.innerText=total;
   kpiAtivas.innerText=ativas;
   kpiInativas.innerText=inativas;
-  totalIndicador.innerText=`${total} registros`;
+  totalReg.innerText=total+" registros";
+}
+
+function abrirModal(){
+  modal.style.display="flex";
+}
+
+function fecharModal(){
+  modal.style.display="none";
+  limpar();
 }
 
 async function salvar(){
-  if(!buscaLoja.value||!palavras.value||!caminho.value){
-    alert("Preencha tudo");
-    return;
-  }
-
   const loja=lojas.find(l=>l.negocio===buscaLoja.value);
-  if(!loja){
-    alert("Loja inválida");
+  if(!loja||!palavras.value||!caminho.value){
+    alert("Preencha corretamente");
     return;
   }
 
@@ -302,7 +319,7 @@ async function salvar(){
     ? await sb.from("loja_customizacoes").update(payload).eq("id",editando)
     : await sb.from("loja_customizacoes").insert(payload);
 
-  limpar();
+  fecharModal();
   carregar();
 }
 
@@ -312,6 +329,7 @@ function editar(id){
   buscaLoja.value=lojas.find(l=>l.user_id===c.loja_id)?.negocio||"";
   palavras.value=c.palavras_chave;
   caminho.value=c.caminho_html;
+  abrirModal();
 }
 
 async function alternar(id,a){
@@ -333,6 +351,12 @@ function limpar(){
   caminho.value="";
 }
 
+function toggleMenu(id){
+  document.querySelectorAll(".dropdown").forEach(d=>d.style.display="none");
+  const el=document.getElementById("menu-"+id);
+  if(el) el.style.display="block";
+}
+
 function render(){
   lista.innerHTML = customizacoes.map(c=>{
     const loja=lojas.find(l=>l.user_id===c.loja_id)?.negocio||"—";
@@ -343,13 +367,24 @@ function render(){
         <td>${c.caminho_html}</td>
         <td><span class="badge ${c.ativo?'on':'off'}">${c.ativo?'Ativo':'Inativo'}</span></td>
         <td>
-          <button onclick="editar('${c.id}')">Editar</button>
-          <button onclick="alternar('${c.id}',${c.ativo})">On/Off</button>
-          <button onclick="excluir('${c.id}')">Excluir</button>
+          <div class="menu">
+            <button class="menu-btn" onclick="toggleMenu('${c.id}')">⋮</button>
+            <div class="dropdown" id="menu-${c.id}">
+              <div onclick="editar('${c.id}')">Editar</div>
+              <div onclick="alternar('${c.id}',${c.ativo})">Ativar/Inativar</div>
+              <div onclick="excluir('${c.id}')">Excluir</div>
+            </div>
+          </div>
         </td>
       </tr>`;
   }).join("");
 }
+
+document.addEventListener("click",e=>{
+  if(!e.target.closest(".menu")){
+    document.querySelectorAll(".dropdown").forEach(d=>d.style.display="none");
+  }
+});
 
 load();
 </script>
