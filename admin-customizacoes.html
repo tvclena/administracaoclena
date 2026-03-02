@@ -11,73 +11,97 @@
                viewport-fit=cover">
 
 <meta name="theme-color" content="#2563eb">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<link rel="manifest" href="manifest.json">
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
   --primary:#2563eb;
-  --bg:#f4f6fb;
+  --primary-dark:#1e40af;
+  --bg:#f3f6fb;
   --card:#ffffff;
   --border:#e5e7eb;
-  --text:#111827;
-  --muted:#6b7280;
+  --text:#0f172a;
+  --muted:#64748b;
+  --success:#16a34a;
+  --danger:#dc2626;
 }
 
 *{box-sizing:border-box;font-family:Inter}
+
 body{
   margin:0;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
   background:var(--bg);
   color:var(--text);
-  padding:24px;
 }
 
 /* HEADER */
 .header{
+  height:70px;
+  background:linear-gradient(90deg,var(--primary),var(--primary-dark));
+  color:#fff;
   display:flex;
   align-items:center;
-  justify-content:center;
-  gap:12px;
-  margin-bottom:24px;
-}
-.header img{
-  width:46px;
-  height:46px;
-  border-radius:14px;
-}
-.header h1{
-  font-size:20px;
-  font-weight:900;
-  margin:0;
+  justify-content:space-between;
+  padding:0 28px;
+  font-weight:800;
+  font-size:18px;
 }
 
-/* LAYOUT */
-.container{
-  max-width:1200px;
-  margin:auto;
+/* KPI */
+.kpis{
   display:grid;
-  gap:20px;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+  padding:20px 28px;
 }
 
-.card{
+.kpi{
+  background:var(--card);
+  border-radius:20px;
+  padding:18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+  border:1px solid var(--border);
+}
+
+.kpi h3{
+  margin:0;
+  font-size:13px;
+  color:var(--muted);
+  font-weight:700;
+}
+
+.kpi span{
+  font-size:26px;
+  font-weight:900;
+}
+
+/* MAIN */
+.main{
+  flex:1;
+  display:grid;
+  grid-template-columns:360px 1fr;
+  gap:20px;
+  padding:0 28px 28px;
+  overflow:hidden;
+}
+
+/* FORM */
+.form-card{
   background:var(--card);
   border-radius:22px;
-  padding:20px;
+  padding:22px;
   border:1px solid var(--border);
-  box-shadow:0 12px 34px rgba(0,0,0,.06);
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
 }
 
-/* GRID */
-.grid{display:grid;gap:14px}
-.cols-2{grid-template-columns:1fr 1fr}
-.cols-3{grid-template-columns:2fr 2fr 1fr}
-
-/* INPUTS */
 input,button{
   width:100%;
   padding:14px;
@@ -86,7 +110,6 @@ input,button{
   font-weight:600;
   font-size:14px;
 }
-input::placeholder{color:#9ca3af}
 
 button{
   background:var(--primary);
@@ -94,124 +117,132 @@ button{
   border:none;
   cursor:pointer;
 }
+
 button.sec{
-  background:#fff;
-  color:var(--text);
-}
-
-/* AUTOCOMPLETE */
-.autocomplete{position:relative}
-.autocomplete-list{
-  position:absolute;
-  top:100%;
-  left:0;
-  right:0;
-  background:#fff;
-  border-radius:14px;
-  border:1px solid var(--border);
-  max-height:240px;
-  overflow:auto;
-  z-index:20;
-}
-.autocomplete-item{
-  padding:10px 14px;
-  cursor:pointer;
-}
-.autocomplete-item:hover{
   background:#f1f5f9;
+  color:#111;
 }
 
-/* TABLE */
+/* LIST */
+.list-card{
+  background:var(--card);
+  border-radius:22px;
+  border:1px solid var(--border);
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+}
+
+.table-wrap{
+  flex:1;
+  overflow:auto;
+}
+
 table{
   width:100%;
   border-collapse:collapse;
 }
+
 th,td{
-  padding:10px;
-  border-bottom:1px solid var(--border);
+  padding:14px;
   font-size:13px;
+  border-bottom:1px solid var(--border);
 }
-th{font-weight:800}
+
+th{
+  background:#f8fafc;
+  text-align:left;
+  font-weight:800;
+  position:sticky;
+  top:0;
+}
+
+tr:hover{
+  background:#f1f5f9;
+}
 
 .badge{
-  padding:4px 10px;
+  padding:4px 12px;
   border-radius:999px;
   font-size:11px;
   font-weight:800;
 }
+
 .on{background:#dcfce7;color:#166534}
 .off{background:#fee2e2;color:#991b1b}
 
-.actions{
-  display:flex;
-  gap:6px;
-}
-.actions button{
-  padding:6px 10px;
-  font-size:12px;
+/* MOBILE */
+@media(max-width:1000px){
+  .kpis{grid-template-columns:1fr 1fr}
+  .main{grid-template-columns:1fr}
 }
 
-/* RESPONSIVO */
-@media(max-width:900px){
-  .cols-3{grid-template-columns:1fr}
+@media(max-width:600px){
+  .kpis{grid-template-columns:1fr}
 }
 </style>
 </head>
 
 <body>
 
+<div class="header">
+  Painel de Customizações
+  <div id="totalIndicador">0 registros</div>
+</div>
 
-<div class="container">
+<div class="kpis">
+  <div class="kpi">
+    <h3>Total Customizações</h3>
+    <span id="kpiTotal">0</span>
+  </div>
+  <div class="kpi">
+    <h3>Ativas</h3>
+    <span id="kpiAtivas">0</span>
+  </div>
+  <div class="kpi">
+    <h3>Inativas</h3>
+    <span id="kpiInativas">0</span>
+  </div>
+  <div class="kpi">
+    <h3>Lojas Ativas</h3>
+    <span id="kpiLojas">0</span>
+  </div>
+</div>
 
-<!-- FORM -->
-<div class="card">
-  <div class="grid cols-3">
+<div class="main">
 
-    <div class="autocomplete">
-      <input id="buscaLoja" placeholder="Buscar loja ativa…">
-      <div id="listaLojas" class="autocomplete-list" style="display:none"></div>
-    </div>
-
+  <!-- FORM -->
+  <div class="form-card">
+    <h3>Nova Customização</h3>
+    <input id="buscaLoja" placeholder="Buscar loja ativa...">
     <input id="palavras" placeholder="Palavras-chave (#Polaroid#)">
     <input id="caminho" placeholder="Caminho HTML">
-  </div>
-
-  <div class="grid cols-2" style="margin-top:14px">
     <button onclick="salvar()">Salvar</button>
     <button class="sec" onclick="limpar()">Limpar</button>
   </div>
-</div>
 
-<!-- FILTROS -->
-<div class="card grid cols-3">
-  <input id="filtroLoja" placeholder="Filtrar loja" oninput="render()">
-  <input id="filtroPalavra" placeholder="Filtrar palavra" oninput="render()">
-  <input id="filtroCaminho" placeholder="Filtrar caminho" oninput="render()">
-</div>
-
-<!-- LISTA -->
-<div class="card">
-<table>
-<thead>
-<tr>
-  <th>Loja</th>
-  <th>Palavras</th>
-  <th>Caminho</th>
-  <th>Status</th>
-  <th>Ações</th>
-</tr>
-</thead>
-<tbody id="lista"></tbody>
-</table>
-</div>
+  <!-- LIST -->
+  <div class="list-card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Loja</th>
+            <th>Palavras</th>
+            <th>Caminho</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="lista"></tbody>
+      </table>
+    </div>
+  </div>
 
 </div>
 
 <script>
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("sw.js");
-}
-
 const sb = supabase.createClient(
   "https://egxjgmzukjyyxmkukwub.supabase.co",
   "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
@@ -219,46 +250,49 @@ const sb = supabase.createClient(
 
 let lojas=[], customizacoes=[], lojaSelecionada=null, editando=null;
 
-/* LOAD */
 async function load(){
   const { data } = await sb
     .from("user_profile")
     .select("user_id, negocio")
-    .eq("status","active")
-    .order("negocio");
+    .eq("status","active");
 
-  lojas = data || [];
+  lojas=data||[];
+  document.getElementById("kpiLojas").innerText = lojas.length;
   carregar();
 }
 
-/* AUTOCOMPLETE */
-buscaLoja.oninput = ()=>{
-  const q = buscaLoja.value.toLowerCase();
-  listaLojas.innerHTML = lojas
-    .filter(l=>l.negocio.toLowerCase().includes(q))
-    .map(l=>`
-      <div class="autocomplete-item"
-           onclick="selectLoja('${l.user_id}','${l.negocio}')">
-        ${l.negocio}
-      </div>`).join("");
-  listaLojas.style.display = q ? "block":"none";
-};
-
-function selectLoja(id,nome){
-  lojaSelecionada=id;
-  buscaLoja.value=nome;
-  listaLojas.style.display="none";
+async function carregar(){
+  const { data } = await sb.from("loja_customizacoes").select("*");
+  customizacoes=data||[];
+  atualizarKPIs();
+  render();
 }
 
-/* CRUD */
+function atualizarKPIs(){
+  const total=customizacoes.length;
+  const ativas=customizacoes.filter(x=>x.ativo).length;
+  const inativas=total-ativas;
+
+  kpiTotal.innerText=total;
+  kpiAtivas.innerText=ativas;
+  kpiInativas.innerText=inativas;
+  totalIndicador.innerText=`${total} registros`;
+}
+
 async function salvar(){
-  if(!lojaSelecionada||!palavras.value||!caminho.value){
+  if(!buscaLoja.value||!palavras.value||!caminho.value){
     alert("Preencha tudo");
     return;
   }
 
+  const loja=lojas.find(l=>l.negocio===buscaLoja.value);
+  if(!loja){
+    alert("Loja inválida");
+    return;
+  }
+
   const payload={
-    loja_id:lojaSelecionada,
+    loja_id:loja.user_id,
     palavras_chave:palavras.value,
     caminho_html:caminho.value,
     ativo:true
@@ -272,16 +306,9 @@ async function salvar(){
   carregar();
 }
 
-async function carregar(){
-  const { data } = await sb.from("loja_customizacoes").select("*");
-  customizacoes=data||[];
-  render();
-}
-
 function editar(id){
   const c=customizacoes.find(x=>x.id===id);
   editando=id;
-  lojaSelecionada=c.loja_id;
   buscaLoja.value=lojas.find(l=>l.user_id===c.loja_id)?.negocio||"";
   palavras.value=c.palavras_chave;
   caminho.value=c.caminho_html;
@@ -301,13 +328,11 @@ async function excluir(id){
 
 function limpar(){
   editando=null;
-  lojaSelecionada=null;
   buscaLoja.value="";
   palavras.value="";
   caminho.value="";
 }
 
-/* RENDER */
 function render(){
   lista.innerHTML = customizacoes.map(c=>{
     const loja=lojas.find(l=>l.user_id===c.loja_id)?.negocio||"—";
@@ -317,7 +342,7 @@ function render(){
         <td>${c.palavras_chave}</td>
         <td>${c.caminho_html}</td>
         <td><span class="badge ${c.ativo?'on':'off'}">${c.ativo?'Ativo':'Inativo'}</span></td>
-        <td class="actions">
+        <td>
           <button onclick="editar('${c.id}')">Editar</button>
           <button onclick="alternar('${c.id}',${c.ativo})">On/Off</button>
           <button onclick="excluir('${c.id}')">Excluir</button>
