@@ -15,7 +15,6 @@
   --border:#e5e7eb;
   --text:#111827;
   --muted:#6b7280;
-  --primary:#111827;
   --danger:#dc2626;
 }
 *{box-sizing:border-box;font-family:Inter}
@@ -24,7 +23,7 @@ body{margin:0;background:var(--bg);color:var(--text)}
 .header{
   background:#000;
   color:#fff;
-  padding:16px;
+  padding:18px;
   font-weight:900;
   font-size:18px;
 }
@@ -36,7 +35,8 @@ body{margin:0;background:var(--bg);color:var(--text)}
 }
 
 .search-box{
-  background:var(--card);
+  position:relative;
+  background:#fff;
   padding:18px;
   border-radius:18px;
   box-shadow:0 12px 30px rgba(0,0,0,.08);
@@ -51,6 +51,30 @@ body{margin:0;background:var(--bg);color:var(--text)}
   font-weight:700;
 }
 
+.dropdown{
+  position:absolute;
+  left:18px;
+  right:18px;
+  top:80px;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 12px 30px rgba(0,0,0,.15);
+  max-height:240px;
+  overflow:auto;
+  display:none;
+  z-index:10;
+}
+
+.dropdown div{
+  padding:12px;
+  cursor:pointer;
+  border-bottom:1px solid #eee;
+}
+
+.dropdown div:hover{
+  background:#f3f4f6;
+}
+
 .cards{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
@@ -59,7 +83,7 @@ body{margin:0;background:var(--bg);color:var(--text)}
 }
 
 .card{
-  background:var(--card);
+  background:#fff;
   padding:16px;
   border-radius:16px;
   box-shadow:0 10px 24px rgba(0,0,0,.08);
@@ -68,7 +92,7 @@ body{margin:0;background:var(--bg);color:var(--text)}
 .card h3{
   margin:0;
   font-size:13px;
-  color:var(--muted);
+  color:#6b7280;
 }
 
 .card strong{
@@ -76,7 +100,7 @@ body{margin:0;background:var(--bg);color:var(--text)}
 }
 
 .table-wrap{
-  background:var(--card);
+  background:#fff;
   border-radius:18px;
   overflow:hidden;
   box-shadow:0 12px 30px rgba(0,0,0,.08);
@@ -89,8 +113,7 @@ table{
 
 th,td{
   padding:14px;
-  border-bottom:1px solid var(--border);
-  text-align:left;
+  border-bottom:1px solid #eee;
   font-size:13px;
 }
 
@@ -100,10 +123,10 @@ th{
 }
 
 .status{
-  font-weight:800;
   padding:6px 10px;
   border-radius:999px;
   font-size:11px;
+  font-weight:800;
 }
 
 .status.CONFIRMADO{background:#dcfce7;color:#166534}
@@ -111,7 +134,7 @@ th{
 .status.PENDENTE_PAGAMENTO{background:#fef3c7;color:#92400e}
 
 .actions{
-  margin-top:14px;
+  margin-top:16px;
   display:flex;
   gap:12px;
 }
@@ -125,12 +148,7 @@ button{
 }
 
 .btn-danger{
-  background:var(--danger);
-  color:#fff;
-}
-
-.btn-dark{
-  background:#000;
+  background:#dc2626;
   color:#fff;
 }
 </style>
@@ -144,21 +162,22 @@ button{
 <div class="container">
 
 <div class="search-box">
-  <input id="buscaCliente" placeholder="Buscar cliente por nome ou WhatsApp">
+  <input id="buscaCliente" placeholder="Buscar por nome ou WhatsApp">
+  <div id="dropdownClientes" class="dropdown"></div>
 </div>
 
 <div class="cards">
   <div class="card">
     <h3>Total de Agendamentos</h3>
-    <strong id="totalAg"></strong>
+    <strong id="totalAg">0</strong>
   </div>
   <div class="card">
     <h3>Total Faturado</h3>
-    <strong id="totalValor"></strong>
+    <strong id="totalValor">R$ 0,00</strong>
   </div>
   <div class="card">
     <h3>Lojas Utilizadas</h3>
-    <strong id="totalLojas"></strong>
+    <strong id="totalLojas">0</strong>
   </div>
 </div>
 
@@ -183,7 +202,7 @@ button{
   <button class="btn-danger" onclick="excluirSelecionados()">
     Excluir Selecionados
   </button>
-  <button class="btn-dark" onclick="excluirTodos()">
+  <button class="btn-danger" onclick="excluirTodos()">
     Excluir TODOS do Cliente
   </button>
 </div>
@@ -192,44 +211,73 @@ button{
 
 <script>
 const sb = supabase.createClient(
-  "SUA_SUPABASE_URL",
+  "https://egxjgmzukjyyxmkukwub.supabase.co",
   "SUA_PUBLIC_KEY"
 );
 
 let clienteSelecionado = null;
 let agendamentos = [];
 
-document.getElementById("buscaCliente")
-.addEventListener("input", async e=>{
+const input = document.getElementById("buscaCliente");
+const dropdown = document.getElementById("dropdownClientes");
+
+input.addEventListener("input", async e=>{
   const termo = e.target.value.trim();
-  if(termo.length < 3) return;
-
-  const { data } = await sb
-    .from("clientes_profile")
-    .select("*")
-    .ilike("nome", `%${termo}%`)
-    .limit(5);
-
-  if(data?.length){
-    clienteSelecionado = data[0];
-    carregarAgendamentos(clienteSelecionado.id);
+  if(termo.length < 2){
+    dropdown.style.display="none";
+    return;
   }
+
+  const numero = termo.replace(/\D/g,"");
+
+  const { data, error } = await sb
+    .from("clientes_profile")
+    .select("id,nome,whatsapp,email")
+    .or(`nome.ilike.%${termo}%,whatsapp.ilike.%${numero}%`)
+    .limit(10);
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  if(!data?.length){
+    dropdown.style.display="none";
+    return;
+  }
+
+  dropdown.innerHTML = data.map(c=>`
+    <div onclick="selecionarCliente('${c.id}','${c.nome || ''}','${c.whatsapp || ''}')">
+      <strong>${c.nome || "Sem nome"}</strong><br>
+      <small>${c.whatsapp || ""}</small>
+    </div>
+  `).join("");
+
+  dropdown.style.display="block";
 });
 
-async function carregarAgendamentos(clienteId){
+function selecionarCliente(id,nome,whats){
+  clienteSelecionado = { id, nome, whatsapp: whats };
+  input.value = nome || whats;
+  dropdown.style.display="none";
+  carregarAgendamentos();
+}
+
+async function carregarAgendamentos(){
+
+  if(!clienteSelecionado) return;
 
   const { data } = await sb
     .from("agendamentos")
     .select("*")
-    .eq("cliente_id", clienteId)
+    .or(`cliente_id.eq.${clienteSelecionado.id},cliente_whatsapp.eq.${clienteSelecionado.whatsapp}`)
     .order("data",{ascending:false});
 
   agendamentos = data || [];
 
   document.getElementById("totalAg").innerText = agendamentos.length;
 
-  const total = agendamentos
-    .reduce((s,x)=>s+Number(x.valor_total||0),0);
+  const total = agendamentos.reduce((s,x)=>s+Number(x.valor_total||0),0);
 
   document.getElementById("totalValor")
     .innerText = total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
@@ -241,7 +289,6 @@ async function carregarAgendamentos(clienteId){
 }
 
 function renderTabela(){
-
   const tbody = document.getElementById("tbodyAgendamentos");
 
   tbody.innerHTML = agendamentos.map(a=>`
