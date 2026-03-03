@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Admin • Clientes & Agendamentos</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root{
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
+  --primary:#111827;
+  --danger:#dc2626;
+}
+*{box-sizing:border-box;font-family:Inter}
+body{margin:0;background:var(--bg);color:var(--text)}
+
+.header{
+  background:#000;
+  color:#fff;
+  padding:16px;
+  font-weight:900;
+  font-size:18px;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:20px;
+}
+
+.search-box{
+  background:var(--card);
+  padding:18px;
+  border-radius:18px;
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+  margin-bottom:20px;
+}
+
+.search-box input{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  font-weight:700;
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+  margin-bottom:20px;
+}
+
+.card{
+  background:var(--card);
+  padding:16px;
+  border-radius:16px;
+  box-shadow:0 10px 24px rgba(0,0,0,.08);
+}
+
+.card h3{
+  margin:0;
+  font-size:13px;
+  color:var(--muted);
+}
+
+.card strong{
+  font-size:20px;
+}
+
+.table-wrap{
+  background:var(--card);
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,td{
+  padding:14px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  font-size:13px;
+}
+
+th{
+  background:#fafafa;
+  font-weight:800;
+}
+
+.status{
+  font-weight:800;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:11px;
+}
+
+.status.CONFIRMADO{background:#dcfce7;color:#166534}
+.status.CANCELADO{background:#fee2e2;color:#991b1b}
+.status.PENDENTE_PAGAMENTO{background:#fef3c7;color:#92400e}
+
+.actions{
+  margin-top:14px;
+  display:flex;
+  gap:12px;
+}
+
+button{
+  padding:12px 18px;
+  border:none;
+  border-radius:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.btn-danger{
+  background:var(--danger);
+  color:#fff;
+}
+
+.btn-dark{
+  background:#000;
+  color:#fff;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  Painel Administrativo • Clientes
+</div>
+
+<div class="container">
+
+<div class="search-box">
+  <input id="buscaCliente" placeholder="Buscar cliente por nome ou WhatsApp">
+</div>
+
+<div class="cards">
+  <div class="card">
+    <h3>Total de Agendamentos</h3>
+    <strong id="totalAg"></strong>
+  </div>
+  <div class="card">
+    <h3>Total Faturado</h3>
+    <strong id="totalValor"></strong>
+  </div>
+  <div class="card">
+    <h3>Lojas Utilizadas</h3>
+    <strong id="totalLojas"></strong>
+  </div>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th><input type="checkbox" id="checkAll"></th>
+<th>Data</th>
+<th>Horário</th>
+<th>Loja</th>
+<th>Serviços</th>
+<th>Status</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody id="tbodyAgendamentos"></tbody>
+</table>
+</div>
+
+<div class="actions">
+  <button class="btn-danger" onclick="excluirSelecionados()">
+    Excluir Selecionados
+  </button>
+  <button class="btn-dark" onclick="excluirTodos()">
+    Excluir TODOS do Cliente
+  </button>
+</div>
+
+</div>
+
+<script>
+const sb = supabase.createClient(
+  "SUA_SUPABASE_URL",
+  "SUA_PUBLIC_KEY"
+);
+
+let clienteSelecionado = null;
+let agendamentos = [];
+
+document.getElementById("buscaCliente")
+.addEventListener("input", async e=>{
+  const termo = e.target.value.trim();
+  if(termo.length < 3) return;
+
+  const { data } = await sb
+    .from("clientes_profile")
+    .select("*")
+    .ilike("nome", `%${termo}%`)
+    .limit(5);
+
+  if(data?.length){
+    clienteSelecionado = data[0];
+    carregarAgendamentos(clienteSelecionado.id);
+  }
+});
+
+async function carregarAgendamentos(clienteId){
+
+  const { data } = await sb
+    .from("agendamentos")
+    .select("*")
+    .eq("cliente_id", clienteId)
+    .order("data",{ascending:false});
+
+  agendamentos = data || [];
+
+  document.getElementById("totalAg").innerText = agendamentos.length;
+
+  const total = agendamentos
+    .reduce((s,x)=>s+Number(x.valor_total||0),0);
+
+  document.getElementById("totalValor")
+    .innerText = total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+
+  const lojas = [...new Set(agendamentos.map(a=>a.loja_id))];
+  document.getElementById("totalLojas").innerText = lojas.length;
+
+  renderTabela();
+}
+
+function renderTabela(){
+
+  const tbody = document.getElementById("tbodyAgendamentos");
+
+  tbody.innerHTML = agendamentos.map(a=>`
+    <tr>
+      <td><input type="checkbox" value="${a.id}"></td>
+      <td>${a.data}</td>
+      <td>${a.hora_inicio}</td>
+      <td>${a.loja_id}</td>
+      <td>${(a.servicos||[]).map(s=>s.nome).join(", ")}</td>
+      <td><span class="status ${a.status}">${a.status}</span></td>
+      <td>R$ ${Number(a.valor_total||0).toFixed(2)}</td>
+    </tr>
+  `).join("");
+}
+
+function excluirSelecionados(){
+  const ids = [...document.querySelectorAll("tbody input:checked")]
+    .map(i=>i.value);
+
+  if(!ids.length) return alert("Selecione ao menos um");
+
+  fetch("/api/admin-delete-agendamentos",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json"},
+    body:JSON.stringify({ ids })
+  }).then(()=>location.reload());
+}
+
+function excluirTodos(){
+  if(!clienteSelecionado) return;
+
+  if(!confirm("Excluir TODOS os agendamentos deste cliente?")) return;
+
+  fetch("/api/admin-delete-agendamentos",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json"},
+    body:JSON.stringify({ cliente_id: clienteSelecionado.id })
+  }).then(()=>location.reload());
+}
+</script>
+
+</body>
+</html>
