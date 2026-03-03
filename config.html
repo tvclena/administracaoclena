@@ -10,95 +10,120 @@
 
 <style>
 :root{
-  --bg:#f4f6fb;
+  --bg:#f6f7fb;
   --card:#ffffff;
   --border:#e5e7eb;
   --text:#111827;
   --muted:#6b7280;
   --primary:#111827;
   --danger:#dc2626;
+  --success:#16a34a;
   --radius:18px;
 }
+
 *{box-sizing:border-box;font-family:Inter}
-body{margin:0;background:var(--bg);color:var(--text)}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+}
 
 .header{
   background:#000;
   color:#fff;
-  padding:20px;
-  font-size:18px;
+  padding:24px;
+  font-size:20px;
   font-weight:900;
+  letter-spacing:.5px;
 }
 
 .container{
-  max-width:1400px;
+  max-width:1500px;
   margin:auto;
-  padding:20px;
+  padding:24px;
 }
 
+/* FILTROS */
 .filters{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:12px;
-  margin-bottom:20px;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:14px;
+  margin-bottom:24px;
 }
 
 input,select{
-  padding:12px;
-  border-radius:12px;
+  padding:14px;
+  border-radius:14px;
   border:1px solid var(--border);
   font-weight:600;
+  font-size:14px;
+  background:#fff;
 }
 
+/* CARDS */
 .cards{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:14px;
-  margin-bottom:20px;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:18px;
+  margin-bottom:28px;
 }
 
 .card{
   background:var(--card);
-  padding:18px;
+  padding:22px;
   border-radius:var(--radius);
-  box-shadow:0 10px 24px rgba(0,0,0,.08);
+  box-shadow:0 15px 40px rgba(0,0,0,.06);
 }
 
 .card h3{
   margin:0;
   font-size:12px;
   color:var(--muted);
+  font-weight:700;
+  text-transform:uppercase;
 }
 
 .card strong{
-  font-size:22px;
+  font-size:26px;
+  margin-top:8px;
+  display:block;
 }
 
+/* TABELA */
 .table-wrap{
   background:#fff;
-  border-radius:18px;
+  border-radius:20px;
   overflow:auto;
-  box-shadow:0 10px 24px rgba(0,0,0,.08);
+  box-shadow:0 15px 40px rgba(0,0,0,.06);
 }
 
 table{
   width:100%;
   border-collapse:collapse;
+  min-width:1000px;
 }
 
 th,td{
-  padding:14px;
-  border-bottom:1px solid #eee;
+  padding:16px;
+  border-bottom:1px solid #f1f1f1;
   font-size:13px;
+  text-align:left;
 }
 
 th{
   background:#fafafa;
   font-weight:800;
+  position:sticky;
+  top:0;
+}
+
+tr:hover{
+  background:#f9fafb;
 }
 
 .status{
-  padding:6px 10px;
+  padding:6px 12px;
   border-radius:999px;
   font-size:11px;
   font-weight:800;
@@ -108,26 +133,40 @@ th{
 .status.CANCELADO{background:#fee2e2;color:#991b1b}
 .status.PENDENTE_PAGAMENTO{background:#fef3c7;color:#92400e}
 
+/* AÇÕES */
 .actions{
-  margin-top:20px;
+  margin-top:24px;
   display:flex;
-  gap:12px;
+  gap:16px;
 }
 
 button{
-  padding:12px 20px;
+  padding:14px 22px;
   border:none;
-  border-radius:12px;
+  border-radius:14px;
   font-weight:800;
   cursor:pointer;
+  font-size:14px;
 }
 
 .btn-danger{
   background:var(--danger);
   color:#fff;
 }
+
+.btn-danger:hover{
+  opacity:.9;
+}
+
+.loading{
+  text-align:center;
+  padding:40px;
+  color:var(--muted);
+  font-weight:700;
+}
 </style>
 </head>
+
 <body>
 
 <div class="header">
@@ -180,7 +219,9 @@ button{
 <th>Valor</th>
 </tr>
 </thead>
-<tbody id="tbody"></tbody>
+<tbody id="tbody">
+<tr><td colspan="8" class="loading">Carregando...</td></tr>
+</tbody>
 </table>
 </div>
 
@@ -201,12 +242,23 @@ const sb = supabase.createClient(
 let agendamentos = [];
 let lojasMap = {};
 
+/* ================= CARREGAR ================= */
 async function carregar(){
 
-  const { data } = await sb
+  document.getElementById("tbody").innerHTML =
+    `<tr><td colspan="8" class="loading">Carregando...</td></tr>`;
+
+  const { data, error } = await sb
     .from("agendamentos")
     .select("*")
     .order("data",{ascending:false});
+
+  if(error){
+    document.getElementById("tbody").innerHTML =
+      `<tr><td colspan="8" class="loading">Erro ao carregar</td></tr>`;
+    console.error(error);
+    return;
+  }
 
   agendamentos = data || [];
 
@@ -226,14 +278,14 @@ async function carregar(){
   aplicarFiltros();
 }
 
+/* ================= FILTROS ================= */
 function aplicarFiltros(){
 
   const fc=document.getElementById("filtroCliente").value.toLowerCase();
   const fl=document.getElementById("filtroLoja").value.toLowerCase();
   const fs=document.getElementById("filtroStatus").value;
 
-  let lista = agendamentos.filter(a=>{
-
+  const lista = agendamentos.filter(a=>{
     const cliente=(a.cliente_nome||"").toLowerCase();
     const loja=(lojasMap[a.loja_id]||"").toLowerCase();
 
@@ -245,11 +297,13 @@ function aplicarFiltros(){
   render(lista);
 }
 
+/* ================= RENDER ================= */
 function render(lista){
 
   document.getElementById("totalAg").innerText = lista.length;
 
   const total = lista.reduce((s,x)=>s+Number(x.valor_total||0),0);
+
   document.getElementById("totalValor")
     .innerText = total.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
 
@@ -261,32 +315,57 @@ function render(lista){
 
   const tbody=document.getElementById("tbody");
 
+  if(!lista.length){
+    tbody.innerHTML =
+      `<tr><td colspan="8" class="loading">Nenhum resultado encontrado</td></tr>`;
+    return;
+  }
+
   tbody.innerHTML = lista.map(a=>`
     <tr>
       <td><input type="checkbox" value="${a.id}"></td>
-      <td>${a.data}</td>
-      <td>${a.hora_inicio}</td>
-      <td>${a.cliente_nome||""}</td>
-      <td>${a.cliente_whatsapp||""}</td>
-      <td>${lojasMap[a.loja_id]||a.loja_id}</td>
+      <td>${a.data || ""}</td>
+      <td>${a.hora_inicio || ""}</td>
+      <td>${a.cliente_nome || ""}</td>
+      <td>${a.cliente_whatsapp || ""}</td>
+      <td>${lojasMap[a.loja_id] || a.loja_id}</td>
       <td><span class="status ${a.status}">${a.status}</span></td>
       <td>R$ ${Number(a.valor_total||0).toFixed(2)}</td>
     </tr>
   `).join("");
 }
 
-function excluirSelecionados(){
+/* ================= EXCLUIR ================= */
+async function excluirSelecionados(){
+
   const ids=[...document.querySelectorAll("tbody input:checked")]
     .map(i=>i.value);
 
-  if(!ids.length) return alert("Selecione ao menos um");
+  if(!ids.length){
+    alert("Selecione ao menos um agendamento.");
+    return;
+  }
 
-  sb.from("agendamentos")
+  if(!confirm("Tem certeza que deseja EXCLUIR permanentemente os registros selecionados?")){
+    return;
+  }
+
+  const { error } = await sb
+    .from("agendamentos")
     .delete()
-    .in("id",ids)
-    .then(()=>carregar());
+    .in("id",ids);
+
+  if(error){
+    alert("Erro ao excluir.");
+    console.error(error);
+    return;
+  }
+
+  alert("Excluído com sucesso.");
+  carregar();
 }
 
+/* EVENTOS */
 document.getElementById("filtroCliente").addEventListener("input",aplicarFiltros);
 document.getElementById("filtroLoja").addEventListener("input",aplicarFiltros);
 document.getElementById("filtroStatus").addEventListener("change",aplicarFiltros);
