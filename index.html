@@ -5,334 +5,672 @@
 
 <title>Painel Administrativo</title>
 
-<meta name="viewport"
-      content="width=device-width,
-               initial-scale=1,
-               maximum-scale=1,
-               user-scalable=no,
-               viewport-fit=cover">
-
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#2563eb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <link rel="manifest" href="manifest.json">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
 <style>
 :root{
   --primary:#2563eb;
+  --primary-dark:#1e40af;
   --bg:#f4f6fb;
-  --sidebar:#0f172a;
-  --sidebar-2:#020617;
-  --text:#111827;
-  --muted:#94a3b8;
-  --white:#ffffff;
+  --sidebar:#ffffff;
+  --sidebar-dark:#0f172a;
+  --card:#ffffff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --border:#e5e7eb;
+  --soft:#f8fafc;
+  --hover:#eef4ff;
+  --danger:#dc2626;
+  --shadow:0 12px 35px rgba(15,23,42,.08);
 }
 
 *{
   box-sizing:border-box;
-  font-family:Inter;
+  font-family:Inter,Arial,sans-serif;
+  -webkit-tap-highlight-color:transparent;
 }
 
+html,
 body{
+  width:100%;
+  height:100%;
   margin:0;
   background:var(--bg);
+  color:var(--text);
   overflow:hidden;
 }
 
-/* ===== LAYOUT ===== */
-.app{
-  display:grid;
-  grid-template-columns:auto 1fr;
-  height:100vh;
+button{
+  font-family:inherit;
 }
 
+/* APP */
+.app{
+  width:100%;
+  height:100vh;
+  display:grid;
+  grid-template-columns:290px 1fr;
+  background:var(--bg);
+}
 
-/* ===== SIDEBAR ===== */
+/* SIDEBAR */
 .sidebar{
-  width:280px;
-  background:linear-gradient(180deg,var(--sidebar),var(--sidebar-2));
-  color:#fff;
+  background:var(--sidebar);
+  border-right:1px solid var(--border);
   display:flex;
   flex-direction:column;
-  transition:width .25s ease;
+  height:100vh;
+  min-width:0;
+  z-index:50;
 }
 
-
-/* ===== AUTO RECOLHIDO (DESKTOP) ===== */
-@media (hover:hover){
-  .sidebar{
-    width:72px;
-  }
-
-  .sidebar:hover{
-    width:280px;
-  }
-}
-
-/* LOGO */
 .logo{
-  padding:20px;
+  height:74px;
+  padding:16px 18px;
   display:flex;
   align-items:center;
   gap:12px;
-  font-weight:900;
-  font-size:16px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  white-space:nowrap;
+  border-bottom:1px solid var(--border);
 }
+
 .logo img{
-  width:38px;
-  height:38px;
-  border-radius:10px;
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  object-fit:cover;
+  background:#eef2ff;
 }
 
-/* ESCONDE TEXTO QUANDO RECOLHIDO */
-@media (hover:hover){
-  .sidebar:not(:hover) .logo span,
-  .sidebar:not(:hover) .menu-title,
-  .sidebar:not(:hover) .menu-item span,
-  .sidebar:not(:hover) .submenu{
-    opacity:0;
-    pointer-events:none;
-  }
+.logo-text{
+  min-width:0;
 }
 
-/* MENU */
+.logo-title{
+  font-size:16px;
+  font-weight:900;
+  line-height:1.1;
+  color:var(--text);
+}
+
+.logo-sub{
+  margin-top:3px;
+  font-size:11px;
+  font-weight:800;
+  color:var(--muted);
+}
+
 .menu{
   flex:1;
   overflow-y:auto;
-  padding:14px 10px;
+  padding:14px;
+}
+
+.menu::-webkit-scrollbar{
+  width:5px;
+}
+
+.menu::-webkit-scrollbar-thumb{
+  background:#cbd5e1;
+  border-radius:999px;
 }
 
 .menu-group{
-  margin-bottom:14px;
+  margin-bottom:18px;
 }
 
 .menu-title{
+  padding:8px 10px;
   font-size:11px;
-  font-weight:800;
+  font-weight:900;
   text-transform:uppercase;
-  color:var(--muted);
-  padding:6px 12px;
+  color:#94a3b8;
+  letter-spacing:.5px;
 }
 
 .menu-item{
+  width:100%;
+  min-height:44px;
   display:flex;
   align-items:center;
   gap:12px;
-  padding:10px 14px;
-  border-radius:12px;
+  padding:11px 12px;
+  border-radius:14px;
   cursor:pointer;
-  font-weight:600;
   font-size:14px;
-  color:#e5e7eb;
-  white-space:nowrap;
-}
-.menu-item:hover{
-  background:rgba(255,255,255,.08);
+  font-weight:800;
+  color:#334155;
+  background:transparent;
+  border:none;
+  text-align:left;
+  transition:.15s;
 }
 
 .menu-item i{
-  font-size:18px;
-  min-width:20px;
+  width:22px;
+  min-width:22px;
+  height:22px;
+  display:grid;
+  place-items:center;
+  font-size:19px;
+  color:#64748b;
 }
 
-/* SUBMENU */
+.menu-item span{
+  flex:1;
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.menu-item .arrow{
+  width:auto;
+  min-width:auto;
+  font-size:17px;
+  color:#94a3b8;
+  transition:.2s;
+}
+
+.menu-item:hover{
+  background:var(--hover);
+  color:var(--primary);
+}
+
+.menu-item:hover i{
+  color:var(--primary);
+}
+
+.menu-item.active{
+  background:linear-gradient(180deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  box-shadow:0 10px 22px rgba(37,99,235,.25);
+}
+
+.menu-item.active i,
+.menu-item.active .arrow{
+  color:#fff;
+}
+
 .submenu{
-  margin-left:12px;
-  margin-top:6px;
   display:none;
-  flex-direction:column;
-  gap:4px;
+  padding:6px 0 4px 34px;
 }
 
-/* ABRE NO CLIQUE */
+.menu-item.open .arrow{
+  transform:rotate(180deg);
+}
+
 .menu-item.open + .submenu{
-  display:flex;
+  display:block;
 }
 
-/* ===== DESKTOP: ABRE SUBMENU NO HOVER ===== */
-@media (hover:hover){
-  .menu-item.has-sub:hover + .submenu{
-    display:flex;
-  }
-}
-
-/* SUBMENU ITEM */
 .submenu .menu-item{
+  min-height:38px;
+  padding:9px 12px;
   font-size:13px;
-  padding:8px 14px;
-  opacity:.9;
+  font-weight:800;
+  color:#475569;
+  border-radius:12px;
 }
 
-/* ===== CONTENT ===== */
+.submenu .menu-item.active{
+  color:#fff;
+}
+
+.sidebar-footer{
+  padding:14px;
+  border-top:1px solid var(--border);
+}
+
+.footer-card{
+  background:#f8fafc;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:14px;
+}
+
+.footer-card strong{
+  display:block;
+  font-size:13px;
+  font-weight:900;
+}
+
+.footer-card span{
+  display:block;
+  margin-top:4px;
+  font-size:11px;
+  color:var(--muted);
+  font-weight:700;
+}
+
+/* CONTENT */
 .content{
-  background:var(--bg);
+  min-width:0;
+  height:100vh;
   display:flex;
   flex-direction:column;
+  background:var(--bg);
 }
 
-/* HEADER */
-.header{
-  height:56px;
+/* TOPBAR */
+.topbar{
+  height:74px;
   background:#fff;
-  border-bottom:1px solid #e5e7eb;
+  border-bottom:1px solid var(--border);
+  padding:0 22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.top-left{
   display:flex;
   align-items:center;
   gap:14px;
-  padding:0 18px;
-  font-weight:800;
+  min-width:0;
 }
 
-/* IFRAME */
-.frame-wrap{
+.menu-toggle{
+  width:42px;
+  height:42px;
+  border:none;
+  border-radius:14px;
+  background:#f1f5f9;
+  color:#0f172a;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.page-info{
+  min-width:0;
+}
+
+.page-title{
+  font-size:18px;
+  font-weight:900;
+  line-height:1.1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.page-subtitle{
+  margin-top:4px;
+  font-size:12px;
+  font-weight:700;
+  color:var(--muted);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.action-btn{
+  height:42px;
+  padding:0 14px;
+  border:none;
+  border-radius:14px;
+  background:#f1f5f9;
+  color:#0f172a;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.action-btn i{
+  font-size:18px;
+}
+
+.action-btn.primary{
+  background:linear-gradient(180deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  box-shadow:0 10px 22px rgba(37,99,235,.22);
+}
+
+/* FRAME */
+.frame-area{
   flex:1;
+  min-height:0;
+  padding:16px;
+}
+
+.frame-card{
+  width:100%;
+  height:100%;
   background:#fff;
+  border:1px solid var(--border);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
 }
 
 iframe{
   width:100%;
   height:100%;
   border:none;
+  display:block;
+  background:#fff;
 }
 
-/* ===== MOBILE / TABLET ===== */
+/* OVERLAY MOBILE */
+.mobile-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.45);
+  backdrop-filter:blur(2px);
+  z-index:40;
+  display:none;
+}
+
+/* MOBILE */
 @media(max-width:1024px){
+
   .app{
     grid-template-columns:1fr;
   }
 
   .sidebar{
     position:fixed;
-    inset:0 auto 0 0;
-    width:260px;
-    transform:translateX(-100%);
-    transition:.3s;
-    z-index:999;
+    top:0;
+    left:0;
+    width:290px;
+    max-width:86vw;
+    transform:translateX(-105%);
+    transition:.25s ease;
+    box-shadow:20px 0 50px rgba(15,23,42,.25);
   }
 
   .sidebar.open{
     transform:translateX(0);
   }
+
+  .mobile-overlay.show{
+    display:block;
+  }
+
+  .menu-toggle{
+    display:flex;
+  }
+
+  .topbar{
+    padding:0 14px;
+  }
+
+  .frame-area{
+    padding:10px;
+  }
+
+  .frame-card{
+    border-radius:18px;
+  }
+
+}
+
+@media(max-width:640px){
+
+  .topbar{
+    height:68px;
+  }
+
+  .page-title{
+    font-size:15px;
+  }
+
+  .page-subtitle{
+    font-size:11px;
+  }
+
+  .action-btn span{
+    display:none;
+  }
+
+  .action-btn{
+    width:42px;
+    padding:0;
+    justify-content:center;
+  }
+
+  .frame-area{
+    padding:8px;
+  }
+
+  .frame-card{
+    border-radius:16px;
+  }
+
 }
 </style>
 </head>
 
 <body>
 
+<div class="mobile-overlay" id="mobileOverlay" onclick="closeSidebar()"></div>
+
 <div class="app">
 
-  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
 
     <div class="logo">
-      <img src="icons/icon-192.png">
-      <span>Painel Admin</span>
+      <img src="icons/icon-192.png" onerror="this.style.display='none'">
+      <div class="logo-text">
+        <div class="logo-title">Painel Admin</div>
+        <div class="logo-sub">Central administrativa</div>
+      </div>
     </div>
 
-    <div class="menu">
+    <nav class="menu">
 
-      <!-- CONFIG -->
       <div class="menu-group">
         <div class="menu-title">Configurações</div>
 
-        <div class="menu-item has-sub" onclick="toggleMenu(this)">
+        <button class="menu-item has-sub open" onclick="toggleMenu(this)">
           <i class="ri-settings-3-line"></i>
           <span>Customizações</span>
-        </div>
+          <i class="ri-arrow-down-s-line arrow"></i>
+        </button>
 
         <div class="submenu">
-          <div class="menu-item" onclick="openPage('admin-customizacoes.html')">
+          <button class="menu-item active" onclick="openPage('admin-customizacoes.html','Palavras-chave','Configurações de customizações',this)">
+            <i class="ri-key-2-line"></i>
             <span>Palavras-chave</span>
-          </div>
+          </button>
 
-          <div class="menu-item" onclick="openPage('painel-tipo-loja.html')">
+          <button class="menu-item" onclick="openPage('painel-tipo-loja.html','Tipos e APP','Cadastro dos tipos de loja',this)">
+            <i class="ri-apps-2-line"></i>
             <span>Tipos e APP</span>
-          </div>
+          </button>
         </div>
       </div>
 
-      <!-- LOJAS -->
       <div class="menu-group">
         <div class="menu-title">Lojas</div>
 
-        <div class="menu-item" onclick="openPage('profile.html')">
+        <button class="menu-item" onclick="openPage('profile.html','Gerenciar lojas','Controle das lojas cadastradas',this)">
           <i class="ri-store-2-line"></i>
           <span>Gerenciar lojas</span>
-        </div>
+        </button>
       </div>
 
-      <!-- RELATÓRIOS -->
+      <div class="menu-group">
+        <div class="menu-title">Agendamentos</div>
+
+        <button class="menu-item" onclick="openPage('admin-agendamentos.html','Agendamentos Global','Painel global de agendamentos',this)">
+          <i class="ri-calendar-check-line"></i>
+          <span>Agendamentos</span>
+        </button>
+      </div>
+
       <div class="menu-group">
         <div class="menu-title">Relatórios</div>
 
-        <div class="menu-item has-sub" onclick="toggleMenu(this)">
+        <button class="menu-item has-sub" onclick="toggleMenu(this)">
           <i class="ri-bar-chart-line"></i>
           <span>Relatórios</span>
-        </div>
+          <i class="ri-arrow-down-s-line arrow"></i>
+        </button>
 
         <div class="submenu">
-          <div class="menu-item" onclick="openPage('admin-relatorios-vendas.html')">
+          <button class="menu-item" onclick="openPage('admin-relatorios-vendas.html','Relatório de Vendas','Acompanhamento de vendas',this)">
+            <i class="ri-line-chart-line"></i>
             <span>Vendas</span>
-          </div>
-          <div class="menu-item" onclick="openPage('admin-relatorios-uso.html')">
+          </button>
+
+          <button class="menu-item" onclick="openPage('admin-relatorios-uso.html','Uso de Customizações','Relatório de uso das customizações',this)">
+            <i class="ri-file-chart-line"></i>
             <span>Uso de customizações</span>
-          </div>
+          </button>
         </div>
       </div>
 
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="footer-card">
+        <strong>Sistema ativo</strong>
+        <span>Use o menu para trocar de página.</span>
+      </div>
     </div>
 
   </aside>
 
-  <!-- CONTENT -->
   <main class="content">
 
-    <div class="header">
-      <button onclick="toggleSidebar()"
-              style="border:none;background:none;font-size:20px;cursor:pointer">
-      
-      </button>
-      Painel Administrativo
-    </div>
+    <header class="topbar">
+      <div class="top-left">
+        <button class="menu-toggle" onclick="toggleSidebar()">
+          <i class="ri-menu-line"></i>
+        </button>
 
-    <div class="frame-wrap">
-      <iframe id="frame" src="admin-customizacoes.html"></iframe>
-    </div>
+        <div class="page-info">
+          <div class="page-title" id="pageTitle">Palavras-chave</div>
+          <div class="page-subtitle" id="pageSubtitle">Configurações de customizações</div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="action-btn" onclick="reloadFrame()">
+          <i class="ri-refresh-line"></i>
+          <span>Atualizar</span>
+        </button>
+
+        <button class="action-btn primary" onclick="openCurrentNewTab()">
+          <i class="ri-external-link-line"></i>
+          <span>Abrir</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="frame-area">
+      <div class="frame-card">
+        <iframe id="frame" src="admin-customizacoes.html"></iframe>
+      </div>
+    </section>
 
   </main>
 
 </div>
 
 <script>
-/* ===== PWA ===== */
 if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("sw.js");
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
 }
 
-/* ===== NAVEGAÇÃO ===== */
-function openPage(p){
-  document.getElementById("frame").src = p;
+const sidebar=document.getElementById("sidebar");
+const mobileOverlay=document.getElementById("mobileOverlay");
+const frame=document.getElementById("frame");
+const pageTitle=document.getElementById("pageTitle");
+const pageSubtitle=document.getElementById("pageSubtitle");
+
+function openPage(page,title,subtitle,el){
+
+  frame.src=page;
+
+  pageTitle.innerText=title || "Painel Administrativo";
+  pageSubtitle.innerText=subtitle || "Central administrativa";
+
+  document.querySelectorAll(".menu-item").forEach(item=>{
+    item.classList.remove("active");
+  });
+
+  if(el){
+    el.classList.add("active");
+  }
+
   closeSidebar();
+
 }
 
-/* SUBMENU (mobile / clique) */
 function toggleMenu(el){
-  el.classList.toggle("open");
+
+  const isOpen=el.classList.contains("open");
+
+  document.querySelectorAll(".menu-item.has-sub").forEach(item=>{
+    item.classList.remove("open");
+  });
+
+  if(!isOpen){
+    el.classList.add("open");
+  }
+
 }
 
-/* MOBILE */
 function toggleSidebar(){
-  document.getElementById("sidebar").classList.toggle("open");
+
+  sidebar.classList.toggle("open");
+
+  if(sidebar.classList.contains("open")){
+    mobileOverlay.classList.add("show");
+  }else{
+    mobileOverlay.classList.remove("show");
+  }
+
 }
 
 function closeSidebar(){
-  document.getElementById("sidebar").classList.remove("open");
+
+  sidebar.classList.remove("open");
+  mobileOverlay.classList.remove("show");
+
 }
+
+function reloadFrame(){
+
+  frame.contentWindow.location.reload();
+
+}
+
+function openCurrentNewTab(){
+
+  window.open(frame.src,"_blank");
+
+}
+
+document.addEventListener("keydown",function(e){
+
+  if(e.key==="Escape"){
+    closeSidebar();
+  }
+
+});
 </script>
 
 </body>
