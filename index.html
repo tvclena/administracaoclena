@@ -2,253 +2,337 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
+
 <title>Painel Administrativo</title>
 
-<link rel="manifest" href="./manifest.json">
-
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="Painel Administrativo">
 <meta name="viewport"
-  content="width=device-width,
-  initial-scale=1,
-  maximum-scale=1,
-  user-scalable=no,
-  viewport-fit=cover">
+      content="width=device-width,
+               initial-scale=1,
+               maximum-scale=1,
+               user-scalable=no,
+               viewport-fit=cover">
 
 <meta name="theme-color" content="#2563eb">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Painel Admin">
 
-<link rel="apple-touch-icon" href="./icons/icon-192.png">
-<link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="./icons/icon-512.png">
+<link rel="manifest" href="manifest.json">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
 <style>
 :root{
   --primary:#2563eb;
   --bg:#f4f6fb;
-  --border:#e5e7eb;
-  --muted:#6b7280;
-
-  --topbar-base:56px;
-  --navbar-base:68px;
-  --safe-top: env(safe-area-inset-top);
-  --safe-bottom: env(safe-area-inset-bottom);
-
-  --topbar-h: calc(var(--topbar-base) + var(--safe-top));
-  --navbar-h: calc(var(--navbar-base) + var(--safe-bottom));
+  --sidebar:#0f172a;
+  --sidebar-2:#020617;
+  --text:#111827;
+  --muted:#94a3b8;
+  --white:#ffffff;
 }
-*{margin:0;padding:0;box-sizing:border-box;font-family:Inter}
-html,body{width:100vw;height:100vh;overflow:hidden;background:var(--bg)}
 
-/* TOPBAR */
-.topbar{
-  position:fixed;top:0;left:0;right:0;height:var(--topbar-h);
-  padding:calc(8px + var(--safe-top)) 16px 8px;
-  background:#fff;border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;z-index:10;
+*{
+  box-sizing:border-box;
+  font-family:Inter;
 }
-.topbar h1{font-size:18px;font-weight:900}
 
-/* CONTENT */
+body{
+  margin:0;
+  background:var(--bg);
+  overflow:hidden;
+}
+
+/* ===== LAYOUT ===== */
+.app{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  height:100vh;
+}
+
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:280px;
+  background:linear-gradient(180deg,var(--sidebar),var(--sidebar-2));
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  transition:width .25s ease;
+}
+
+
+/* ===== AUTO RECOLHIDO (DESKTOP) ===== */
+@media (hover:hover){
+  .sidebar{
+    width:72px;
+  }
+
+  .sidebar:hover{
+    width:280px;
+  }
+}
+
+/* LOGO */
+.logo{
+  padding:20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-weight:900;
+  font-size:16px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  white-space:nowrap;
+}
+.logo img{
+  width:38px;
+  height:38px;
+  border-radius:10px;
+}
+
+/* ESCONDE TEXTO QUANDO RECOLHIDO */
+@media (hover:hover){
+  .sidebar:not(:hover) .logo span,
+  .sidebar:not(:hover) .menu-title,
+  .sidebar:not(:hover) .menu-item span,
+  .sidebar:not(:hover) .submenu{
+    opacity:0;
+    pointer-events:none;
+  }
+}
+
+/* MENU */
+.menu{
+  flex:1;
+  overflow-y:auto;
+  padding:14px 10px;
+}
+
+.menu-group{
+  margin-bottom:14px;
+}
+
+.menu-title{
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  color:var(--muted);
+  padding:6px 12px;
+}
+
+.menu-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 14px;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+  font-size:14px;
+  color:#e5e7eb;
+  white-space:nowrap;
+}
+.menu-item:hover{
+  background:rgba(255,255,255,.08);
+}
+
+.menu-item i{
+  font-size:18px;
+  min-width:20px;
+}
+
+/* SUBMENU */
+.submenu{
+  margin-left:12px;
+  margin-top:6px;
+  display:none;
+  flex-direction:column;
+  gap:4px;
+}
+
+/* ABRE NO CLIQUE */
+.menu-item.open + .submenu{
+  display:flex;
+}
+
+/* ===== DESKTOP: ABRE SUBMENU NO HOVER ===== */
+@media (hover:hover){
+  .menu-item.has-sub:hover + .submenu{
+    display:flex;
+  }
+}
+
+/* SUBMENU ITEM */
+.submenu .menu-item{
+  font-size:13px;
+  padding:8px 14px;
+  opacity:.9;
+}
+
+/* ===== CONTENT ===== */
 .content{
-  position:fixed;
-  top:var(--topbar-h);
-  bottom:var(--navbar-h);
-  left:0;right:0;
+  background:var(--bg);
+  display:flex;
+  flex-direction:column;
+}
+
+/* HEADER */
+.header{
+  height:56px;
+  background:#fff;
+  border-bottom:1px solid #e5e7eb;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:0 18px;
+  font-weight:800;
+}
+
+/* IFRAME */
+.frame-wrap{
+  flex:1;
   background:#fff;
 }
-.content iframe{width:100%;height:100%;border:none;display:none}
-.content iframe.active{display:block}
 
-/* NAVBAR */
-.navbar{
-  position:fixed;bottom:0;left:0;right:0;
-  height:var(--navbar-h);
-  padding-bottom:var(--safe-bottom);
-  background:#fff;border-top:1px solid var(--border);
-  display:flex;justify-content:space-around;align-items:center;z-index:10;
+iframe{
+  width:100%;
+  height:100%;
+  border:none;
 }
-.nav-item{
-  font-size:11px;color:var(--muted);
-  display:flex;flex-direction:column;align-items:center;cursor:pointer;
-  gap:2px;
-}
-.nav-item i{font-size:22px}
-.nav-item.active,
-.nav-config.active .config-btn,
-.nav-config.open .config-btn{color:var(--primary)}
 
-/* CONFIG MENU */
-.nav-config{position:relative}
-.config-btn{display:flex;flex-direction:column;align-items:center;gap:2px}
-.config-btn .gear{transition:transform .35s ease}
-.nav-config.open .gear{transform:rotate(180deg)}
-.config-menu{
-  position:absolute;bottom:calc(100% + 10px);left:50%;
-  transform:translateX(-50%) translateY(10px);
-  background:#fff;border-radius:16px;
-  box-shadow:0 14px 40px rgba(0,0,0,.18);
-  padding:8px;min-width:180px;display:none;opacity:0;pointer-events:none;
-  transition:.25s ease;border:1px solid var(--border);z-index:999;
+/* ===== MOBILE / TABLET ===== */
+@media(max-width:1024px){
+  .app{
+    grid-template-columns:1fr;
+  }
+
+  .sidebar{
+    position:fixed;
+    inset:0 auto 0 0;
+    width:260px;
+    transform:translateX(-100%);
+    transition:.3s;
+    z-index:999;
+  }
+
+  .sidebar.open{
+    transform:translateX(0);
+  }
 }
-.nav-config.open .config-menu{
-  display:block;opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;
-}
-.config-item{
-  display:flex;align-items:center;gap:8px;
-  padding:10px 12px;border-radius:10px;font-size:13px;font-weight:700;
-  cursor:pointer;color:#111827;
-}
-.config-item i{font-size:16px}
-.config-item:hover{background:#f3f4f6}
 </style>
 </head>
 
 <body>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <h1>PAINEL ADMINISTRATIVO</h1>
-  <button onclick="refreshIframes()" style="border:none;background:#f3f4f6;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer">
-    <i class="ri-refresh-line"></i>
-  </button>
-</div>
+<div class="app">
 
-<!-- CONTEÚDO (IFRAMES) -->
-<div class="content">
-  <iframe id="frame-custom" src="admin-customizacoes.html"></iframe>
-  <iframe id="frame-tipos" src="painel-tipo-loja.html"></iframe>
-  <iframe id="frame-lojas" src="profile.html"></iframe>
-  <iframe id="frame-vendas" src="admin-relatorios-vendas.html"></iframe>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
 
-  <iframe id="frame-uso" src="admin-relatorios-uso.html"></iframe>
-  <iframe id="frame-config" src="config.html"></iframe>
-</div>
-
-<!-- NAVBAR -->
-<nav class="navbar">
-
-  <div class="nav-item" data-key="custom">
-    <i class="ri-settings-3-line"></i>
-    Customizar
-  </div>
-
-  <div class="nav-item" data-key="tipos">
-    <i class="ri-apps-2-line"></i>
-    Tipos
-  </div>
-
-  <div class="nav-item" data-key="lojas">
-    <i class="ri-store-2-line"></i>
-    Lojas
-  </div>
-
-  <div class="nav-item nav-config" id="navConfig">
-    <div class="config-btn">
-      <i class="ri-bar-chart-line gear"></i>
-      Análise
+    <div class="logo">
+      <img src="icons/icon-192.png">
+      <span>Painel Admin</span>
     </div>
 
-    <div class="config-menu" id="configMenu">
-      <div class="config-item" data-key="vendas">
-        <i class="ri-line-chart-line"></i> Vendas
-      </div>
-      <div class="config-item" data-key="uso">
-        <i class="ri-pie-chart-2-line"></i> Uso de customizações
-      </div>
-      <div class="config-item" data-key="config">
-        <i class="ri-settings-3-line"></i> Configurações
-      </div>
-    </div>
-  </div>
+    <div class="menu">
 
-</nav>
+      <!-- CONFIG -->
+      <div class="menu-group">
+        <div class="menu-title">Configurações</div>
+
+        <div class="menu-item has-sub" onclick="toggleMenu(this)">
+          <i class="ri-settings-3-line"></i>
+          <span>Customizações</span>
+        </div>
+
+        <div class="submenu">
+          <div class="menu-item" onclick="openPage('admin-customizacoes.html')">
+            <span>Palavras-chave</span>
+          </div>
+
+          <div class="menu-item" onclick="openPage('painel-tipo-loja.html')">
+            <span>Tipos e APP</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOJAS -->
+      <div class="menu-group">
+        <div class="menu-title">Lojas</div>
+
+        <div class="menu-item" onclick="openPage('profile.html')">
+          <i class="ri-store-2-line"></i>
+          <span>Gerenciar lojas</span>
+        </div>
+      </div>
+
+      <!-- RELATÓRIOS -->
+      <div class="menu-group">
+        <div class="menu-title">Relatórios</div>
+
+        <div class="menu-item has-sub" onclick="toggleMenu(this)">
+          <i class="ri-bar-chart-line"></i>
+          <span>Relatórios</span>
+        </div>
+
+        <div class="submenu">
+          <div class="menu-item" onclick="openPage('admin-relatorios-vendas.html')">
+            <span>Vendas</span>
+          </div>
+          <div class="menu-item" onclick="openPage('admin-relatorios-uso.html')">
+            <span>Uso de customizações</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <div class="header">
+      <button onclick="toggleSidebar()"
+              style="border:none;background:none;font-size:20px;cursor:pointer">
+      
+      </button>
+      Painel Administrativo
+    </div>
+
+    <div class="frame-wrap">
+      <iframe id="frame" src="admin-customizacoes.html"></iframe>
+    </div>
+
+  </main>
+
+</div>
 
 <script>
-const frames = {
-  custom: document.getElementById("frame-custom"),
-  tipos: document.getElementById("frame-tipos"),
-  lojas: document.getElementById("frame-lojas"),
-  vendas: document.getElementById("frame-vendas"),
-  uso: document.getElementById("frame-uso"),
-  config: document.getElementById("frame-config")
-};
-
-const navItems = document.querySelectorAll(".nav-item[data-key]");
-const configBtn = document.querySelector("#navConfig .config-btn");
-const configMenu = document.getElementById("configMenu");
-const configItems = document.querySelectorAll(".config-item[data-key]");
-
-function showFrame(key){
-  Object.values(frames).forEach(f=>{
-    if(!f) return;
-    f.classList.remove("active");
-    f.style.display = "none";
-  });
-  if(frames[key]){
-    frames[key].style.display = "block";
-    frames[key].classList.add("active");
-    localStorage.setItem("last_tab_admin", key);
-  }
+/* ===== PWA ===== */
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("sw.js");
 }
 
-function setActiveNav(el){
-  document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
-  el.classList.add("active");
+/* ===== NAVEGAÇÃO ===== */
+function openPage(p){
+  document.getElementById("frame").src = p;
+  closeSidebar();
 }
 
-navItems.forEach(item=>{
-  item.addEventListener("click", ()=>{
-    setActiveNav(item);
-    showFrame(item.dataset.key);
-    document.getElementById("navConfig").classList.remove("open");
-  });
-});
-
-configBtn.addEventListener("click", (e)=>{
-  e.stopPropagation();
-  document.getElementById("navConfig").classList.toggle("open");
-});
-
-configItems.forEach(item=>{
-  item.addEventListener("click", ()=>{
-    const nav = document.getElementById("navConfig");
-    document.querySelectorAll(".nav-item").forEach(i=>i.classList.remove("active"));
-    nav.classList.add("active");
-    showFrame(item.dataset.key);
-    nav.classList.remove("open");
-  });
-});
-
-document.addEventListener("click", (e)=>{
-  const nav = document.getElementById("navConfig");
-  if(!nav.contains(e.target)) nav.classList.remove("open");
-});
-
-function refreshIframes(){
-  Object.values(frames).forEach(f=>{
-    if(!f) return;
-    const base = f.src.split("?")[0];
-    f.src = base + "?v=" + Date.now();
-  });
+/* SUBMENU (mobile / clique) */
+function toggleMenu(el){
+  el.classList.toggle("open");
 }
 
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js").catch(()=>{});
+/* MOBILE */
+function toggleSidebar(){
+  document.getElementById("sidebar").classList.toggle("open");
 }
 
-// estado inicial
-window.addEventListener("load", ()=>{
-  const last = localStorage.getItem("last_tab_admin") || "custom";
-  const firstNav = document.querySelector(`.nav-item[data-key="${last}"]`) || document.querySelector('.nav-item[data-key="custom"]');
-  setActiveNav(firstNav);
-  showFrame(last);
-});
+function closeSidebar(){
+  document.getElementById("sidebar").classList.remove("open");
+}
 </script>
 
 </body>
