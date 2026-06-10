@@ -20,9 +20,7 @@
   --border:#eef2f7;
   --text:#0f172a;
   --muted:#64748b;
-  --success:#16a34a;
   --danger:#dc2626;
-  --warn:#f59e0b;
 }
 
 *{
@@ -87,26 +85,10 @@ body{
   cursor:pointer;
 }
 
-.btn-danger{
-  border:none;
-  background:var(--danger);
-  color:#fff;
-  padding:11px 16px;
-  border-radius:12px;
-  font-weight:900;
-  cursor:pointer;
-}
-
-.btn-small{
-  padding:8px 12px;
-  border-radius:10px;
-  font-size:12px;
-}
-
 /* KPIS */
 .kpis{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:1fr;
   gap:18px;
   padding:18px 28px;
   font-size:13px;
@@ -134,13 +116,12 @@ body{
 /* FILTROS */
 .filters{
   display:grid;
-  grid-template-columns:1fr 170px;
+  grid-template-columns:1fr;
   gap:12px;
   padding:0 28px 18px;
 }
 
-.search,
-.select{
+.search{
   width:100%;
   border:0.5px solid var(--border);
   background:#fff;
@@ -212,28 +193,6 @@ tr:hover{
   font-size:11px;
   font-weight:700;
   margin-top:3px;
-}
-
-.badge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  padding:5px 12px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:900;
-  white-space:nowrap;
-  text-transform:uppercase;
-}
-
-.on{
-  background:#dcfce7;
-  color:#166534;
-}
-
-.off{
-  background:#fee2e2;
-  color:#991b1b;
 }
 
 /* MENU */
@@ -364,8 +323,7 @@ tr:hover{
   margin-bottom:7px;
 }
 
-.form-group input,
-.form-group select{
+.form-group input{
   width:100%;
   border:0.5px solid var(--border);
   border-radius:12px;
@@ -375,8 +333,7 @@ tr:hover{
   background:#fff;
 }
 
-.form-group input:focus,
-.form-group select:focus{
+.form-group input:focus{
   border-color:var(--primary);
   box-shadow:0 0 0 3px rgba(37,99,235,.10);
 }
@@ -509,16 +466,6 @@ tr:hover{
     <small>Total</small>
     <span id="kpiTotal">0</span>
   </div>
-
-  <div>
-    <small>Ativos</small>
-    <span id="kpiAtivos">0</span>
-  </div>
-
-  <div>
-    <small>Inativos</small>
-    <span id="kpiInativos">0</span>
-  </div>
 </div>
 
 <div class="filters">
@@ -529,12 +476,6 @@ tr:hover{
     placeholder="Buscar tipo, slug ou caminho..."
     oninput="render()"
   >
-
-  <select id="f_status" class="select" onchange="render()">
-    <option value="">Todos</option>
-    <option value="true">Ativos</option>
-    <option value="false">Inativos</option>
-  </select>
 </div>
 
 <div class="table-card">
@@ -545,7 +486,6 @@ tr:hover{
           <th>Tipo</th>
           <th>Slug</th>
           <th>App Path</th>
-          <th>Status</th>
           <th>Criado em</th>
           <th>Ações</th>
         </tr>
@@ -584,14 +524,6 @@ tr:hover{
         <div class="form-group full">
           <label for="campoAppPath">App Path</label>
           <input id="campoAppPath" placeholder="Ex: app.html">
-        </div>
-
-        <div class="form-group">
-          <label for="campoAtivo">Status</label>
-          <select id="campoAtivo">
-            <option value="true">Ativo</option>
-            <option value="false">Inativo</option>
-          </select>
         </div>
 
       </div>
@@ -647,12 +579,8 @@ async function load(){
 function atualizarKPIs(){
 
   const total=tipos.length;
-  const ativos=tipos.filter(t=>t.ativo===true).length;
-  const inativos=total-ativos;
 
   kpiTotal.innerText=total;
-  kpiAtivos.innerText=ativos;
-  kpiInativos.innerText=inativos;
   totalReg.innerText=total+" registros";
 
 }
@@ -666,7 +594,6 @@ function abrirNovo(){
   campoNome.value="";
   campoSlug.value="";
   campoAppPath.value="";
-  campoAtivo.value="true";
 
   modal.style.display="flex";
 
@@ -692,7 +619,6 @@ function editar(id){
   campoNome.value=item.nome||"";
   campoSlug.value=item.slug||"";
   campoAppPath.value=item.app_path||"";
-  campoAtivo.value=String(item.ativo===false ? false : true);
 
   dropdown.style.display="none";
   modal.style.display="flex";
@@ -723,8 +649,7 @@ async function salvar(){
   const payload={
     nome:campoNome.value.trim().toUpperCase(),
     slug:campoSlug.value.trim().toLowerCase(),
-    app_path:campoAppPath.value.trim(),
-    ativo:campoAtivo.value==="true"
+    app_path:campoAppPath.value.trim()
   };
 
   if(!payload.nome){
@@ -784,17 +709,12 @@ async function salvar(){
 
 }
 
-function abrirMenu(event,id,ativo){
+function abrirMenu(event,id){
 
   event.stopPropagation();
 
   dropdown.innerHTML=`
     <div onclick="editar('${id}')">Editar</div>
-
-    <div onclick="alterarStatus('${id}',${ativo})">
-      ${ativo ? "Desativar" : "Ativar"}
-    </div>
-
     <div class="danger" onclick="excluir('${id}')">Excluir</div>
   `;
 
@@ -807,8 +727,8 @@ function abrirMenu(event,id,ativo){
     left=10;
   }
 
-  if(top+150>window.innerHeight){
-    top=window.innerHeight-160;
+  if(top+120>window.innerHeight){
+    top=window.innerHeight-130;
   }
 
   dropdown.style.top=top+"px";
@@ -819,30 +739,6 @@ function abrirMenu(event,id,ativo){
 document.addEventListener("click",()=>{
   dropdown.style.display="none";
 });
-
-async function alterarStatus(id,ativo){
-
-  dropdown.style.display="none";
-  overlay.style.display="flex";
-
-  const { error } = await sb
-    .from("tipos_loja")
-    .update({ ativo:!ativo })
-    .eq("id",id);
-
-  overlay.style.display="none";
-
-  if(error){
-    aviso("Erro ao alterar status");
-    console.error(error);
-    return;
-  }
-
-  aviso(ativo ? "Tipo desativado" : "Tipo ativado");
-
-  load();
-
-}
 
 async function excluir(id){
 
@@ -878,17 +774,17 @@ async function excluir(id){
 function render(){
 
   const busca=(f_busca.value||"").toLowerCase().trim();
-  const status=f_status.value;
 
   let filtrados=tipos.filter(t=>{
 
-    const texto=JSON.stringify(t||{}).toLowerCase();
+    const nome=String(t.nome||"").toLowerCase();
+    const slug=String(t.slug||"").toLowerCase();
+    const appPath=String(t.app_path||"").toLowerCase();
 
-    const passaBusca=!busca || texto.includes(busca);
-
-    const passaStatus=!status || String(t.ativo===true)===status;
-
-    return passaBusca && passaStatus;
+    return !busca ||
+           nome.includes(busca) ||
+           slug.includes(busca) ||
+           appPath.includes(busca);
 
   });
 
@@ -896,7 +792,7 @@ function render(){
 
     lista.innerHTML=`
       <tr>
-        <td colspan="6">
+        <td colspan="5">
           <div class="empty">Nenhum tipo encontrado</div>
         </td>
       </tr>
@@ -918,18 +814,12 @@ function render(){
 
       <td>${textoSeguro(t.app_path || "-")}</td>
 
-      <td>
-        <span class="badge ${t.ativo ? "on" : "off"}">
-          ${t.ativo ? "Ativo" : "Inativo"}
-        </span>
-      </td>
-
       <td>${formatarData(t.created_at)}</td>
 
       <td>
         <button
           class="menu-btn"
-          onclick="abrirMenu(event,'${t.id}',${t.ativo})"
+          onclick="abrirMenu(event,'${t.id}')"
         >
           ⋮
         </button>
