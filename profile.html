@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Central Admin • SaaS Control</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -10,333 +10,653 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-/* ====== RESET + BASE ====== */
 :root{
-  --primary:#ff6a00;
-  --bg:#000;
+  --primary:#2563eb;
+  --primary-dark:#1e40af;
+  --bg:#f4f6fb;
   --card:#ffffff;
-  --border:#e5e7eb;
-  --muted:#6b7280;
+  --border:#eef2f7;
+  --text:#0f172a;
+  --muted:#64748b;
   --success:#16a34a;
   --danger:#dc2626;
   --warn:#f59e0b;
-  --radius:22px;
 }
 
 *{
   box-sizing:border-box;
-  font-family:Inter,system-ui;
+  font-family:Inter,Arial,sans-serif;
   -webkit-tap-highlight-color:transparent;
 }
 
-html,body{
-  width:100%;
-  height:100%;
+body{
   margin:0;
-  background:
-    radial-gradient(900px 300px at 20% -10%,rgba(255,106,0,.15),transparent 40%),
-    #000;
-  overflow-x:hidden;   /* 🚫 impede scroll lateral no iframe */
-  overflow-y:auto;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
 }
 
-/* ====== CONTAINER ====== */
-.container{
-  max-width:1200px;
-  margin:0 auto;
-  padding:10px 10px 28px; /* começa direto nos filtros */
+/* HEADER */
+.header{
+  min-height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 28px;
+  background:#fff;
+  border-bottom:0.5px solid var(--border);
 }
 
-/* ====== FILTROS EM LINHA (MOBILE-FIRST) ====== */
+.header h1{
+  margin:0;
+  font-size:20px;
+  font-weight:900;
+}
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:13px;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.btn-primary{
+  border:none;
+  background:linear-gradient(180deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  padding:11px 16px;
+  border-radius:12px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(37,99,235,.25);
+}
+
+.btn-light{
+  border:0.5px solid var(--border);
+  background:#fff;
+  color:var(--text);
+  padding:11px 16px;
+  border-radius:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.btn-danger{
+  border:none;
+  background:var(--danger);
+  color:#fff;
+  padding:11px 16px;
+  border-radius:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.btn-warning{
+  border:none;
+  background:var(--warn);
+  color:#fff;
+  padding:11px 16px;
+  border-radius:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+/* KPIS */
+.kpis{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+  padding:18px 28px;
+  font-size:13px;
+}
+
+.kpis div{
+  background:#fff;
+  padding:16px 18px;
+  border-radius:14px;
+  border:0.5px solid var(--border);
+}
+
+.kpis small{
+  display:block;
+  color:var(--muted);
+  font-weight:800;
+  margin-bottom:6px;
+}
+
+.kpis span{
+  font-weight:900;
+  font-size:22px;
+}
+
+/* FILTROS */
 .filters{
   display:grid;
-  grid-template-columns:1fr 1fr 1fr;  /* 👈 3 em linha quando couber */
-  gap:8px;
-  margin-bottom:12px;
+  grid-template-columns:1fr 180px 180px;
+  gap:12px;
+  padding:0 28px 18px;
 }
 
-.filters input,
-.filters select{
+.search,
+.select{
   width:100%;
-  padding:12px 12px;
-  border-radius:999px;
-  border:1px solid var(--border);
-  font-size:13px;
+  border:0.5px solid var(--border);
+  background:#fff;
+  border-radius:14px;
+  padding:13px 14px;
+  font-size:14px;
   outline:none;
-  min-width:0;
 }
 
-/* QUEBRA BONITA QUANDO A TELA FOR MENOR */
-@media(max-width:480px){
-  .filters{
-    grid-template-columns:1fr 1fr; /* 👈 2 em linha em telas bem pequenas */
-  }
-}
-
-/* ====== GRID RESPONSIVO ====== */
-/* MOBILE: 2 POR LINHA */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(0,1fr));  /* 👈 2 colunas no celular */
-  gap:10px;
-  width:100%;
-}
-
-/* TABLET */
-@media(min-width:680px){
-  .grid{grid-template-columns:repeat(3, minmax(0,1fr));}
-}
-
-/* NOTEBOOK */
-@media(min-width:980px){
-  .grid{grid-template-columns:repeat(4, minmax(0,1fr));}
-}
-
-/* DESKTOP GRANDE */
-@media(min-width:1280px){
-  .grid{grid-template-columns:repeat(5, minmax(0,1fr));}
-}
-
-/* ====== CARD ====== */
-.card{
-  background:var(--card);
-  border-radius:var(--radius);
-  padding:12px;
-  border:1px solid var(--border);
-  box-shadow:0 8px 20px rgba(0,0,0,.18);
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  min-width:0; /* evita estouro no grid */
-}
-
-.top{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  margin-bottom:4px;
-}
-
-.avatar{
-  width:42px;
-  height:42px;
-  border-radius:50%;
-  object-fit:cover;
-  border:1px solid var(--border);
-  flex-shrink:0;
-}
-
-.name{
-  font-weight:900;
-  font-size:13px;
-  line-height:1.1;
-  word-break:break-word;
-}
-
-.city{
-  font-size:11px;
-  color:var(--muted);
-  line-height:1.1;
-}
-
-/* ====== BADGES ====== */
-.badge{
-  display:inline-block;
-  margin-top:2px;
-  padding:3px 8px;
-  border-radius:999px;
-  font-size:10px;
-  font-weight:900;
-  text-transform:uppercase;
-}
-
-.badge.active{background:#e8fff3;color:var(--success)}
-.badge.trial{background:#fff7ed;color:var(--primary)}
-.badge.expired{background:#ffe5e5;color:var(--danger)}
-
-/* ====== INFO ====== */
-.info{
-  font-size:12px;
-  font-weight:800;
-  margin-top:2px;
-  color:#111;
-  line-height:1.2;
-}
-
-small{font-size:11px;color:var(--muted)}
-
-/* ====== ROWS ====== */
-.row{
-  display:flex;
-  justify-content:space-between;
-  gap:6px;
-  margin-top:2px;
-  font-size:11px;
-}
-
-.muted{color:var(--muted)}
-
-/* ====== ICONES ====== */
-.icons{
-  display:flex;
-  gap:6px;
-  margin-top:4px;
-}
-
-.icon{
-  width:28px;
-  height:28px;
-  border-radius:50%;
-  display:grid;
-  place-items:center;
-  background:#f3f4f6;
-  color:#111;
-  border:1px solid var(--border);
-  text-decoration:none;
-  font-size:15px;
-}
-.icon.whats{color:#16a34a}
-.icon.mail{color:#2563eb}
-
-/* ====== ACTIONS ====== */
-.actions{
-  display:grid;
-  grid-template-columns:repeat(2, 1fr);
-  gap:6px;
-  margin-top:6px;
-}
-
-.btn{
-  padding:8px 10px;
-  border-radius:999px;
-  border:1px solid var(--border);
+/* TABLE */
+.table-card{
+  margin:0 28px 28px;
   background:#fff;
-  cursor:pointer;
-  font-weight:800;
-  font-size:11px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:6px;
-  text-decoration:none;
-  color:#111;
-  white-space:nowrap;
+  border-radius:16px;
+  border:0.5px solid var(--border);
+  overflow:hidden;
 }
 
-.btn.primary{
-  background:linear-gradient(135deg,#ff6a00,#ff9a57);
-  color:#fff;
-  border:none;
-}
-
-.btn.warn{
-  border:1px dashed var(--primary);
-  color:var(--primary);
-}
-
-/* ====== MODAL ====== */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.65);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:99;
-  padding:10px;
-}
-
-.modal .box{
-  background:#fff;
-  padding:18px;
-  border-radius:20px;
+.table-wrap{
   width:100%;
-  max-width:900px;
-  max-height:92vh;
   overflow:auto;
 }
 
-/* ====== FORM ====== */
-.grid-form{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:10px;
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+  min-width:1050px;
 }
 
-.grid-form label{
-  font-size:11px;
+th{
+  text-align:left;
+  padding:14px;
+  background:#fafafa;
+  font-weight:900;
+  border-bottom:0.5px solid var(--border);
+  color:#334155;
+  white-space:nowrap;
+}
+
+td{
+  padding:14px;
+  border-bottom:0.5px solid var(--border);
+  vertical-align:middle;
+}
+
+tr:hover{
+  background:#f8fafc;
+}
+
+.empty{
+  padding:35px;
+  text-align:center;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.text-muted{
   color:var(--muted);
 }
 
-.grid-form input,
-.grid-form select,
-.grid-form textarea{
-  width:100%;
-  padding:10px 12px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  font-size:14px;
+.loja-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:210px;
 }
 
-.grid-form input[readonly],
-.grid-form select[disabled]{
+.avatar{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  object-fit:cover;
+  border:0.5px solid var(--border);
+  flex-shrink:0;
+}
+
+.loja-nome{
+  font-weight:900;
+  color:var(--text);
+}
+
+.loja-sub{
+  color:var(--muted);
+  font-size:11px;
+  font-weight:700;
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 12px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap;
+  text-transform:uppercase;
+}
+
+.badge.active{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.badge.trial{
+  background:#ffedd5;
+  color:#9a3412;
+}
+
+.badge.expired{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.badge.outro{
+  background:#e0e7ff;
+  color:#3730a3;
+}
+
+/* MENU */
+.menu-btn{
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  border:0.5px solid var(--border);
+  border-radius:10px;
+  font-size:18px;
+  cursor:pointer;
+}
+
+.menu-btn:hover{
+  background:#f8fafc;
+}
+
+/* DROPDOWN */
+.dropdown{
+  position:fixed;
+  background:#fff;
+  border:0.5px solid var(--border);
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.12);
+  display:none;
+  min-width:190px;
+  z-index:1000;
+  overflow:hidden;
+}
+
+.dropdown div,
+.dropdown a{
+  display:block;
+  padding:12px 14px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:800;
+  color:var(--text);
+  text-decoration:none;
+}
+
+.dropdown div:hover,
+.dropdown a:hover{
   background:#f3f4f6;
-  color:#9ca3af;
+}
+
+.dropdown .danger{
+  color:var(--danger);
+}
+
+.dropdown .warn{
+  color:var(--warn);
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.45);
+  backdrop-filter:blur(3px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  z-index:1500;
+}
+
+.modal-card{
+  width:100%;
+  max-width:980px;
+  max-height:92vh;
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 25px 70px rgba(0,0,0,.22);
+  overflow:auto;
+}
+
+.modal-head{
+  padding:20px 22px;
+  border-bottom:0.5px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  position:sticky;
+  top:0;
+  background:#fff;
+  z-index:5;
+}
+
+.modal-head h2{
+  margin:0;
+  font-size:18px;
+  font-weight:900;
+}
+
+.close-btn{
+  border:none;
+  background:#f1f5f9;
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:18px;
+  font-weight:900;
+}
+
+.modal-body{
+  padding:22px;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+
+.form-group{
+  min-width:0;
+}
+
+.form-group.full{
+  grid-column:1/-1;
+}
+
+.form-group label{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  color:#334155;
+  margin-bottom:7px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea{
+  width:100%;
+  border:0.5px solid var(--border);
+  border-radius:12px;
+  padding:13px 14px;
+  font-size:14px;
+  outline:none;
+  background:#fff;
+}
+
+.form-group textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(37,99,235,.10);
+}
+
+.form-group input[readonly],
+.form-group select[disabled]{
+  background:#f8fafc;
+  color:#94a3b8;
   border-style:dashed;
 }
 
-.footer-actions{
+.modal-actions{
   display:flex;
-  gap:10px;
   justify-content:flex-end;
-  margin-top:12px;
+  gap:10px;
+  padding:18px 22px;
+  border-top:0.5px solid var(--border);
+  background:#fafafa;
+  position:sticky;
+  bottom:0;
 }
 
-/* ====== MELHORIAS DE TOQUE ====== */
-.btn, .icon{
-  min-height:36px;
+/* FAB */
+.fab{
+  position:fixed;
+  right:28px;
+  bottom:28px;
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  background:linear-gradient(180deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  font-size:28px;
+  border:none;
+  cursor:pointer;
+  box-shadow:0 12px 25px rgba(37,99,235,.35);
+  z-index:500;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:28px;
+  transform:translateX(-50%);
+  background:#0f172a;
+  color:#fff;
+  padding:12px 18px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:900;
+  display:none;
+  z-index:4000;
+}
+
+/* OVERLAY */
+#overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(255,255,255,.75);
+  backdrop-filter:blur(3px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:3000;
+}
+
+.spinner{
+  width:40px;
+  height:40px;
+  border:4px solid #e5e7eb;
+  border-top-color:var(--primary);
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+@media(max-width:900px){
+  .kpis{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .filters{
+    grid-template-columns:1fr;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:700px){
+  .header{
+    padding:14px;
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .header-right{
+    width:100%;
+    justify-content:space-between;
+  }
+
+  .kpis{
+    grid-template-columns:1fr;
+    padding:14px;
+    gap:10px;
+  }
+
+  .filters{
+    padding:0 14px 14px;
+  }
+
+  .table-card{
+    margin:0 14px 90px;
+  }
+
+  .fab{
+    right:18px;
+    bottom:18px;
+  }
 }
 </style>
 </head>
+
 <body>
 
-<header class="header">
+<div class="header">
   <h1>Central Admin • SaaS Control</h1>
-  <button class="btn primary" onclick="load()">Atualizar</button>
-</header>
 
-<div class="container">
-  <div class="filters">
-    <input id="f_busca" placeholder="Buscar nome, whatsapp, negócio, email..." oninput="render()">
-    <select id="f_status" onchange="render()">
-      <option value="">Status</option>
-      <option value="active">Ativo</option>
-      <option value="trial">Trial</option>
-      <option value="expired">Expirado</option>
-    </select>
-    <select id="f_tipo" onchange="render()">
-      <option value="">Tipo</option>
-      <option value="BARBEARIA">BARBEARIA</option>
-      <option value="LOJA">LOJA</option>
-      <option value="SALÃO DE BELEZA">SALÃO DE BELEZA</option>
-      <option value="STUDIO">STUDIO</option>
-    </select>
+  <div class="header-right">
+    <div id="totalReg">0 registros</div>
+    <button class="btn-primary" onclick="abrirNovo()">Adicionar</button>
   </div>
-
-  <div class="grid" id="grid"></div>
 </div>
 
-<!-- MODAL EDITAR -->
-<div class="modal" id="modal">
-  <div class="box">
-    <h3>Editar Loja (completo)</h3>
-    <div class="grid-form" id="form"></div>
-    <div class="footer-actions">
-      <button class="btn" onclick="closeModal()">Cancelar</button>
-      <button class="btn primary" onclick="salvar()">Salvar</button>
+<div class="kpis">
+  <div>
+    <small>Total</small>
+    <span id="kpiTotal">0</span>
+  </div>
+
+  <div>
+    <small>Ativas</small>
+    <span id="kpiAtivas">0</span>
+  </div>
+
+  <div>
+    <small>Trial</small>
+    <span id="kpiTrial">0</span>
+  </div>
+
+  <div>
+    <small>Expiradas</small>
+    <span id="kpiExpiradas">0</span>
+  </div>
+</div>
+
+<div class="filters">
+  <input
+    id="f_busca"
+    class="search"
+    type="text"
+    placeholder="Buscar nome, whatsapp, negócio, email..."
+    oninput="render()"
+  >
+
+  <select id="f_status" class="select" onchange="render()">
+    <option value="">Todos os status</option>
+    <option value="active">Ativo</option>
+    <option value="trial">Trial</option>
+    <option value="expired">Expirado</option>
+  </select>
+
+  <select id="f_tipo" class="select" onchange="render()">
+    <option value="">Todos os tipos</option>
+    <option value="BARBEARIA">BARBEARIA</option>
+    <option value="LOJA">LOJA</option>
+    <option value="SALÃO DE BELEZA">SALÃO DE BELEZA</option>
+    <option value="STUDIO">STUDIO</option>
+  </select>
+</div>
+
+<div class="table-card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Loja</th>
+          <th>Responsável</th>
+          <th>Whatsapp</th>
+          <th>Tipo</th>
+          <th>Status</th>
+          <th>Plano</th>
+          <th>Valor</th>
+          <th>Validade</th>
+          <th>Trial</th>
+          <th>Dias</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+
+      <tbody id="lista"></tbody>
+    </table>
+  </div>
+</div>
+
+<button class="fab" onclick="abrirNovo()">+</button>
+
+<div id="dropdown" class="dropdown"></div>
+
+<div id="modal" class="modal" onclick="fecharModalFora(event)">
+  <div class="modal-card">
+
+    <div class="modal-head">
+      <h2 id="modalTitulo">Nova loja</h2>
+      <button class="close-btn" onclick="fecharModal()">×</button>
     </div>
+
+    <div class="modal-body">
+      <div class="form-grid" id="formulario"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-light" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-primary" onclick="salvar()">Salvar</button>
+    </div>
+
   </div>
 </div>
+
+<div id="overlay">
+  <div class="spinner"></div>
+</div>
+
+<div id="toast" class="toast"></div>
 
 <script>
 const sb = supabase.createClient(
@@ -344,138 +664,651 @@ const sb = supabase.createClient(
   "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi"
 );
 
-let data = [];
-let current = null;
+let dados=[];
+let atual=null;
+let editando=false;
 
-// selects controlados
-const SELECT_FIELDS = {
-  status: ["active","trial","expired"],
-  tipo: ["BARBEARIA","LOJA","SALÃO DE BELEZA","STUDIO"],
-  assinatura_plano: ["BASIC","MASTER"],
-  assinatura_ativa: ["true","false"],
-  pagamento_online_ativo: ["true","false"]
+const CAMPOS=[
+  "id",
+  "user_id",
+  "responsavel",
+  "whatsapp",
+  "negocio",
+  "tipo",
+  "cidade",
+  "uf",
+  "email_contato",
+  "avatar_url",
+  "cep",
+  "rua",
+  "numero",
+  "bairro",
+  "slug",
+  "pagamento_online_ativo",
+  "status",
+  "fim_teste",
+  "assinatura_ativa",
+  "assinatura_valida_ate",
+  "assinatura_valor",
+  "assinatura_plano",
+  "trial_ends_at",
+  "bio",
+  "app_path",
+  "instagram",
+  "phone_number_id"
+];
+
+const SELECT_FIELDS={
+  status:["active","trial","expired"],
+  tipo:["BARBEARIA","LOJA","SALÃO DE BELEZA","STUDIO"],
+  assinatura_plano:["","BASIC","MASTER"],
+  assinatura_ativa:["true","false"],
+  pagamento_online_ativo:["true","false"]
 };
 
-// campos bloqueados
-const LOCKED_FIELDS = ["id","user_id","pagamento_online_ativo"];
+const LOCKED_FIELDS=[
+  "id",
+  "user_id",
+  "pagamento_online_ativo"
+];
 
-async function load(){
-  const { data:rows } = await sb.from("user_profile").select("*").order("created_at",{ascending:false});
-  data = rows || [];
+async function carregar(){
+
+  overlay.style.display="flex";
+
+  const { data, error } = await sb
+    .from("user_profile")
+    .select("*")
+    .order("created_at",{ ascending:false });
+
+  overlay.style.display="none";
+
+  if(error){
+    aviso("Erro ao carregar lojas");
+    console.error(error);
+    return;
+  }
+
+  dados=data||[];
+
+  atualizarKPIs();
   render();
+
 }
-load();
 
-function render(){
-  const busca = f_busca.value.toLowerCase();
-  const status = f_status.value;
-  const tipo = f_tipo.value;
+function atualizarKPIs(){
 
-  const list = data.filter(i=>{
-    return (!busca || JSON.stringify(i).toLowerCase().includes(busca))
-      && (!status || i.status===status)
-      && (!tipo || i.tipo===tipo);
+  const total=dados.length;
+  const ativas=dados.filter(x=>x.status==="active").length;
+  const trial=dados.filter(x=>x.status==="trial").length;
+  const expiradas=dados.filter(x=>x.status==="expired").length;
+
+  kpiTotal.innerText=total;
+  kpiAtivas.innerText=ativas;
+  kpiTrial.innerText=trial;
+  kpiExpiradas.innerText=expiradas;
+  totalReg.innerText=total+" registros";
+
+}
+
+function abrirNovo(){
+
+  editando=false;
+  atual={};
+
+  CAMPOS.forEach(campo=>{
+    atual[campo]="";
   });
 
-  grid.innerHTML = list.map(i=>{
-    const trialEnds = i.trial_ends_at ? new Date(i.trial_ends_at) : null;
-    let diasTrial = trialEnds ? Math.ceil((trialEnds - new Date())/86400000) : null;
-    if(diasTrial !== null && diasTrial < 0) diasTrial = 0;
+  atual.status="trial";
+  atual.tipo="LOJA";
+  atual.assinatura_ativa="false";
+  atual.pagamento_online_ativo="false";
+  atual.assinatura_plano="";
+  atual.assinatura_valor="";
+  atual.assinatura_valida_ate="";
+  atual.trial_ends_at="";
 
-    return `
-    <div class="card">
-      <div class="top">
-        <img class="avatar" src="${i.avatar_url||'https://placehold.co/100x100?text=LOGO'}">
-        <div>
-          <div class="name">${i.responsavel||'-'}</div>
-          <div class="city">${i.cidade||''} - ${i.uf||''}</div>
-          <span class="badge ${i.status}">${i.status}</span>
-        </div>
-      </div>
+  modalTitulo.innerText="Nova loja";
+  montarFormulario();
 
-      <div class="info"><b>${i.negocio||'-'}</b></div>
-      <small>${i.tipo||'-'}</small>
+  modal.style.display="flex";
 
-      <div class="icons">
-        ${i.whatsapp ? `<a class="icon whats" target="_blank" href="https://wa.me/55${i.whatsapp.replace(/\D/g,'')}"><i class="ri-whatsapp-line"></i></a>` : ``}
-        ${i.email_contato ? `<a class="icon mail" href="mailto:${i.email_contato}"><i class="ri-mail-line"></i></a>` : ``}
-      </div>
-
-      <div class="row"><span class="muted">Plano</span><b>${i.assinatura_plano||'-'}</b></div>
-      <div class="row"><span class="muted">Valor</span><b>R$ ${i.assinatura_valor||0}</b></div>
-      <div class="row"><span class="muted">Validade</span><b>${i.assinatura_valida_ate ? new Date(i.assinatura_valida_ate).toLocaleDateString() : '-'}</b></div>
-
-      <div class="row"><span class="muted">Trial</span><b>${trialEnds ? trialEnds.toLocaleDateString() : '-'}</b></div>
-      <div class="row"><span class="muted">Dias</span>
-        <b style="color:${diasTrial!==null && diasTrial<=3 ? '#dc2626':'#16a34a'}">${diasTrial!==null ? diasTrial : '-'}</b>
-      </div>
-
-      <div class="actions">
-        <button class="btn" onclick='edit(${JSON.stringify(i)})'>Editar</button>
-        ${!i.assinatura_ativa ? `<button class="btn warn" onclick="renovarTrial('${i.id}')">Trial</button>` : ``}
-        <a class="btn primary" target="_blank" href="https://www.clena.com.br/loja.html?l=${i.user_id}">Abrir Loja</a>
-      </div>
-    </div>
-    `;
-  }).join("");
 }
 
-function edit(row){
-  current = {...row};
-  form.innerHTML = Object.keys(row).map(k=>{
-    const isLocked = LOCKED_FIELDS.includes(k);
-    const isSelect = SELECT_FIELDS[k];
-    const value = (row[k] ?? "").toString();
+function abrirEditar(id){
 
-    if(isSelect){
-      const options = SELECT_FIELDS[k].map(v =>
-        `<option value="${v}" ${value==v ? "selected":""}>${v}</option>`
-      ).join("");
+  const item=dados.find(x=>x.id===id);
+
+  if(!item){
+    aviso("Registro não encontrado");
+    return;
+  }
+
+  editando=true;
+  atual={...item};
+
+  modalTitulo.innerText="Editar loja";
+  montarFormulario();
+
+  dropdown.style.display="none";
+  modal.style.display="flex";
+
+}
+
+function montarFormulario(){
+
+  formulario.innerHTML=CAMPOS.map(campo=>{
+
+    const valor=atual[campo] ?? "";
+    const bloqueado=editando && LOCKED_FIELDS.includes(campo);
+    const select=SELECT_FIELDS[campo];
+
+    if(select){
+
+      const options=select.map(op=>{
+
+        const selected=String(valor)===String(op) ? "selected" : "";
+
+        return `
+          <option value="${textoAttr(op)}" ${selected}>
+            ${op || "-"}
+          </option>
+        `;
+
+      }).join("");
+
       return `
-        <div>
-          <label>${k}</label>
-          <select ${isLocked ? "disabled":""} onchange="current['${k}']=this.value">
+        <div class="form-group">
+          <label>${campo}</label>
+          <select
+            ${bloqueado ? "disabled" : ""}
+            onchange="atual['${campo}']=this.value"
+          >
             ${options}
           </select>
         </div>
       `;
+
+    }
+
+    if(campo==="bio"){
+
+      return `
+        <div class="form-group full">
+          <label>${campo}</label>
+          <textarea
+            ${bloqueado ? "readonly" : ""}
+            onchange="atual['${campo}']=this.value"
+          >${textoArea(valor)}</textarea>
+        </div>
+      `;
+
     }
 
     return `
-      <div>
-        <label>${k}</label>
-        <input ${isLocked ? "readonly":""}
-          value="${value.replaceAll('"','&quot;')}"
-          onchange="current['${k}']=this.value">
+      <div class="form-group">
+        <label>${campo}</label>
+        <input
+          ${bloqueado ? "readonly" : ""}
+          value="${textoAttr(valor)}"
+          onchange="atual['${campo}']=this.value"
+        >
       </div>
     `;
+
   }).join("");
-  modal.style.display="flex";
+
 }
 
-function closeModal(){ modal.style.display="none"; }
+function fecharModal(){
+
+  modal.style.display="none";
+  atual=null;
+  editando=false;
+
+}
+
+function fecharModalFora(event){
+
+  if(event.target.id==="modal"){
+    fecharModal();
+  }
+
+}
 
 async function salvar(){
-  const payload = {...current};
-  LOCKED_FIELDS.forEach(f => delete payload[f]);
-  await sb.from("user_profile").update(payload).eq("id", current.id);
-  closeModal();
-  load();
+
+  if(!atual){
+    return;
+  }
+
+  if(!String(atual.responsavel||"").trim()){
+    aviso("Informe o responsável");
+    return;
+  }
+
+  if(!String(atual.negocio||"").trim()){
+    aviso("Informe o negócio");
+    return;
+  }
+
+  const payload={...atual};
+
+  if(payload.assinatura_ativa==="true") payload.assinatura_ativa=true;
+  if(payload.assinatura_ativa==="false") payload.assinatura_ativa=false;
+
+  if(payload.pagamento_online_ativo==="true") payload.pagamento_online_ativo=true;
+  if(payload.pagamento_online_ativo==="false") payload.pagamento_online_ativo=false;
+
+  if(payload.assinatura_valor==="") payload.assinatura_valor=null;
+
+  if(payload.assinatura_valida_ate==="") payload.assinatura_valida_ate=null;
+  if(payload.trial_ends_at==="") payload.trial_ends_at=null;
+  if(payload.fim_teste==="") payload.fim_teste=null;
+
+  if(editando){
+
+    LOCKED_FIELDS.forEach(campo=>{
+      delete payload[campo];
+    });
+
+  }else{
+
+    if(!payload.id) delete payload.id;
+    if(!payload.user_id) delete payload.user_id;
+    if(!payload.created_at) delete payload.created_at;
+
+  }
+
+  overlay.style.display="flex";
+
+  let error;
+
+  if(editando){
+
+    const resposta = await sb
+      .from("user_profile")
+      .update(payload)
+      .eq("id",atual.id);
+
+    error=resposta.error;
+
+  }else{
+
+    const resposta = await sb
+      .from("user_profile")
+      .insert(payload);
+
+    error=resposta.error;
+
+  }
+
+  overlay.style.display="none";
+
+  if(error){
+    aviso("Erro ao salvar");
+    console.error(error);
+    return;
+  }
+
+  fecharModal();
+  aviso(editando ? "Registro atualizado" : "Registro adicionado");
+  carregar();
+
+}
+
+function abrirMenu(event,id,status,user_id){
+
+  event.stopPropagation();
+
+  const item=dados.find(x=>x.id===id);
+
+  if(!item){
+    return;
+  }
+
+  const urlLoja=user_id ? `https://www.clena.com.br/loja.html?l=${user_id}` : "#";
+
+  dropdown.innerHTML=`
+    <div onclick="abrirEditar('${id}')">Editar</div>
+
+    <div onclick="alterarStatus('${id}','active')">Marcar ativo</div>
+
+    <div onclick="alterarStatus('${id}','trial')">Marcar trial</div>
+
+    <div onclick="alterarStatus('${id}','expired')">Marcar expirado</div>
+
+    <div class="warn" onclick="renovarTrial('${id}')">Conceder +7 dias trial</div>
+
+    <a target="_blank" href="${urlLoja}">Abrir loja</a>
+
+    <div class="danger" onclick="excluir('${id}')">Excluir</div>
+  `;
+
+  dropdown.style.display="block";
+
+  let top=event.clientY;
+  let left=event.clientX-170;
+
+  if(left<10) left=10;
+  if(top+260>window.innerHeight) top=window.innerHeight-270;
+
+  dropdown.style.top=top+"px";
+  dropdown.style.left=left+"px";
+
+}
+
+document.addEventListener("click",()=>{
+  dropdown.style.display="none";
+});
+
+async function alterarStatus(id,status){
+
+  dropdown.style.display="none";
+  overlay.style.display="flex";
+
+  const { error } = await sb
+    .from("user_profile")
+    .update({ status:status })
+    .eq("id",id);
+
+  overlay.style.display="none";
+
+  if(error){
+    aviso("Erro ao alterar status");
+    console.error(error);
+    return;
+  }
+
+  aviso("Status atualizado");
+  carregar();
+
 }
 
 async function renovarTrial(id){
-  if(!confirm("Conceder +7 dias de trial?")) return;
-  const novaData = new Date(Date.now() + 7*24*60*60*1000);
-  await sb.from("user_profile").update({
-    status:"trial",
-    trial_ends_at:novaData,
-    assinatura_ativa:false,
-    assinatura_plano:null,
-    assinatura_valor:null,
-    assinatura_valida_ate:null
-  }).eq("id",id);
-  load();
+
+  dropdown.style.display="none";
+
+  const confirmar=confirm("Conceder +7 dias de trial?");
+
+  if(!confirmar){
+    return;
+  }
+
+  const novaData=new Date(Date.now()+7*24*60*60*1000).toISOString();
+
+  overlay.style.display="flex";
+
+  const { error } = await sb
+    .from("user_profile")
+    .update({
+      status:"trial",
+      trial_ends_at:novaData,
+      assinatura_ativa:false,
+      assinatura_plano:null,
+      assinatura_valor:null,
+      assinatura_valida_ate:null
+    })
+    .eq("id",id);
+
+  overlay.style.display="none";
+
+  if(error){
+    aviso("Erro ao renovar trial");
+    console.error(error);
+    return;
+  }
+
+  aviso("Trial renovado");
+  carregar();
+
 }
+
+async function excluir(id){
+
+  dropdown.style.display="none";
+
+  const confirmar=confirm("Deseja excluir este registro?");
+
+  if(!confirmar){
+    return;
+  }
+
+  overlay.style.display="flex";
+
+  const { error } = await sb
+    .from("user_profile")
+    .delete()
+    .eq("id",id);
+
+  overlay.style.display="none";
+
+  if(error){
+    aviso("Erro ao excluir");
+    console.error(error);
+    return;
+  }
+
+  aviso("Registro excluído");
+  carregar();
+
+}
+
+function render(){
+
+  const busca=(f_busca.value||"").toLowerCase().trim();
+  const status=f_status.value;
+  const tipo=f_tipo.value;
+
+  let listaFiltrada=dados.filter(item=>{
+
+    const texto=JSON.stringify(item||{}).toLowerCase();
+
+    return (!busca || texto.includes(busca)) &&
+           (!status || item.status===status) &&
+           (!tipo || item.tipo===tipo);
+
+  });
+
+  if(!listaFiltrada.length){
+
+    lista.innerHTML=`
+      <tr>
+        <td colspan="11">
+          <div class="empty">Nenhum registro encontrado</div>
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+  lista.innerHTML=listaFiltrada.map(item=>{
+
+    const trialEnds=item.trial_ends_at ? new Date(item.trial_ends_at) : null;
+    let diasTrial=trialEnds ? Math.ceil((trialEnds-new Date())/86400000) : null;
+
+    if(diasTrial!==null && diasTrial<0){
+      diasTrial=0;
+    }
+
+    const validade=item.assinatura_valida_ate
+      ? formatarData(item.assinatura_valida_ate)
+      : "-";
+
+    const trialTexto=trialEnds
+      ? trialEnds.toLocaleDateString("pt-BR")
+      : "-";
+
+    const diasTexto=diasTrial!==null ? diasTrial : "-";
+
+    const diasCor=diasTrial!==null && diasTrial<=3 ? "#dc2626" : "#16a34a";
+
+    const statusClass=item.status==="active" || item.status==="trial" || item.status==="expired"
+      ? item.status
+      : "outro";
+
+    return `
+      <tr>
+        <td>
+          <div class="loja-box">
+            <img class="avatar" src="${textoAttr(item.avatar_url || "https://placehold.co/100x100?text=LOGO")}">
+            <div>
+              <div class="loja-nome">${textoSeguro(item.negocio || "-")}</div>
+              <div class="loja-sub">${textoSeguro((item.cidade || "") + " - " + (item.uf || ""))}</div>
+            </div>
+          </div>
+        </td>
+
+        <td>${textoSeguro(item.responsavel || "-")}</td>
+
+        <td>
+          ${
+            item.whatsapp
+            ? `<a href="https://wa.me/55${somenteNumeros(item.whatsapp)}" target="_blank">${textoSeguro(item.whatsapp)}</a>`
+            : `<span class="text-muted">-</span>`
+          }
+        </td>
+
+        <td>${textoSeguro(item.tipo || "-")}</td>
+
+        <td>
+          <span class="badge ${statusClass}">
+            ${textoSeguro(item.status || "-")}
+          </span>
+        </td>
+
+        <td>${textoSeguro(item.assinatura_plano || "-")}</td>
+
+        <td>${formatarMoeda(item.assinatura_valor)}</td>
+
+        <td>${validade}</td>
+
+        <td>${trialTexto}</td>
+
+        <td>
+          <b style="color:${diasCor}">
+            ${diasTexto}
+          </b>
+        </td>
+
+        <td>
+          <button
+            class="menu-btn"
+            onclick="abrirMenu(event,'${item.id}','${item.status}','${item.user_id || ""}')"
+          >
+            ⋮
+          </button>
+        </td>
+      </tr>
+    `;
+
+  }).join("");
+
+}
+
+function formatarMoeda(valor){
+
+  const numero=Number(valor||0);
+
+  return numero.toLocaleString("pt-BR",{
+    style:"currency",
+    currency:"BRL"
+  });
+
+}
+
+function formatarData(valor){
+
+  if(!valor){
+    return "-";
+  }
+
+  const data=new Date(valor);
+
+  if(isNaN(data.getTime())){
+    return "-";
+  }
+
+  return data.toLocaleDateString("pt-BR");
+
+}
+
+function somenteNumeros(valor){
+
+  return String(valor||"").replace(/\D/g,"");
+
+}
+
+function textoSeguro(valor){
+
+  if(valor===null || valor===undefined || valor===""){
+    return '<span class="text-muted">-</span>';
+  }
+
+  return String(valor)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+function textoAttr(valor){
+
+  if(valor===null || valor===undefined){
+    return "";
+  }
+
+  return String(valor)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+function textoArea(valor){
+
+  if(valor===null || valor===undefined){
+    return "";
+  }
+
+  return String(valor)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+
+}
+
+function aviso(msg){
+
+  toast.innerText=msg;
+  toast.style.display="block";
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer=setTimeout(()=>{
+    toast.style.display="none";
+  },2500);
+
+}
+
+document.addEventListener("keydown",(e)=>{
+
+  if(e.key==="Escape"){
+    fecharModal();
+    dropdown.style.display="none";
+  }
+
+});
+
+carregar();
 </script>
+
 </body>
 </html>
