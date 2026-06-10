@@ -21,7 +21,10 @@
   --danger:#dc2626;
 }
 
-*{box-sizing:border-box;font-family:Inter}
+*{
+  box-sizing:border-box;
+  font-family:Inter,Arial,sans-serif;
+}
 
 body{
   margin:0;
@@ -31,20 +34,70 @@ body{
 
 /* HEADER */
 .header{
-  height:64px;
+  min-height:64px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 28px;
+  gap:12px;
+  padding:14px 28px;
   background:#fff;
   border-bottom:0.5px solid var(--border);
+}
+
+.header h1{
+  margin:0;
+  font-size:20px;
   font-weight:900;
-  font-size:18px;
+}
+
+.header-right{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:13px;
+  color:var(--muted);
+  font-weight:800;
+}
+
+.btn-primary{
+  border:none;
+  background:linear-gradient(180deg,var(--primary),var(--primary-dark));
+  color:#fff;
+  padding:11px 16px;
+  border-radius:12px;
+  font-weight:900;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(37,99,235,.25);
+}
+
+.btn-primary:hover{
+  filter:brightness(.98);
+}
+
+.btn-light{
+  border:0.5px solid var(--border);
+  background:#fff;
+  color:var(--text);
+  padding:11px 16px;
+  border-radius:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.btn-danger{
+  border:none;
+  background:var(--danger);
+  color:#fff;
+  padding:11px 16px;
+  border-radius:12px;
+  font-weight:900;
+  cursor:pointer;
 }
 
 /* KPIs */
 .kpis{
-  display:flex;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
   gap:18px;
   padding:18px 28px;
   font-size:13px;
@@ -52,14 +105,38 @@ body{
 
 .kpis div{
   background:#fff;
-  padding:14px 18px;
+  padding:16px 18px;
   border-radius:14px;
   border:0.5px solid var(--border);
 }
 
+.kpis small{
+  display:block;
+  color:var(--muted);
+  font-weight:800;
+  margin-bottom:6px;
+}
+
 .kpis span{
   font-weight:900;
-  font-size:16px;
+  font-size:22px;
+}
+
+/* FILTROS */
+.filters{
+  display:flex;
+  gap:12px;
+  padding:0 28px 18px;
+}
+
+.search{
+  flex:1;
+  border:0.5px solid var(--border);
+  background:#fff;
+  border-radius:14px;
+  padding:13px 14px;
+  font-size:14px;
+  outline:none;
 }
 
 /* TABLE */
@@ -68,69 +145,117 @@ body{
   background:#fff;
   border-radius:16px;
   border:0.5px solid var(--border);
+  overflow:hidden;
+}
+
+.table-wrap{
+  width:100%;
+  overflow:auto;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
   font-size:13px;
+  min-width:760px;
 }
 
 th{
   text-align:left;
   padding:14px;
   background:#fafafa;
-  font-weight:800;
+  font-weight:900;
   border-bottom:0.5px solid var(--border);
+  color:#334155;
+  white-space:nowrap;
 }
 
 td{
   padding:14px;
   border-bottom:0.5px solid var(--border);
+  vertical-align:middle;
 }
 
 tr:hover{
   background:#f8fafc;
 }
 
-.badge{
-  padding:4px 12px;
-  border-radius:999px;
-  font-size:11px;
+.empty{
+  padding:35px;
+  text-align:center;
+  color:var(--muted);
   font-weight:800;
 }
 
-.on{background:#dcfce7;color:#166534}
-.off{background:#fee2e2;color:#991b1b}
+.text-muted{
+  color:var(--muted);
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:5px 12px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.on{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.off{
+  background:#fee2e2;
+  color:#991b1b;
+}
 
 /* MENU */
 .menu-btn{
-  background:none;
-  border:none;
+  width:34px;
+  height:34px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  border:0.5px solid var(--border);
+  border-radius:10px;
   font-size:18px;
   cursor:pointer;
 }
 
-/* DROPDOWN FIXO */
+.menu-btn:hover{
+  background:#f8fafc;
+}
+
+/* DROPDOWN */
 .dropdown{
   position:fixed;
   background:#fff;
   border:0.5px solid var(--border);
   border-radius:12px;
-  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  box-shadow:0 10px 30px rgba(0,0,0,.12);
   display:none;
-  min-width:150px;
+  min-width:170px;
   z-index:1000;
+  overflow:hidden;
 }
 
 .dropdown div{
-  padding:10px 14px;
+  padding:12px 14px;
   cursor:pointer;
   font-size:13px;
+  font-weight:800;
 }
 
 .dropdown div:hover{
   background:#f3f4f6;
+}
+
+.dropdown .danger{
+  color:var(--danger);
 }
 
 /* FAB */
@@ -143,10 +268,136 @@ tr:hover{
   border-radius:50%;
   background:linear-gradient(180deg,var(--primary),var(--primary-dark));
   color:#fff;
-  font-size:26px;
+  font-size:28px;
   border:none;
   cursor:pointer;
   box-shadow:0 12px 25px rgba(37,99,235,.35);
+  z-index:500;
+}
+
+/* MODAL */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.45);
+  backdrop-filter:blur(3px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  z-index:1500;
+}
+
+.modal-card{
+  width:100%;
+  max-width:560px;
+  background:#fff;
+  border-radius:20px;
+  box-shadow:0 25px 70px rgba(0,0,0,.22);
+  overflow:hidden;
+}
+
+.modal-head{
+  padding:20px 22px;
+  border-bottom:0.5px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+.modal-head h2{
+  margin:0;
+  font-size:18px;
+  font-weight:900;
+}
+
+.close-btn{
+  border:none;
+  background:#f1f5f9;
+  width:34px;
+  height:34px;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:18px;
+  font-weight:900;
+}
+
+.modal-body{
+  padding:22px;
+}
+
+.form-group{
+  margin-bottom:14px;
+}
+
+.form-group label{
+  display:block;
+  font-size:12px;
+  font-weight:900;
+  color:#334155;
+  margin-bottom:7px;
+}
+
+.form-group input,
+.form-group textarea{
+  width:100%;
+  border:0.5px solid var(--border);
+  border-radius:12px;
+  padding:13px 14px;
+  font-size:14px;
+  outline:none;
+  background:#fff;
+}
+
+.form-group textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(37,99,235,.10);
+}
+
+.check-line{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:14px;
+  font-weight:800;
+  margin-top:8px;
+}
+
+.check-line input{
+  width:18px;
+  height:18px;
+}
+
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+  padding:18px 22px;
+  border-top:0.5px solid var(--border);
+  background:#fafafa;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;
+  left:50%;
+  bottom:28px;
+  transform:translateX(-50%);
+  background:#0f172a;
+  color:#fff;
+  padding:12px 18px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:900;
+  display:none;
+  z-index:4000;
 }
 
 /* OVERLAY */
@@ -158,7 +409,7 @@ tr:hover{
   display:none;
   align-items:center;
   justify-content:center;
-  z-index:2000;
+  z-index:3000;
 }
 
 .spinner{
@@ -170,43 +421,152 @@ tr:hover{
   animation:spin 1s linear infinite;
 }
 
-@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+@media(max-width:700px){
+  .header{
+    padding:14px;
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .header-right{
+    width:100%;
+    justify-content:space-between;
+  }
+
+  .kpis{
+    grid-template-columns:1fr;
+    padding:14px;
+    gap:10px;
+  }
+
+  .filters{
+    padding:0 14px 14px;
+  }
+
+  .table-card{
+    margin:0 14px 90px;
+  }
+
+  .fab{
+    right:18px;
+    bottom:18px;
+  }
+
+  .modal-card{
+    max-height:90vh;
+    overflow:auto;
+  }
+}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  Customizações
-  <div id="totalReg">0 registros</div>
+  <h1>Customizações</h1>
+
+  <div class="header-right">
+    <div id="totalReg">0 registros</div>
+    <button class="btn-primary" onclick="abrirNovo()">Adicionar</button>
+  </div>
 </div>
 
 <div class="kpis">
-  <div>Total: <span id="kpiTotal">0</span></div>
-  <div>Ativas: <span id="kpiAtivas">0</span></div>
-  <div>Inativas: <span id="kpiInativas">0</span></div>
+  <div>
+    <small>Total</small>
+    <span id="kpiTotal">0</span>
+  </div>
+
+  <div>
+    <small>Ativas</small>
+    <span id="kpiAtivas">0</span>
+  </div>
+
+  <div>
+    <small>Inativas</small>
+    <span id="kpiInativas">0</span>
+  </div>
+</div>
+
+<div class="filters">
+  <input
+    id="busca"
+    class="search"
+    type="text"
+    placeholder="Buscar por loja, palavra ou caminho..."
+    oninput="render()"
+  >
 </div>
 
 <div class="table-card">
-  <table>
-    <thead>
-      <tr>
-        <th>Loja</th>
-        <th>Palavras</th>
-        <th>Caminho</th>
-        <th>Status</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody id="lista"></tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Loja</th>
+          <th>Palavras</th>
+          <th>Caminho</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+
+      <tbody id="lista"></tbody>
+    </table>
+  </div>
 </div>
 
+<button class="fab" onclick="abrirNovo()">+</button>
+
 <div id="dropdown" class="dropdown"></div>
+
+<div id="modal" class="modal" onclick="fecharModalFora(event)">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 id="modalTitulo">Nova customização</h2>
+      <button class="close-btn" onclick="fecharModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="campoLoja">Loja</label>
+        <input id="campoLoja" type="text" placeholder="Digite o ID ou nome da loja">
+      </div>
+
+      <div class="form-group">
+        <label for="campoPalavras">Palavras-chave</label>
+        <textarea id="campoPalavras" placeholder="Ex: pizza, massas, almoço, jantar"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="campoCaminho">Caminho HTML</label>
+        <input id="campoCaminho" type="text" placeholder="Ex: /loja/index.html">
+      </div>
+
+      <label class="check-line">
+        <input id="campoAtivo" type="checkbox" checked>
+        Registro ativo
+      </label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-light" onclick="fecharModal()">Cancelar</button>
+      <button class="btn-primary" onclick="salvar()">Salvar</button>
+    </div>
+  </div>
+</div>
 
 <div id="overlay">
   <div class="spinner"></div>
 </div>
+
+<div id="toast" class="toast"></div>
 
 <script>
 const sb = supabase.createClient(
@@ -215,37 +575,210 @@ const sb = supabase.createClient(
 );
 
 let customizacoes=[];
+let editandoId=null;
 
 async function carregar(){
-  const { data } = await sb.from("loja_customizacoes").select("*");
+
+  overlay.style.display="flex";
+
+  const { data, error } = await sb
+    .from("loja_customizacoes")
+    .select("*")
+    .order("created_at",{ ascending:false });
+
+  overlay.style.display="none";
+
+  if(error){
+    aviso("Erro ao carregar registros");
+    console.error(error);
+    return;
+  }
+
   customizacoes=data||[];
+
   atualizarKPIs();
   render();
+
 }
 
 function atualizarKPIs(){
+
   const total=customizacoes.length;
   const ativas=customizacoes.filter(x=>x.ativo).length;
+  const inativas=total-ativas;
+
   kpiTotal.innerText=total;
   kpiAtivas.innerText=ativas;
-  kpiInativas.innerText=total-ativas;
+  kpiInativas.innerText=inativas;
   totalReg.innerText=total+" registros";
+
+}
+
+function limparFormulario(){
+
+  campoLoja.value="";
+  campoPalavras.value="";
+  campoCaminho.value="";
+  campoAtivo.checked=true;
+
+}
+
+function abrirNovo(){
+
+  editandoId=null;
+  modalTitulo.innerText="Nova customização";
+
+  limparFormulario();
+
+  modal.style.display="flex";
+
+  setTimeout(()=>{
+    campoLoja.focus();
+  },100);
+
+}
+
+function abrirEditar(id){
+
+  const item=customizacoes.find(c=>c.id===id);
+
+  if(!item){
+    aviso("Registro não encontrado");
+    return;
+  }
+
+  editandoId=id;
+
+  modalTitulo.innerText="Editar customização";
+
+  campoLoja.value=item.loja_id||"";
+  campoPalavras.value=item.palavras_chave||"";
+  campoCaminho.value=item.caminho_html||"";
+  campoAtivo.checked=!!item.ativo;
+
+  modal.style.display="flex";
+
+  dropdown.style.display="none";
+
+  setTimeout(()=>{
+    campoLoja.focus();
+  },100);
+
+}
+
+function fecharModal(){
+
+  modal.style.display="none";
+  editandoId=null;
+  limparFormulario();
+
+}
+
+function fecharModalFora(event){
+
+  if(event.target.id==="modal"){
+    fecharModal();
+  }
+
+}
+
+async function salvar(){
+
+  const loja=campoLoja.value.trim();
+  const palavras=campoPalavras.value.trim();
+  const caminho=campoCaminho.value.trim();
+  const ativo=campoAtivo.checked;
+
+  if(!loja){
+    aviso("Informe a loja");
+    campoLoja.focus();
+    return;
+  }
+
+  if(!caminho){
+    aviso("Informe o caminho HTML");
+    campoCaminho.focus();
+    return;
+  }
+
+  const payload={
+    loja_id:loja,
+    palavras_chave:palavras,
+    caminho_html:caminho,
+    ativo:ativo
+  };
+
+  overlay.style.display="flex";
+
+  let error;
+
+  if(editandoId){
+
+    const resposta = await sb
+      .from("loja_customizacoes")
+      .update(payload)
+      .eq("id",editandoId);
+
+    error=resposta.error;
+
+  }else{
+
+    const resposta = await sb
+      .from("loja_customizacoes")
+      .insert(payload);
+
+    error=resposta.error;
+
+  }
+
+  overlay.style.display="none";
+
+  if(error){
+    aviso("Erro ao salvar");
+    console.error(error);
+    return;
+  }
+
+  fecharModal();
+
+  aviso(editandoId ? "Registro atualizado" : "Registro adicionado");
+
+  carregar();
+
 }
 
 function abrirMenu(e,id,ativo){
+
   e.stopPropagation();
+
   const menu=document.getElementById("dropdown");
 
   menu.innerHTML=`
+    <div onclick="abrirEditar('${id}')">Editar</div>
+
     <div onclick="alterarStatus('${id}',${ativo})">
-      ${ativo?'Desativar':'Ativar'}
+      ${ativo ? "Desativar" : "Ativar"}
     </div>
-    <div onclick="excluir('${id}')">Excluir</div>
+
+    <div class="danger" onclick="excluir('${id}')">Excluir</div>
   `;
 
   menu.style.display="block";
-  menu.style.top=e.clientY+"px";
-  menu.style.left=(e.clientX-150)+"px";
+
+  let top=e.clientY;
+  let left=e.clientX-150;
+
+  if(left<10){
+    left=10;
+  }
+
+  if(top+130>window.innerHeight){
+    top=window.innerHeight-140;
+  }
+
+  menu.style.top=top+"px";
+  menu.style.left=left+"px";
+
 }
 
 document.addEventListener("click",()=>{
@@ -253,47 +786,161 @@ document.addEventListener("click",()=>{
 });
 
 async function alterarStatus(id,ativo){
+
   dropdown.style.display="none";
   overlay.style.display="flex";
 
-  await sb.from("loja_customizacoes")
-    .update({ativo:!ativo})
+  const { error } = await sb
+    .from("loja_customizacoes")
+    .update({ ativo:!ativo })
     .eq("id",id);
 
   overlay.style.display="none";
+
+  if(error){
+    aviso("Erro ao alterar status");
+    console.error(error);
+    return;
+  }
+
+  aviso(ativo ? "Registro desativado" : "Registro ativado");
+
   carregar();
+
 }
 
 async function excluir(id){
+
   dropdown.style.display="none";
+
+  const confirmar=confirm("Deseja excluir este registro?");
+
+  if(!confirmar){
+    return;
+  }
+
   overlay.style.display="flex";
 
-  await sb.from("loja_customizacoes")
+  const { error } = await sb
+    .from("loja_customizacoes")
     .delete()
     .eq("id",id);
 
   overlay.style.display="none";
+
+  if(error){
+    aviso("Erro ao excluir");
+    console.error(error);
+    return;
+  }
+
+  aviso("Registro excluído");
+
   carregar();
+
+}
+
+function textoSeguro(valor){
+
+  if(valor===null || valor===undefined || valor===""){
+    return '<span class="text-muted">-</span>';
+  }
+
+  return String(valor)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
 }
 
 function render(){
-  lista.innerHTML = customizacoes.map(c=>`
+
+  const termo=(busca.value||"").toLowerCase().trim();
+
+  let dados=customizacoes;
+
+  if(termo){
+
+    dados=customizacoes.filter(c=>{
+
+      const loja=String(c.loja_id||"").toLowerCase();
+      const palavras=String(c.palavras_chave||"").toLowerCase();
+      const caminho=String(c.caminho_html||"").toLowerCase();
+
+      return loja.includes(termo) ||
+             palavras.includes(termo) ||
+             caminho.includes(termo);
+
+    });
+
+  }
+
+  if(!dados.length){
+
+    lista.innerHTML=`
+      <tr>
+        <td colspan="5">
+          <div class="empty">Nenhum registro encontrado</div>
+        </td>
+      </tr>
+    `;
+
+    return;
+
+  }
+
+  lista.innerHTML=dados.map(c=>`
+
     <tr>
-      <td>${c.loja_id}</td>
-      <td>${c.palavras_chave}</td>
-      <td>${c.caminho_html}</td>
-      <td><span class="badge ${c.ativo?'on':'off'}">
-        ${c.ativo?'Ativo':'Inativo'}
-      </span></td>
+      <td>${textoSeguro(c.loja_id)}</td>
+
+      <td>${textoSeguro(c.palavras_chave)}</td>
+
+      <td>${textoSeguro(c.caminho_html)}</td>
+
       <td>
-        <button class="menu-btn"
-          onclick="abrirMenu(event,'${c.id}',${c.ativo})">
+        <span class="badge ${c.ativo ? "on" : "off"}">
+          ${c.ativo ? "Ativo" : "Inativo"}
+        </span>
+      </td>
+
+      <td>
+        <button
+          class="menu-btn"
+          onclick="abrirMenu(event,'${c.id}',${c.ativo})"
+        >
           ⋮
         </button>
       </td>
     </tr>
+
   `).join("");
+
 }
+
+function aviso(msg){
+
+  toast.innerText=msg;
+  toast.style.display="block";
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer=setTimeout(()=>{
+    toast.style.display="none";
+  },2500);
+
+}
+
+document.addEventListener("keydown",(e)=>{
+
+  if(e.key==="Escape"){
+    fecharModal();
+    dropdown.style.display="none";
+  }
+
+});
 
 carregar();
 </script>
