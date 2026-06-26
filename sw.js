@@ -1,4 +1,4 @@
-const CACHE = "painel-admin-v10";
+const CACHE = "painel-admin-v17";
 const FILES = [
   "./",
   "./index.html",
