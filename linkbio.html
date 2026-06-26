@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+  <title>LINK BIO • Calendário</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --azul: #2563eb;
+      --azul-escuro: #1e40af;
+      --azul-claro: #eff6ff;
+      --texto: #0f172a;
+      --cinza: #64748b;
+      --borda: #e2e8f0;
+      --fundo: #f8fafc;
+      --card: #ffffff;
+      --sombra: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--fundo);
+      color: var(--texto);
+      overflow-x: hidden;
+    }
+
+    .app {
+      width: 100%;
+      min-height: 100vh;
+      padding: 12px;
+      padding-bottom: 22px;
+    }
+
+    .topo {
+      background: linear-gradient(135deg, var(--azul), #38bdf8);
+      color: white;
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: var(--sombra);
+      margin-bottom: 12px;
+    }
+
+    .topo h1 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+
+    .topo p {
+      margin: 7px 0 0;
+      font-size: 13px;
+      opacity: 0.92;
+    }
+
+    .resumo-topo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .mini-card {
+      background: rgba(255, 255, 255, 0.17);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .mini-card span {
+      display: block;
+      font-size: 11px;
+      opacity: 0.85;
+      margin-bottom: 4px;
+      font-weight: bold;
+    }
+
+    .mini-card strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.1;
+    }
+
+    .painel {
+      background: white;
+      border: 1px solid var(--borda);
+      border-radius: 22px;
+      padding: 12px;
+      box-shadow: var(--sombra);
+    }
+
+    .linha-filtro {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    select,
+    button {
+      height: 46px;
+      border-radius: 15px;
+      font-size: 15px;
+      font-weight: bold;
+      outline: none;
+    }
+
+    select {
+      flex: 1;
+      border: 1px solid var(--borda);
+      background: white;
+      color: var(--texto);
+      padding: 0 12px;
+    }
+
+    button {
+      border: none;
+      background: var(--azul);
+      color: white;
+      padding: 0 16px;
+      cursor: pointer;
+      min-width: 104px;
+    }
+
+    .calendario {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .mes {
+      min-height: 118px;
+      border: 1px solid var(--borda);
+      background: #fff;
+      border-radius: 18px;
+      padding: 13px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .mes.atual {
+      border-color: var(--azul);
+      background: var(--azul-claro);
+    }
+
+    .mes.sem-valor {
+      opacity: 0.68;
+    }
+
+    .mes-cabecalho {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .mes-nome {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--texto);
+    }
+
+    .bolinha {
+      width: 9px;
+      height: 9px;
+      background: var(--azul);
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .mes-valor {
+      font-size: 23px;
+      font-weight: 900;
+      color: var(--azul-escuro);
+      line-height: 1.1;
+      margin-top: 10px;
+    }
+
+    .mes-qtd {
+      font-size: 12px;
+      color: var(--cinza);
+      line-height: 1.35;
+      margin-top: 8px;
+    }
+
+    .rodape-info {
+      margin-top: 12px;
+      text-align: center;
+      color: var(--cinza);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .loading {
+      position: fixed;
+      inset: 0;
+      background: rgba(248, 250, 252, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 99;
+      color: var(--azul);
+      font-weight: bold;
+    }
+
+    .loading.ativo {
+      display: flex;
+    }
+
+    .erro {
+      display: none;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .erro.ativo {
+      display: block;
+    }
+
+    @media (min-width: 700px) {
+      .app {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+
+      .calendario {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="loading ativo" id="loading">
+    Carregando...
+  </div>
+
+  <main class="app">
+
+    <header class="topo">
+      <h1>LINK BIO</h1>
+      <p>Calendário anual de faturamento</p>
+
+      <div class="resumo-topo">
+        <div class="mini-card">
+          <span>VALOR ANUAL</span>
+          <strong>R$ 15</strong>
+        </div>
+
+        <div class="mini-card">
+          <span>TOTAL DO ANO</span>
+          <strong id="totalAno">R$ 0,00</strong>
+        </div>
+      </div>
+    </header>
+
+    <div class="erro" id="erroBox"></div>
+
+    <section class="painel">
+      <div class="linha-filtro">
+        <select id="anoSelect"></select>
+        <button onclick="carregarDados()">Atualizar</button>
+      </div>
+
+      <div class="calendario" id="calendario"></div>
+
+      <div class="rodape-info">
+        Considera somente lojas publicadas, pagas e ativas.
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://egxjgmzukjyyxmkukwub.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi";
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const VALOR_POR_LOJA = 15;
+
+    let lojas = [];
+
+    const meses = [
+      "Janeiro", "Fevereiro", "Março", "Abril",
+      "Maio", "Junho", "Julho", "Agosto",
+      "Setembro", "Outubro", "Novembro", "Dezembro"
+    ];
+
+    function moeda(valor) {
+      return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      });
+    }
+
+    function dataCriacaoLoja(loja) {
+      if (!loja.criado_em) return null;
+
+      const data = new Date(loja.criado_em);
+
+      if (isNaN(data.getTime())) return null;
+
+      return data;
+    }
+
+    function lojaPagaNoMes(loja, ano, mesIndex) {
+      const criado = dataCriacaoLoja(loja);
+
+      if (!criado) return false;
+
+      const anoCriacao = criado.getFullYear();
+      const mesCriacao = criado.getMonth();
+
+      return ano >= anoCriacao && mesIndex === mesCriacao;
+    }
+
+    function prepararAno() {
+      const select = document.getElementById("anoSelect");
+      const anoAtual = new Date().getFullYear();
+
+      select.innerHTML = "";
+
+      for (let ano = anoAtual - 1; ano <= anoAtual + 5; ano++) {
+        const option = document.createElement("option");
+        option.value = ano;
+        option.textContent = ano;
+
+        if (ano === anoAtual) {
+          option.selected = true;
+        }
+
+        select.appendChild(option);
+      }
+
+      select.addEventListener("change", renderizarCalendario);
+    }
+
+    async function carregarDados() {
+      loading(true);
+      erro("");
+
+      const { data, error } = await supabaseClient
+        .from("bio_pages_publicadas")
+        .select("id, nome, slug, criado_em, status, pagamento_status, ativo")
+        .order("criado_em", { ascending: false });
+
+      if (error) {
+        erro("Erro ao carregar dados: " + error.message);
+        loading(false);
+        return;
+      }
+
+      lojas = Array.isArray(data) ? data : [];
+
+      renderizarCalendario();
+      loading(false);
+    }
+
+    function renderizarCalendario() {
+      const ano = Number(document.getElementById("anoSelect").value);
+      const hoje = new Date();
+      const box = document.getElementById("calendario");
+
+      let totalAno = 0;
+
+      box.innerHTML = "";
+
+      meses.forEach((nomeMes, index) => {
+        const qtd = lojas.filter(loja => lojaPagaNoMes(loja, ano, index)).length;
+        const valor = qtd * VALOR_POR_LOJA;
+
+        totalAno += valor;
+
+        const div = document.createElement("div");
+        div.className = "mes";
+
+        if (ano === hoje.getFullYear() && index === hoje.getMonth()) {
+          div.classList.add("atual");
+        }
+
+        if (valor <= 0) {
+          div.classList.add("sem-valor");
+        }
+
+        div.innerHTML = `
+          <div>
+            <div class="mes-cabecalho">
+              <div class="mes-nome">${nomeMes}</div>
+              ${valor > 0 ? `<div class="bolinha"></div>` : ``}
+            </div>
+
+            <div class="mes-valor">${moeda(valor)}</div>
+          </div>
+
+          <div class="mes-qtd">
+            ${qtd} loja${qtd === 1 ? "" : "s"} paga${qtd === 1 ? "" : "s"}
+          </div>
+        `;
+
+        box.appendChild(div);
+      });
+
+      document.getElementById("totalAno").textContent = moeda(totalAno);
+    }
+
+    function loading(status) {
+      document.getElementById("loading").classList.toggle("ativo", status);
+    }
+
+    function erro(msg) {
+      const box = document.getElementById("erroBox");
+
+      if (!msg) {
+        box.classList.remove("ativo");
+        box.textContent = "";
+        return;
+      }
+
+      box.textContent = msg;
+      box.classList.add("ativo");
+    }
+
+    prepararAno();
+    carregarDados();
+  </script>
+
+</body>
+
+</html>
