@@ -1,4 +1,4 @@
-const CACHE = "clena-admin-v23";
+const CACHE = "clena-admin-v24";
 
 const FILES = [
   "./",
@@ -22,9 +22,7 @@ self.addEventListener("install", event => {
   self.skipWaiting();
 
   event.waitUntil(
-    caches.open(CACHE).then(cache => {
-      return cache.addAll(FILES);
-    })
+    caches.open(CACHE).then(cache => cache.addAll(FILES))
   );
 });
 
@@ -34,7 +32,7 @@ self.addEventListener("activate", event => {
       .then(keys => {
         return Promise.all(
           keys.map(key => {
-            if (key !== CACHE) {
+            if(key !== CACHE){
               return caches.delete(key);
             }
           })
@@ -45,7 +43,7 @@ self.addEventListener("activate", event => {
 });
 
 self.addEventListener("fetch", event => {
-  if (event.request.method !== "GET") return;
+  if(event.request.method !== "GET") return;
 
   event.respondWith(
     fetch(event.request)
@@ -60,12 +58,18 @@ self.addEventListener("fetch", event => {
       })
       .catch(() => {
         return caches.match(event.request).then(cached => {
-          if (cached) return cached;
+          if(cached) return cached;
 
-          if (event.request.mode === "navigate") {
+          if(event.request.mode === "navigate"){
             return caches.match("./index.html");
           }
         });
       })
   );
+});
+
+self.addEventListener("message", event => {
+  if(event.data && event.data.type === "SKIP_WAITING"){
+    self.skipWaiting();
+  }
 });
