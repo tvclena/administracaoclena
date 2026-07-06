@@ -2,7 +2,8 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Painel Administrativo</title>
+
+<title>CLENA • Painel Administrativo</title>
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#2563eb">
@@ -11,24 +12,37 @@
 
 <link rel="manifest" href="manifest.json">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
 <style>
 :root{
   --primary:#2563eb;
-  --primary-dark:#1e40af;
-  --bg:#f4f6fb;
-  --sidebar:#ffffff;
-  --sidebar-dark:#0f172a;
-  --card:#ffffff;
+  --primary-dark:#1d4ed8;
+  --primary-soft:#eff6ff;
+
+  --bg:#f3f6fb;
+  --surface:#ffffff;
+  --surface-soft:#f8fafc;
+
   --text:#0f172a;
   --muted:#64748b;
-  --border:#e5e7eb;
-  --soft:#f8fafc;
-  --hover:#eef4ff;
+  --muted-light:#94a3b8;
+
+  --border:#e2e8f0;
+  --border-soft:#edf2f7;
+
   --danger:#dc2626;
-  --shadow:0 12px 35px rgba(15,23,42,.08);
+  --success:#16a34a;
+
+  --sidebar-width:280px;
+
+  --radius-sm:12px;
+  --radius-md:16px;
+  --radius-lg:22px;
+
+  --shadow-sm:0 6px 18px rgba(15,23,42,.06);
+  --shadow-md:0 16px 40px rgba(15,23,42,.10);
 }
 
 *{
@@ -47,69 +61,89 @@ body{
   overflow:hidden;
 }
 
+body{
+  font-size:14px;
+}
+
 button{
   font-family:inherit;
 }
 
-/* APP */
 .app{
   width:100%;
   height:100vh;
   display:grid;
-  grid-template-columns:290px 1fr;
+  grid-template-columns:var(--sidebar-width) 1fr;
   background:var(--bg);
 }
 
 /* SIDEBAR */
 .sidebar{
-  background:var(--sidebar);
+  height:100vh;
+  background:var(--surface);
   border-right:1px solid var(--border);
   display:flex;
   flex-direction:column;
-  height:100vh;
-  min-width:0;
   z-index:50;
 }
 
-.logo{
-  height:74px;
-  padding:16px 18px;
+/* LOGO */
+.brand{
+  height:76px;
+  padding:16px;
   display:flex;
   align-items:center;
   gap:12px;
-  border-bottom:1px solid var(--border);
+  border-bottom:1px solid var(--border-soft);
 }
 
-.logo img{
-  width:42px;
-  height:42px;
-  border-radius:14px;
+.brand-icon{
+  width:44px;
+  height:44px;
+  min-width:44px;
+  border-radius:16px;
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  display:grid;
+  place-items:center;
+  color:#fff;
+  font-size:22px;
+  box-shadow:0 10px 24px rgba(37,99,235,.25);
+  overflow:hidden;
+}
+
+.brand-icon img{
+  width:100%;
+  height:100%;
   object-fit:cover;
-  background:#eef2ff;
 }
 
-.logo-text{
+.brand-text{
   min-width:0;
 }
 
-.logo-title{
-  font-size:16px;
+.brand-title{
+  font-size:18px;
   font-weight:900;
-  line-height:1.1;
-  color:var(--text);
+  line-height:1;
+  letter-spacing:.2px;
 }
 
-.logo-sub{
-  margin-top:3px;
+.brand-subtitle{
+  margin-top:5px;
   font-size:11px;
-  font-weight:800;
   color:var(--muted);
+  font-weight:700;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
+/* MENU */
 .menu{
   flex:1;
+  min-height:0;
   overflow-y:auto;
-  padding:14px;
+  padding:14px 12px;
 }
 
 .menu::-webkit-scrollbar{
@@ -121,38 +155,40 @@ button{
   border-radius:999px;
 }
 
-.menu-group{
+.menu-section{
   margin-bottom:18px;
 }
 
-.menu-title{
-  padding:8px 10px;
-  font-size:11px;
+.menu-section-title{
+  margin:0 0 7px;
+  padding:0 10px;
+  font-size:10px;
   font-weight:900;
+  color:var(--muted-light);
   text-transform:uppercase;
-  color:#94a3b8;
-  letter-spacing:.5px;
+  letter-spacing:.7px;
 }
 
-.menu-item{
+.nav-item{
   width:100%;
   min-height:44px;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#334155;
+  border-radius:14px;
+  padding:10px 12px;
   display:flex;
   align-items:center;
-  gap:12px;
-  padding:11px 12px;
-  border-radius:14px;
+  gap:11px;
   cursor:pointer;
+  text-align:left;
   font-size:14px;
   font-weight:800;
-  color:#334155;
-  background:transparent;
-  border:none;
-  text-align:left;
-  transition:.15s;
+  transition:.18s ease;
 }
 
-.menu-item i{
+.nav-item i{
   width:22px;
   min-width:22px;
   height:22px;
@@ -160,9 +196,10 @@ button{
   place-items:center;
   font-size:19px;
   color:#64748b;
+  transition:.18s ease;
 }
 
-.menu-item span{
+.nav-item span{
   flex:1;
   min-width:0;
   white-space:nowrap;
@@ -170,32 +207,39 @@ button{
   text-overflow:ellipsis;
 }
 
-.menu-item .arrow{
-  width:auto;
-  min-width:auto;
-  font-size:17px;
-  color:#94a3b8;
-  transition:.2s;
-}
-
-.menu-item:hover{
-  background:var(--hover);
+.nav-item:hover{
+  background:var(--primary-soft);
   color:var(--primary);
 }
 
-.menu-item:hover i{
+.nav-item:hover i{
   color:var(--primary);
 }
 
-.menu-item.active{
-  background:linear-gradient(180deg,var(--primary),var(--primary-dark));
+.nav-item.active{
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
   color:#fff;
-  box-shadow:0 10px 22px rgba(37,99,235,.25);
+  box-shadow:0 12px 24px rgba(37,99,235,.25);
 }
 
-.menu-item.active i,
-.menu-item.active .arrow{
+.nav-item.active i{
   color:#fff;
+}
+
+.nav-arrow{
+  width:auto !important;
+  min-width:auto !important;
+  color:#94a3b8 !important;
+  font-size:17px !important;
+  transition:.18s ease;
+}
+
+.nav-item.active .nav-arrow{
+  color:#fff !important;
+}
+
+.nav-item.open .nav-arrow{
+  transform:rotate(180deg);
 }
 
 .submenu{
@@ -203,47 +247,62 @@ button{
   padding:6px 0 4px 34px;
 }
 
-.menu-item.open .arrow{
-  transform:rotate(180deg);
-}
-
-.menu-item.open + .submenu{
+.nav-item.open + .submenu{
   display:block;
 }
 
-.submenu .menu-item{
+.submenu .nav-item{
   min-height:38px;
-  padding:9px 12px;
+  padding:9px 11px;
   font-size:13px;
   font-weight:800;
-  color:#475569;
   border-radius:12px;
+  color:#475569;
 }
 
-.submenu .menu-item.active{
+.submenu .nav-item i{
+  font-size:17px;
+}
+
+.submenu .nav-item.active{
   color:#fff;
 }
 
+/* SIDEBAR FOOTER */
 .sidebar-footer{
   padding:14px;
-  border-top:1px solid var(--border);
+  border-top:1px solid var(--border-soft);
 }
 
-.footer-card{
-  background:#f8fafc;
+.status-card{
   border:1px solid var(--border);
+  background:var(--surface-soft);
   border-radius:18px;
-  padding:14px;
+  padding:13px;
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 
-.footer-card strong{
-  display:block;
+.status-dot{
+  width:10px;
+  height:10px;
+  border-radius:999px;
+  background:var(--success);
+  box-shadow:0 0 0 5px rgba(22,163,74,.12);
+}
+
+.status-text{
+  min-width:0;
+}
+
+.status-title{
   font-size:13px;
   font-weight:900;
+  line-height:1.1;
 }
 
-.footer-card span{
-  display:block;
+.status-subtitle{
   margin-top:4px;
   font-size:11px;
   color:var(--muted);
@@ -261,35 +320,42 @@ button{
 
 /* TOPBAR */
 .topbar{
-  height:74px;
-  background:#fff;
+  height:76px;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(14px);
   border-bottom:1px solid var(--border);
   padding:0 22px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:14px;
+  gap:16px;
 }
 
 .top-left{
+  min-width:0;
   display:flex;
   align-items:center;
   gap:14px;
-  min-width:0;
 }
 
 .menu-toggle{
   width:42px;
   height:42px;
-  border:none;
+  border:0;
   border-radius:14px;
-  background:#f1f5f9;
-  color:#0f172a;
+  background:#eef2f7;
+  color:var(--text);
   display:none;
   align-items:center;
   justify-content:center;
-  font-size:22px;
   cursor:pointer;
+  font-size:22px;
+  transition:.18s ease;
+}
+
+.menu-toggle:hover{
+  background:var(--primary-soft);
+  color:var(--primary);
 }
 
 .page-info{
@@ -297,7 +363,7 @@ button{
 }
 
 .page-title{
-  font-size:18px;
+  font-size:20px;
   font-weight:900;
   line-height:1.1;
   white-space:nowrap;
@@ -306,10 +372,10 @@ button{
 }
 
 .page-subtitle{
-  margin-top:4px;
+  margin-top:5px;
   font-size:12px;
-  font-weight:700;
   color:var(--muted);
+  font-weight:700;
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -323,26 +389,38 @@ button{
 
 .action-btn{
   height:42px;
-  padding:0 14px;
-  border:none;
+  border:0;
   border-radius:14px;
-  background:#f1f5f9;
+  padding:0 14px;
+  background:#eef2f7;
   color:#0f172a;
   display:flex;
   align-items:center;
   gap:8px;
-  font-weight:900;
   cursor:pointer;
+  font-size:13px;
+  font-weight:900;
+  transition:.18s ease;
 }
 
 .action-btn i{
   font-size:18px;
 }
 
+.action-btn:hover{
+  background:var(--primary-soft);
+  color:var(--primary);
+}
+
 .action-btn.primary{
-  background:linear-gradient(180deg,var(--primary),var(--primary-dark));
+  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
   color:#fff;
-  box-shadow:0 10px 22px rgba(37,99,235,.22);
+  box-shadow:0 12px 24px rgba(37,99,235,.22);
+}
+
+.action-btn.primary:hover{
+  color:#fff;
+  filter:brightness(.98);
 }
 
 /* FRAME */
@@ -357,30 +435,30 @@ button{
   height:100%;
   background:#fff;
   border:1px solid var(--border);
-  border-radius:22px;
-  box-shadow:var(--shadow);
+  border-radius:24px;
+  box-shadow:var(--shadow-sm);
   overflow:hidden;
 }
 
 iframe{
   width:100%;
   height:100%;
-  border:none;
+  border:0;
   display:block;
   background:#fff;
 }
 
-/* OVERLAY MOBILE */
+/* MOBILE OVERLAY */
 .mobile-overlay{
   position:fixed;
   inset:0;
-  background:rgba(15,23,42,.45);
-  backdrop-filter:blur(2px);
-  z-index:40;
+  background:rgba(15,23,42,.48);
+  backdrop-filter:blur(3px);
   display:none;
+  z-index:40;
 }
 
-/* MOBILE */
+/* TABLET / MOBILE */
 @media(max-width:1024px){
 
   .app{
@@ -391,11 +469,11 @@ iframe{
     position:fixed;
     top:0;
     left:0;
-    width:290px;
+    width:var(--sidebar-width);
     max-width:86vw;
     transform:translateX(-105%);
     transition:.25s ease;
-    box-shadow:20px 0 50px rgba(15,23,42,.25);
+    box-shadow:24px 0 55px rgba(15,23,42,.28);
   }
 
   .sidebar.open{
@@ -419,19 +497,24 @@ iframe{
   }
 
   .frame-card{
-    border-radius:18px;
+    border-radius:20px;
   }
 
 }
 
+/* CELULAR */
 @media(max-width:640px){
 
   .topbar{
     height:68px;
   }
 
+  .brand{
+    height:68px;
+  }
+
   .page-title{
-    font-size:15px;
+    font-size:16px;
   }
 
   .page-subtitle{
@@ -453,7 +536,7 @@ iframe{
   }
 
   .frame-card{
-    border-radius:16px;
+    border-radius:18px;
   }
 
 }
@@ -466,74 +549,66 @@ iframe{
 
 <div class="app">
 
+  <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
 
-    <div class="logo">
-      <img src="icons/icon-192.png" onerror="this.style.display='none'">
-      <div class="logo-text">
-        <div class="logo-title">Painel Admin</div>
-        <div class="logo-sub">Central administrativa</div>
+    <div class="brand">
+      <div class="brand-icon">
+        <img src="icons/icon-192.png" onerror="this.remove(); this.parentElement.innerHTML='<i class=&quot;ri-shield-star-line&quot;></i>';">
+      </div>
+
+      <div class="brand-text">
+        <div class="brand-title">CLENA</div>
+        <div class="brand-subtitle">Painel administrativo</div>
       </div>
     </div>
 
     <nav class="menu">
 
-      <div class="menu-group">
-        <div class="menu-title">Configurações</div>
+      <div class="menu-section">
+        <p class="menu-section-title">Principal</p>
 
-        <button class="menu-item has-sub open" onclick="toggleMenu(this)">
-          <i class="ri-settings-3-line"></i>
-          <span>Customizações</span>
-          <i class="ri-arrow-down-s-line arrow"></i>
+        <button class="nav-item active" onclick="openPage('admin-customizacoes.html','Palavras-chave','Configurações de customizações',this)">
+          <i class="ri-key-2-line"></i>
+          <span>Palavras-chave</span>
         </button>
 
-        <div class="submenu">
-          <button class="menu-item active" onclick="openPage('admin-customizacoes.html','Palavras-chave','Configurações de customizações',this)">
-            <i class="ri-key-2-line"></i>
-            <span>Palavras-chave</span>
-          </button>
-
-          <button class="menu-item" onclick="openPage('painel-tipo-loja.html','Tipos e APP','Cadastro dos tipos de loja',this)">
-            <i class="ri-apps-2-line"></i>
-            <span>Tipos e APP</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="menu-group">
-        <div class="menu-title">Lojas</div>
-
-        <button class="menu-item" onclick="openPage('profile.html','Gerenciar lojas','Controle das lojas cadastradas',this)">
+        <button class="nav-item" onclick="openPage('profile.html','Lojas','Gerenciamento das lojas cadastradas',this)">
           <i class="ri-store-2-line"></i>
-          <span>Gerenciar lojas</span>
+          <span>Lojas</span>
         </button>
-      </div>
 
-      <div class="menu-group">
-        <div class="menu-title">Agendamentos</div>
-
-        <button class="menu-item" onclick="openPage('admin-agendamentos.html','Agendamentos Global','Painel global de agendamentos',this)">
+        <button class="nav-item" onclick="openPage('admin-agendamentos.html','Agendamentos','Painel global de agendamentos',this)">
           <i class="ri-calendar-check-line"></i>
           <span>Agendamentos</span>
         </button>
       </div>
 
-      <div class="menu-group">
-        <div class="menu-title">Relatórios</div>
+      <div class="menu-section">
+        <p class="menu-section-title">Configurações</p>
 
-        <button class="menu-item has-sub" onclick="toggleMenu(this)">
+        <button class="nav-item" onclick="openPage('painel-tipo-loja.html','Tipos e APP','Cadastro e configuração dos tipos de loja',this)">
+          <i class="ri-apps-2-line"></i>
+          <span>Tipos e APP</span>
+        </button>
+      </div>
+
+      <div class="menu-section">
+        <p class="menu-section-title">Relatórios</p>
+
+        <button class="nav-item has-sub" onclick="toggleMenu(this)">
           <i class="ri-bar-chart-line"></i>
           <span>Relatórios</span>
-          <i class="ri-arrow-down-s-line arrow"></i>
+          <i class="ri-arrow-down-s-line nav-arrow"></i>
         </button>
 
         <div class="submenu">
-          <button class="menu-item" onclick="openPage('admin-relatorios-vendas.html','Relatório de Vendas','Acompanhamento de vendas',this)">
+          <button class="nav-item" onclick="openPage('admin-relatorios-vendas.html','Relatório de Vendas','Acompanhamento de vendas por período',this)">
             <i class="ri-line-chart-line"></i>
             <span>Vendas</span>
           </button>
 
-          <button class="menu-item" onclick="openPage('admin-relatorios-uso.html','Uso de Customizações','Relatório de uso das customizações',this)">
+          <button class="nav-item" onclick="openPage('admin-relatorios-uso.html','Uso de Customizações','Relatório de uso das customizações',this)">
             <i class="ri-file-chart-line"></i>
             <span>Uso de customizações</span>
           </button>
@@ -543,19 +618,24 @@ iframe{
     </nav>
 
     <div class="sidebar-footer">
-      <div class="footer-card">
-        <strong>Sistema ativo</strong>
-        <span>Use o menu para trocar de página.</span>
+      <div class="status-card">
+        <div class="status-dot"></div>
+        <div class="status-text">
+          <div class="status-title">Sistema ativo</div>
+          <div class="status-subtitle">Navegue pelo menu lateral.</div>
+        </div>
       </div>
     </div>
 
   </aside>
 
+  <!-- CONTEÚDO -->
   <main class="content">
 
     <header class="topbar">
+
       <div class="top-left">
-        <button class="menu-toggle" onclick="toggleSidebar()">
+        <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Abrir menu">
           <i class="ri-menu-line"></i>
         </button>
 
@@ -566,16 +646,17 @@ iframe{
       </div>
 
       <div class="top-actions">
-        <button class="action-btn" onclick="reloadFrame()">
+        <button class="action-btn" onclick="reloadFrame()" title="Atualizar página">
           <i class="ri-refresh-line"></i>
           <span>Atualizar</span>
         </button>
 
-        <button class="action-btn primary" onclick="openCurrentNewTab()">
+        <button class="action-btn primary" onclick="openCurrentNewTab()" title="Abrir em nova aba">
           <i class="ri-external-link-line"></i>
           <span>Abrir</span>
         </button>
       </div>
+
     </header>
 
     <section class="frame-area">
@@ -593,20 +674,20 @@ if("serviceWorker" in navigator){
   navigator.serviceWorker.register("sw.js").catch(()=>{});
 }
 
-const sidebar=document.getElementById("sidebar");
-const mobileOverlay=document.getElementById("mobileOverlay");
-const frame=document.getElementById("frame");
-const pageTitle=document.getElementById("pageTitle");
-const pageSubtitle=document.getElementById("pageSubtitle");
+const sidebar = document.getElementById("sidebar");
+const mobileOverlay = document.getElementById("mobileOverlay");
+const frame = document.getElementById("frame");
+const pageTitle = document.getElementById("pageTitle");
+const pageSubtitle = document.getElementById("pageSubtitle");
 
-function openPage(page,title,subtitle,el){
+function openPage(page, title, subtitle, el){
 
-  frame.src=page;
+  frame.src = page;
 
-  pageTitle.innerText=title || "Painel Administrativo";
-  pageSubtitle.innerText=subtitle || "Central administrativa";
+  pageTitle.innerText = title || "CLENA";
+  pageSubtitle.innerText = subtitle || "Painel administrativo";
 
-  document.querySelectorAll(".menu-item").forEach(item=>{
+  document.querySelectorAll(".nav-item").forEach(item=>{
     item.classList.remove("active");
   });
 
@@ -615,21 +696,19 @@ function openPage(page,title,subtitle,el){
   }
 
   closeSidebar();
-
 }
 
 function toggleMenu(el){
 
-  const isOpen=el.classList.contains("open");
+  const isOpen = el.classList.contains("open");
 
-  document.querySelectorAll(".menu-item.has-sub").forEach(item=>{
+  document.querySelectorAll(".nav-item.has-sub").forEach(item=>{
     item.classList.remove("open");
   });
 
   if(!isOpen){
     el.classList.add("open");
   }
-
 }
 
 function toggleSidebar(){
@@ -641,34 +720,31 @@ function toggleSidebar(){
   }else{
     mobileOverlay.classList.remove("show");
   }
-
 }
 
 function closeSidebar(){
-
   sidebar.classList.remove("open");
   mobileOverlay.classList.remove("show");
-
 }
 
 function reloadFrame(){
 
-  frame.contentWindow.location.reload();
+  try{
+    frame.contentWindow.location.reload();
+  }catch(e){
+    frame.src = frame.src;
+  }
 
 }
 
 function openCurrentNewTab(){
-
-  window.open(frame.src,"_blank");
-
+  window.open(frame.src, "_blank");
 }
 
-document.addEventListener("keydown",function(e){
-
-  if(e.key==="Escape"){
+document.addEventListener("keydown", function(e){
+  if(e.key === "Escape"){
     closeSidebar();
   }
-
 });
 </script>
 
