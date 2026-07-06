@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="./manifest.json">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
@@ -32,17 +32,10 @@
   --border:#e2e8f0;
   --border-soft:#edf2f7;
 
-  --danger:#dc2626;
   --success:#16a34a;
-
   --sidebar-width:280px;
 
-  --radius-sm:12px;
-  --radius-md:16px;
-  --radius-lg:22px;
-
   --shadow-sm:0 6px 18px rgba(15,23,42,.06);
-  --shadow-md:0 16px 40px rgba(15,23,42,.10);
 }
 
 *{
@@ -499,7 +492,6 @@ iframe{
   .frame-card{
     border-radius:20px;
   }
-
 }
 
 /* CELULAR */
@@ -538,7 +530,6 @@ iframe{
   .frame-card{
     border-radius:18px;
   }
-
 }
 </style>
 </head>
@@ -554,7 +545,7 @@ iframe{
 
     <div class="brand">
       <div class="brand-icon">
-        <img src="icons/icon-192.png" onerror="this.remove(); this.parentElement.innerHTML='<i class=&quot;ri-shield-star-line&quot;></i>';">
+        <img src="./icons/icon-192.png" onerror="this.remove(); this.parentElement.innerHTML='<i class=&quot;ri-shield-star-line&quot;></i>';">
       </div>
 
       <div class="brand-text">
@@ -568,17 +559,17 @@ iframe{
       <div class="menu-section">
         <p class="menu-section-title">Principal</p>
 
-        <button class="nav-item active" onclick="openPage('admin-customizacoes.html','Palavras-chave','Configurações de customizações',this)">
+        <button class="nav-item active" onclick="openPage('./admin-customizacoes.html','Palavras-chave','Configurações de customizações',this)">
           <i class="ri-key-2-line"></i>
           <span>Palavras-chave</span>
         </button>
 
-        <button class="nav-item" onclick="openPage('profile.html','Lojas','Gerenciamento das lojas cadastradas',this)">
+        <button class="nav-item" onclick="openPage('./profile.html','Lojas','Gerenciamento das lojas cadastradas',this)">
           <i class="ri-store-2-line"></i>
           <span>Lojas</span>
         </button>
 
-        <button class="nav-item" onclick="openPage('admin-agendamentos.html','Agendamentos','Painel global de agendamentos',this)">
+        <button class="nav-item" onclick="openPage('./admin-agendamentos.html','Agendamentos','Painel global de agendamentos',this)">
           <i class="ri-calendar-check-line"></i>
           <span>Agendamentos</span>
         </button>
@@ -587,9 +578,19 @@ iframe{
       <div class="menu-section">
         <p class="menu-section-title">Configurações</p>
 
-        <button class="nav-item" onclick="openPage('painel-tipo-loja.html','Tipos e APP','Cadastro e configuração dos tipos de loja',this)">
+        <button class="nav-item" onclick="openPage('./painel-tipo-loja.html','Tipos e APP','Cadastro e configuração dos tipos de loja',this)">
           <i class="ri-apps-2-line"></i>
           <span>Tipos e APP</span>
+        </button>
+
+        <button class="nav-item" onclick="openPage('./config.html','Configurações','Parâmetros gerais do sistema',this)">
+          <i class="ri-settings-3-line"></i>
+          <span>Configurações</span>
+        </button>
+
+        <button class="nav-item" onclick="openPage('./linkbio.html','Link Bio','Página pública de links',this)">
+          <i class="ri-links-line"></i>
+          <span>Link Bio</span>
         </button>
       </div>
 
@@ -603,12 +604,12 @@ iframe{
         </button>
 
         <div class="submenu">
-          <button class="nav-item" onclick="openPage('admin-relatorios-vendas.html','Relatório de Vendas','Acompanhamento de vendas por período',this)">
+          <button class="nav-item" onclick="openPage('./admin-relatorios-vendas.html','Relatório de Vendas','Acompanhamento de vendas por período',this)">
             <i class="ri-line-chart-line"></i>
             <span>Vendas</span>
           </button>
 
-          <button class="nav-item" onclick="openPage('admin-relatorios-uso.html','Uso de Customizações','Relatório de uso das customizações',this)">
+          <button class="nav-item" onclick="openPage('./admin-relatorios-uso.html','Uso de Customizações','Relatório de uso das customizações',this)">
             <i class="ri-file-chart-line"></i>
             <span>Uso de customizações</span>
           </button>
@@ -622,7 +623,7 @@ iframe{
         <div class="status-dot"></div>
         <div class="status-text">
           <div class="status-title">Sistema ativo</div>
-          <div class="status-subtitle">Navegue pelo menu lateral.</div>
+          <div class="status-subtitle">CLENA atualizado.</div>
         </div>
       </div>
     </div>
@@ -646,7 +647,7 @@ iframe{
       </div>
 
       <div class="top-actions">
-        <button class="action-btn" onclick="reloadFrame()" title="Atualizar página">
+        <button class="action-btn" onclick="hardReload()" title="Limpar cache e atualizar">
           <i class="ri-refresh-line"></i>
           <span>Atualizar</span>
         </button>
@@ -661,7 +662,7 @@ iframe{
 
     <section class="frame-area">
       <div class="frame-card">
-        <iframe id="frame" src="admin-customizacoes.html"></iframe>
+        <iframe id="frame" src="./admin-customizacoes.html"></iframe>
       </div>
     </section>
 
@@ -670,15 +671,89 @@ iframe{
 </div>
 
 <script>
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("sw.js").catch(()=>{});
+/* =========================================================
+   CLENA - REGISTRO DO SERVICE WORKER
+   Objetivo:
+   - Registrar ./sw.js
+   - Forçar update
+   - Ativar novo SW imediatamente
+   - Recarregar quando houver nova versão
+========================================================= */
+
+async function registerServiceWorker(){
+
+  if(!("serviceWorker" in navigator)){
+    return;
+  }
+
+  try{
+
+    const registration = await navigator.serviceWorker.register("./sw.js", {
+      scope: "./"
+    });
+
+    await registration.update();
+
+    if(registration.waiting){
+      registration.waiting.postMessage({ type:"SKIP_WAITING" });
+    }
+
+    registration.addEventListener("updatefound", () => {
+
+      const newWorker = registration.installing;
+
+      if(!newWorker){
+        return;
+      }
+
+      newWorker.addEventListener("statechange", () => {
+
+        if(newWorker.state === "installed" && navigator.serviceWorker.controller){
+
+          setTimeout(() => {
+            window.location.reload();
+          }, 300);
+
+        }
+
+      });
+
+    });
+
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+
+      if(window.__clenaRefreshing){
+        return;
+      }
+
+      window.__clenaRefreshing = true;
+      window.location.reload();
+
+    });
+
+  }catch(error){
+    console.log("Erro ao registrar Service Worker:", error);
+  }
+
 }
+
+window.addEventListener("load", registerServiceWorker);
+
+
+/* =========================================================
+   ELEMENTOS
+========================================================= */
 
 const sidebar = document.getElementById("sidebar");
 const mobileOverlay = document.getElementById("mobileOverlay");
 const frame = document.getElementById("frame");
 const pageTitle = document.getElementById("pageTitle");
 const pageSubtitle = document.getElementById("pageSubtitle");
+
+
+/* =========================================================
+   NAVEGAÇÃO
+========================================================= */
 
 function openPage(page, title, subtitle, el){
 
@@ -687,7 +762,7 @@ function openPage(page, title, subtitle, el){
   pageTitle.innerText = title || "CLENA";
   pageSubtitle.innerText = subtitle || "Painel administrativo";
 
-  document.querySelectorAll(".nav-item").forEach(item=>{
+  document.querySelectorAll(".nav-item").forEach(item => {
     item.classList.remove("active");
   });
 
@@ -696,19 +771,21 @@ function openPage(page, title, subtitle, el){
   }
 
   closeSidebar();
+
 }
 
 function toggleMenu(el){
 
   const isOpen = el.classList.contains("open");
 
-  document.querySelectorAll(".nav-item.has-sub").forEach(item=>{
+  document.querySelectorAll(".nav-item.has-sub").forEach(item => {
     item.classList.remove("open");
   });
 
   if(!isOpen){
     el.classList.add("open");
   }
+
 }
 
 function toggleSidebar(){
@@ -720,31 +797,79 @@ function toggleSidebar(){
   }else{
     mobileOverlay.classList.remove("show");
   }
+
 }
 
 function closeSidebar(){
+
   sidebar.classList.remove("open");
   mobileOverlay.classList.remove("show");
+
 }
 
-function reloadFrame(){
+
+/* =========================================================
+   ATUALIZAÇÃO / LIMPEZA DE CACHE
+========================================================= */
+
+async function hardReload(){
+
+  try{
+
+    if("serviceWorker" in navigator){
+
+      const registration = await navigator.serviceWorker.getRegistration("./");
+
+      if(registration){
+        await registration.update();
+      }
+
+    }
+
+    if("caches" in window){
+
+      const keys = await caches.keys();
+
+      await Promise.all(
+        keys.map(key => caches.delete(key))
+      );
+
+    }
+
+  }catch(error){
+    console.log("Erro ao limpar cache:", error);
+  }
 
   try{
     frame.contentWindow.location.reload();
-  }catch(e){
+  }catch(error){
     frame.src = frame.src;
   }
+
+  setTimeout(() => {
+    window.location.reload();
+  }, 300);
 
 }
 
 function openCurrentNewTab(){
-  window.open(frame.src, "_blank");
+
+  const currentSrc = frame.getAttribute("src") || "./index.html";
+  window.open(currentSrc, "_blank");
+
 }
 
+
+/* =========================================================
+   TECLADO
+========================================================= */
+
 document.addEventListener("keydown", function(e){
+
   if(e.key === "Escape"){
     closeSidebar();
   }
+
 });
 </script>
 
