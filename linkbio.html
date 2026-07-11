@@ -1,23 +1,30 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#151109" />
   <title>LINK BIO • FATURAMENTO</title>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
-      --azul: #2563eb;
-      --azul-escuro: #1e40af;
-      --azul-claro: #eff6ff;
-      --texto: #0f172a;
-      --cinza: #64748b;
-      --borda: #e2e8f0;
-      --fundo: #f8fafc;
-      --card: #ffffff;
-      --sombra: 0 10px 24px rgba(15, 23, 42, 0.08);
+      --ouro: #d6a936;
+      --ouro-claro: #f7dfa0;
+      --ouro-vivo: #f2c14e;
+      --ouro-escuro: #8f6512;
+      --fundo: #0f0c07;
+      --fundo-2: #19130a;
+      --card: rgba(31, 24, 13, 0.94);
+      --card-claro: rgba(255, 255, 255, 0.055);
+      --texto: #fff8e8;
+      --texto-suave: #cfbea0;
+      --borda: rgba(242, 193, 78, 0.22);
+      --borda-forte: rgba(242, 193, 78, 0.72);
+      --verde: #72d89b;
+      --vermelho: #ff8b8b;
+      --sombra: 0 18px 55px rgba(0, 0, 0, 0.42);
     }
 
     * {
@@ -27,248 +34,527 @@
 
     html,
     body {
-      margin: 0;
       width: 100%;
       min-height: 100%;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--fundo);
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(214, 169, 54, 0.12), transparent 34%),
+        linear-gradient(180deg, #171108 0%, var(--fundo) 55%, #090704 100%);
       color: var(--texto);
       overflow-x: hidden;
     }
 
+    body {
+      min-height: 100dvh;
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
     .app {
       width: 100%;
-      min-height: 100vh;
-      padding: 12px;
-      padding-bottom: 22px;
+      max-width: 1100px;
+      min-height: 100dvh;
+      margin: 0 auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
     }
 
     .topo {
-      background: linear-gradient(135deg, var(--azul), #38bdf8);
-      color: white;
-      border-radius: 22px;
-      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--borda-forte);
+      border-radius: 20px;
+      padding: 14px;
+      background:
+        linear-gradient(135deg, rgba(242, 193, 78, 0.24), rgba(70, 49, 14, 0.11)),
+        rgba(24, 18, 9, 0.96);
       box-shadow: var(--sombra);
-      margin-bottom: 12px;
+    }
+
+    .topo::before {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      top: -115px;
+      right: -60px;
+      border-radius: 50%;
+      background: rgba(242, 193, 78, 0.16);
+      filter: blur(2px);
+    }
+
+    .topo-linha {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .marca {
+      min-width: 0;
+    }
+
+    .selo {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: rgba(242, 193, 78, 0.13);
+      border: 1px solid rgba(242, 193, 78, 0.28);
+      color: var(--ouro-claro);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .selo::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ouro-vivo);
+      box-shadow: 0 0 12px rgba(242, 193, 78, 0.9);
     }
 
     .topo h1 {
-      margin: 0;
-      font-size: 28px;
-      letter-spacing: -0.5px;
-      line-height: 1.1;
+      margin: 8px 0 2px;
+      font-size: clamp(22px, 5.5vw, 34px);
+      line-height: 1;
+      letter-spacing: -1px;
     }
 
     .topo p {
-      margin: 7px 0 0;
-      font-size: 13px;
-      opacity: 0.92;
-    }
-
-    .resumo-topo {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .mini-card {
-      background: rgba(255, 255, 255, 0.17);
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      border-radius: 16px;
-      padding: 12px;
-    }
-
-    .mini-card span {
-      display: block;
+      margin: 0;
+      color: var(--texto-suave);
       font-size: 11px;
-      opacity: 0.85;
-      margin-bottom: 4px;
-      font-weight: bold;
     }
 
-    .mini-card strong {
+    .preco-plano {
+      position: relative;
+      z-index: 1;
+      flex: 0 0 auto;
+      text-align: right;
+    }
+
+    .preco-plano small {
       display: block;
-      font-size: 22px;
+      color: var(--texto-suave);
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .preco-plano strong {
+      display: block;
+      margin-top: 2px;
+      color: var(--ouro-claro);
+      font-size: clamp(22px, 6vw, 34px);
+      line-height: 1;
+      letter-spacing: -1px;
+      white-space: nowrap;
+    }
+
+    .preco-plano span {
+      display: block;
+      margin-top: 3px;
+      color: var(--texto-suave);
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .resumo {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+      margin-top: 11px;
+    }
+
+    .resumo-card {
+      min-width: 0;
+      padding: 9px;
+      border: 1px solid var(--borda);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.045);
+    }
+
+    .resumo-card span {
+      display: block;
+      overflow: hidden;
+      color: var(--texto-suave);
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: 0.65px;
+      text-overflow: ellipsis;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .resumo-card strong {
+      display: block;
+      overflow: hidden;
+      margin-top: 4px;
+      color: var(--ouro-claro);
+      font-size: clamp(14px, 4vw, 22px);
       line-height: 1.1;
+      letter-spacing: -0.5px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .painel {
-      background: white;
+      flex: 1;
+      min-height: 0;
+      padding: 9px;
       border: 1px solid var(--borda);
-      border-radius: 22px;
-      padding: 12px;
+      border-radius: 20px;
+      background: rgba(20, 15, 8, 0.9);
       box-shadow: var(--sombra);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
-    .linha-filtro {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 12px;
+    .filtros {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 7px;
     }
 
     select,
     button {
-      height: 46px;
-      border-radius: 15px;
-      font-size: 15px;
-      font-weight: bold;
+      height: 38px;
+      border-radius: 12px;
       outline: none;
+      font-size: 12px;
+      font-weight: 900;
     }
 
     select {
-      flex: 1;
+      width: 100%;
       border: 1px solid var(--borda);
-      background: white;
+      background: #1c160c;
       color: var(--texto);
-      padding: 0 12px;
+      padding: 0 11px;
+      cursor: pointer;
     }
 
     button {
-      border: none;
-      background: var(--azul);
-      color: white;
-      padding: 0 16px;
+      min-width: 98px;
+      border: 1px solid rgba(255, 224, 143, 0.45);
+      color: #241701;
+      padding: 0 13px;
       cursor: pointer;
-      min-width: 104px;
+      background: linear-gradient(135deg, #f5d57c, #c99524);
+      box-shadow: 0 8px 22px rgba(214, 169, 54, 0.2);
+      transition: transform 0.18s ease, filter 0.18s ease;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button:hover {
+      filter: brightness(1.06);
     }
 
     .calendario {
+      flex: 1;
+      min-height: 0;
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-rows: repeat(4, minmax(74px, 1fr));
+      gap: 6px;
     }
 
     .mes {
-      min-height: 118px;
+      position: relative;
+      min-width: 0;
+      min-height: 74px;
+      overflow: hidden;
+      padding: 8px;
       border: 1px solid var(--borda);
-      background: #fff;
-      border-radius: 18px;
-      padding: 13px;
+      border-radius: 13px;
+      background: var(--card-claro);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+
+    .mes:hover {
+      transform: translateY(-2px);
+      border-color: rgba(242, 193, 78, 0.5);
     }
 
     .mes.atual {
-      border-color: var(--azul);
-      background: var(--azul-claro);
+      border-color: var(--ouro-vivo);
+      background:
+        linear-gradient(145deg, rgba(242, 193, 78, 0.18), rgba(255, 255, 255, 0.04));
+      box-shadow: inset 0 0 0 1px rgba(242, 193, 78, 0.12);
     }
 
-    .mes.sem-valor {
-      opacity: 0.68;
+    .mes.futuro {
+      opacity: 0.42;
     }
 
-    .mes-cabecalho {
+    .mes.sem-valor:not(.futuro) {
+      opacity: 0.66;
+    }
+
+    .mes-topo {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 5px;
+      min-width: 0;
     }
 
     .mes-nome {
-      font-size: 15px;
-      font-weight: 900;
+      overflow: hidden;
       color: var(--texto);
+      font-size: clamp(9px, 2.4vw, 12px);
+      font-weight: 950;
+      letter-spacing: -0.15px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .bolinha {
-      width: 9px;
-      height: 9px;
-      background: var(--azul);
-      border-radius: 999px;
+    .status-dot {
+      width: 6px;
+      height: 6px;
       flex: 0 0 auto;
+      border-radius: 50%;
+      background: var(--ouro-vivo);
+      box-shadow: 0 0 9px rgba(242, 193, 78, 0.8);
     }
 
     .mes-valor {
-      font-size: 23px;
-      font-weight: 900;
-      color: var(--azul-escuro);
-      line-height: 1.1;
-      margin-top: 10px;
+      overflow: hidden;
+      margin-top: 5px;
+      color: var(--ouro-claro);
+      font-size: clamp(12px, 3.25vw, 19px);
+      font-weight: 950;
+      line-height: 1;
+      letter-spacing: -0.7px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .mes-qtd {
-      font-size: 12px;
-      color: var(--cinza);
-      line-height: 1.35;
-      margin-top: 8px;
+    .mes-info {
+      margin-top: 5px;
+      color: var(--texto-suave);
+      font-size: clamp(7px, 1.9vw, 9px);
+      font-weight: 700;
+      line-height: 1.15;
     }
 
-    .rodape-info {
-      margin-top: 12px;
+    .rodape {
+      color: var(--texto-suave);
+      font-size: 9px;
+      line-height: 1.3;
       text-align: center;
-      color: var(--cinza);
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    .loading {
-      position: fixed;
-      inset: 0;
-      background: rgba(248, 250, 252, 0.9);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 99;
-      color: var(--azul);
-      font-weight: bold;
-    }
-
-    .loading.ativo {
-      display: flex;
     }
 
     .erro {
       display: none;
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-      border-radius: 16px;
-      padding: 12px;
-      margin-bottom: 12px;
-      font-size: 13px;
-      font-weight: bold;
+      padding: 9px 11px;
+      border: 1px solid rgba(255, 139, 139, 0.34);
+      border-radius: 12px;
+      background: rgba(110, 19, 19, 0.32);
+      color: #ffd0d0;
+      font-size: 11px;
+      font-weight: 800;
     }
 
     .erro.ativo {
       display: block;
     }
 
+    .loading {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(9, 7, 4, 0.88);
+      backdrop-filter: blur(8px);
+    }
+
+    .loading.ativo {
+      display: flex;
+    }
+
+    .loading-box {
+      min-width: 150px;
+      padding: 18px;
+      border: 1px solid var(--borda-forte);
+      border-radius: 18px;
+      background: #1c160c;
+      color: var(--ouro-claro);
+      text-align: center;
+      box-shadow: var(--sombra);
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .spinner {
+      width: 27px;
+      height: 27px;
+      margin: 0 auto 10px;
+      border: 3px solid rgba(242, 193, 78, 0.18);
+      border-top-color: var(--ouro-vivo);
+      border-radius: 50%;
+      animation: girar 0.75s linear infinite;
+    }
+
+    @keyframes girar {
+      to { transform: rotate(360deg); }
+    }
+
     @media (min-width: 700px) {
       .app {
-        max-width: 720px;
-        margin: 0 auto;
+        padding: 16px;
+        gap: 12px;
+      }
+
+      .topo {
+        padding: 20px;
+      }
+
+      .painel {
+        padding: 13px;
       }
 
       .calendario {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-rows: repeat(3, minmax(105px, 1fr));
+        gap: 9px;
+      }
+
+      .mes {
+        padding: 12px;
+        min-height: 105px;
+      }
+    }
+
+    @media (max-height: 720px) and (max-width: 699px) {
+      .app {
+        padding: 6px;
+        gap: 6px;
+      }
+
+      .topo {
+        padding: 10px;
+        border-radius: 16px;
+      }
+
+      .topo h1 {
+        margin-top: 5px;
+        font-size: 20px;
+      }
+
+      .topo p,
+      .preco-plano span {
+        display: none;
+      }
+
+      .resumo {
+        margin-top: 7px;
+      }
+
+      .resumo-card {
+        padding: 6px;
+      }
+
+      .resumo-card strong {
+        margin-top: 2px;
+        font-size: 13px;
+      }
+
+      .painel {
+        padding: 6px;
+        gap: 6px;
+        border-radius: 16px;
+      }
+
+      select,
+      button {
+        height: 32px;
+      }
+
+      .calendario {
+        gap: 4px;
+        grid-template-rows: repeat(4, minmax(59px, 1fr));
+      }
+
+      .mes {
+        min-height: 59px;
+        padding: 6px;
+        border-radius: 10px;
+      }
+
+      .mes-info {
+        margin-top: 3px;
+      }
+
+      .rodape {
+        display: none;
       }
     }
   </style>
 </head>
 
 <body>
-
   <div class="loading ativo" id="loading">
-    Carregando...
+    <div class="loading-box">
+      <div class="spinner"></div>
+      Carregando faturamento...
+    </div>
   </div>
 
   <main class="app">
-
     <header class="topo">
-      <h1>LINK BIO</h1>
-      <p>Calendário anual de faturamento</p>
-
-      <div class="resumo-topo">
-        <div class="mini-card">
-          <span>VALOR ANUAL</span>
-          <strong>R$ 15</strong>
+      <div class="topo-linha">
+        <div class="marca">
+          <div class="selo">Painel financeiro</div>
+          <h1>LINK BIO</h1>
+          <p>Faturamento mensal das lojas publicadas</p>
         </div>
 
-        <div class="mini-card">
-          <span>TOTAL DO ANO</span>
+        <div class="preco-plano">
+          <small>Mensalidade</small>
+          <strong>R$ 9,90</strong>
+          <span>por loja / mês</span>
+        </div>
+      </div>
+
+      <div class="resumo">
+        <div class="resumo-card">
+          <span>Total do ano</span>
           <strong id="totalAno">R$ 0,00</strong>
+        </div>
+
+        <div class="resumo-card">
+          <span>Lojas ativas</span>
+          <strong id="totalLojas">0</strong>
+        </div>
+
+        <div class="resumo-card">
+          <span>Média mensal</span>
+          <strong id="mediaMensal">R$ 0,00</strong>
         </div>
       </div>
     </header>
@@ -276,29 +562,29 @@
     <div class="erro" id="erroBox"></div>
 
     <section class="painel">
-      <div class="linha-filtro">
-        <select id="anoSelect"></select>
-        <button onclick="carregarDados()">Atualizar</button>
+      <div class="filtros">
+        <select id="anoSelect" aria-label="Selecionar ano"></select>
+        <button type="button" onclick="carregarDados()">Atualizar</button>
       </div>
 
       <div class="calendario" id="calendario"></div>
 
-      <div class="rodape-info">
-        Considera somente lojas publicadas, pagas e ativas.
+      <div class="rodape">
+        Cada loja válida gera R$ 9,90 por mês desde sua criação. Meses futuros não entram no total.
       </div>
     </section>
-
   </main>
 
   <script>
     const SUPABASE_URL = "https://egxjgmzukjyyxmkukwub.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_EWwdrLOUk6KDHZGLuh4uRg_QDRtLeFi";
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
 
-    const VALOR_POR_LOJA = 15;
-
-    let lojas = [];
+    const VALOR_MENSAL_POR_LOJA = 9.90;
 
     const meses = [
       "Janeiro", "Fevereiro", "Março", "Abril",
@@ -306,32 +592,88 @@
       "Setembro", "Outubro", "Novembro", "Dezembro"
     ];
 
+    let lojas = [];
+
     function moeda(valor) {
       return Number(valor || 0).toLocaleString("pt-BR", {
         style: "currency",
-        currency: "BRL"
+        currency: "BRL",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       });
     }
 
-    function dataCriacaoLoja(loja) {
-      if (!loja.criado_em) return null;
-
-      const data = new Date(loja.criado_em);
-
-      if (isNaN(data.getTime())) return null;
-
-      return data;
+    function textoNormalizado(valor) {
+      return String(valor ?? "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
     }
 
-    function lojaPagaNoMes(loja, ano, mesIndex) {
-      const criado = dataCriacaoLoja(loja);
+    function valorBooleanoAtivo(valor) {
+      if (valor === true || valor === 1) return true;
 
+      const texto = textoNormalizado(valor);
+
+      return [
+        "true", "1", "sim", "ativo", "ativa",
+        "publicado", "publicada", "pago", "paga",
+        "aprovado", "aprovada"
+      ].includes(texto);
+    }
+
+    function statusValido(valor, palavrasValidas) {
+      if (valor === null || valor === undefined || valor === "") {
+        return true;
+      }
+
+      const texto = textoNormalizado(valor);
+      return palavrasValidas.some(palavra => texto.includes(palavra));
+    }
+
+    function lojaValida(loja) {
+      const ativoOk = valorBooleanoAtivo(loja.ativo);
+
+      const statusOk = statusValido(loja.status, [
+        "publicad", "ativ", "aprovad"
+      ]);
+
+      const pagamentoOk = statusValido(loja.pagamento_status, [
+        "pag", "aprovad", "ativ"
+      ]);
+
+      return ativoOk && statusOk && pagamentoOk;
+    }
+
+    function dataCriacaoLoja(loja) {
+      if (!loja?.criado_em) return null;
+
+      const data = new Date(loja.criado_em);
+      return Number.isNaN(data.getTime()) ? null : data;
+    }
+
+    function primeiroDiaDoMes(ano, mesIndex) {
+      return new Date(ano, mesIndex, 1, 0, 0, 0, 0);
+    }
+
+    function ultimoDiaDoMes(ano, mesIndex) {
+      return new Date(ano, mesIndex + 1, 0, 23, 59, 59, 999);
+    }
+
+    function mesJaPodeSerCobrado(ano, mesIndex) {
+      const hoje = new Date();
+      return primeiroDiaDoMes(ano, mesIndex) <= hoje;
+    }
+
+    function lojaCobradaNoMes(loja, ano, mesIndex) {
+      if (!lojaValida(loja)) return false;
+      if (!mesJaPodeSerCobrado(ano, mesIndex)) return false;
+
+      const criado = dataCriacaoLoja(loja);
       if (!criado) return false;
 
-      const anoCriacao = criado.getFullYear();
-      const mesCriacao = criado.getMonth();
-
-      return ano >= anoCriacao && mesIndex === mesCriacao;
+      return criado <= ultimoDiaDoMes(ano, mesIndex);
     }
 
     function prepararAno() {
@@ -340,15 +682,11 @@
 
       select.innerHTML = "";
 
-      for (let ano = anoAtual - 1; ano <= anoAtual + 5; ano++) {
+      for (let ano = anoAtual - 4; ano <= anoAtual + 1; ano++) {
         const option = document.createElement("option");
         option.value = ano;
         option.textContent = ano;
-
-        if (ano === anoAtual) {
-          option.selected = true;
-        }
-
+        option.selected = ano === anoAtual;
         select.appendChild(option);
       }
 
@@ -357,93 +695,115 @@
 
     async function carregarDados() {
       loading(true);
-      erro("");
+      mostrarErro("");
 
-      const { data, error } = await supabaseClient
-        .from("bio_pages_publicadas")
-        .select("id, nome, slug, criado_em, status, pagamento_status, ativo")
-        .order("criado_em", { ascending: false });
+      try {
+        const { data, error } = await supabaseClient
+          .from("bio_pages_publicadas")
+          .select("id, nome, slug, criado_em, status, pagamento_status, ativo")
+          .order("criado_em", { ascending: true });
 
-      if (error) {
-        erro("Erro ao carregar dados: " + error.message);
+        if (error) throw error;
+
+        lojas = Array.isArray(data) ? data : [];
+        renderizarCalendario();
+      } catch (error) {
+        console.error(error);
+        lojas = [];
+        renderizarCalendario();
+        mostrarErro("Erro ao carregar os dados: " + (error?.message || "erro desconhecido"));
+      } finally {
         loading(false);
-        return;
       }
-
-      lojas = Array.isArray(data) ? data : [];
-
-      renderizarCalendario();
-      loading(false);
     }
 
     function renderizarCalendario() {
       const ano = Number(document.getElementById("anoSelect").value);
       const hoje = new Date();
-      const box = document.getElementById("calendario");
+      const calendario = document.getElementById("calendario");
 
       let totalAno = 0;
+      let mesesComCobranca = 0;
 
-      box.innerHTML = "";
+      calendario.innerHTML = "";
 
-      meses.forEach((nomeMes, index) => {
-        const qtd = lojas.filter(loja => lojaPagaNoMes(loja, ano, index)).length;
-        const valor = qtd * VALOR_POR_LOJA;
+      meses.forEach((nomeMes, mesIndex) => {
+        const futuro = !mesJaPodeSerCobrado(ano, mesIndex);
+        const qtdLojas = lojas.filter(loja =>
+          lojaCobradaNoMes(loja, ano, mesIndex)
+        ).length;
 
-        totalAno += valor;
+        const valorMes = qtdLojas * VALOR_MENSAL_POR_LOJA;
 
-        const div = document.createElement("div");
-        div.className = "mes";
-
-        if (ano === hoje.getFullYear() && index === hoje.getMonth()) {
-          div.classList.add("atual");
+        if (!futuro) {
+          totalAno += valorMes;
+          mesesComCobranca += 1;
         }
 
-        if (valor <= 0) {
-          div.classList.add("sem-valor");
+        const card = document.createElement("article");
+        card.className = "mes";
+
+        if (ano === hoje.getFullYear() && mesIndex === hoje.getMonth()) {
+          card.classList.add("atual");
         }
 
-        div.innerHTML = `
+        if (futuro) {
+          card.classList.add("futuro");
+        }
+
+        if (valorMes <= 0) {
+          card.classList.add("sem-valor");
+        }
+
+        const descricao = futuro
+          ? "Mês futuro"
+          : `${qtdLojas} loja${qtdLojas === 1 ? "" : "s"}`;
+
+        card.innerHTML = `
           <div>
-            <div class="mes-cabecalho">
+            <div class="mes-topo">
               <div class="mes-nome">${nomeMes}</div>
-              ${valor > 0 ? `<div class="bolinha"></div>` : ``}
+              ${valorMes > 0 && !futuro ? '<span class="status-dot"></span>' : ""}
             </div>
 
-            <div class="mes-valor">${moeda(valor)}</div>
+            <div class="mes-valor">${moeda(valorMes)}</div>
           </div>
 
-          <div class="mes-qtd">
-            ${qtd} loja${qtd === 1 ? "" : "s"} paga${qtd === 1 ? "" : "s"}
-          </div>
+          <div class="mes-info">${descricao}</div>
         `;
 
-        box.appendChild(div);
+        calendario.appendChild(card);
       });
 
+      const lojasAtivas = lojas.filter(lojaValida).length;
+      const media = mesesComCobranca > 0
+        ? totalAno / mesesComCobranca
+        : 0;
+
       document.getElementById("totalAno").textContent = moeda(totalAno);
+      document.getElementById("totalLojas").textContent = lojasAtivas;
+      document.getElementById("mediaMensal").textContent = moeda(media);
     }
 
-    function loading(status) {
-      document.getElementById("loading").classList.toggle("ativo", status);
+    function loading(ativo) {
+      document.getElementById("loading").classList.toggle("ativo", ativo);
     }
 
-    function erro(msg) {
+    function mostrarErro(mensagem) {
       const box = document.getElementById("erroBox");
 
-      if (!msg) {
-        box.classList.remove("ativo");
+      if (!mensagem) {
         box.textContent = "";
+        box.classList.remove("ativo");
         return;
       }
 
-      box.textContent = msg;
+      box.textContent = mensagem;
       box.classList.add("ativo");
     }
 
     prepararAno();
     carregarDados();
   </script>
-
 </body>
-
 </html>
